@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1最近一段时间都在捣鼓学校里拿下的一台老服务器，虽然说它所在的网段对于我的校园网来说并不算是内网了，但在这段时间里我也学习了很多的内网快速探测的技巧，很可惜没有再拿下一台机器。一方面是因为这台服务器有很长段时间没有管理员上线了，另一方面是因为在它同网段下的机器安全性还算不错（我的ms17-010都没有打成功） ​    但是这段时间的信息搜集和攻击手段都是值得来总结一下的，本文中采用msf作为后渗">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我的内网渗透沉思录">
+<meta property="og:url" content="http://yoursite.com/year/09/12/我的内网渗透沉思录/index.html">
+<meta property="og:site_name" content="Yiyangqianxixxxx">
+<meta property="og:description" content="1最近一段时间都在捣鼓学校里拿下的一台老服务器，虽然说它所在的网段对于我的校园网来说并不算是内网了，但在这段时间里我也学习了很多的内网快速探测的技巧，很可惜没有再拿下一台机器。一方面是因为这台服务器有很长段时间没有管理员上线了，另一方面是因为在它同网段下的机器安全性还算不错（我的ms17-010都没有打成功） ​    但是这段时间的信息搜集和攻击手段都是值得来总结一下的，本文中采用msf作为后渗">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/img3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/5.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/6.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/8.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/9.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/10.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/11.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/12.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/13.png">
+<meta property="og:updated_time" content="2019-09-12T13:17:29.597Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我的内网渗透沉思录">
+<meta name="twitter:description" content="1最近一段时间都在捣鼓学校里拿下的一台老服务器，虽然说它所在的网段对于我的校园网来说并不算是内网了，但在这段时间里我也学习了很多的内网快速探测的技巧，很可惜没有再拿下一台机器。一方面是因为这台服务器有很长段时间没有管理员上线了，另一方面是因为在它同网段下的机器安全性还算不错（我的ms17-010都没有打成功） ​    但是这段时间的信息搜集和攻击手段都是值得来总结一下的，本文中采用msf作为后渗">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/year/09/12/我的内网渗透沉思录/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>我的内网渗透沉思录 | Yiyangqianxixxxx</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+  <link rel="stylesheet" href="/dist/APlayer.min.css">
+  <div id="aplayer"></div>
+  <script type="text/javascript" src="/dist/APlayer.min.js"></script>
+  <script type="text/javascript" src="/dist/music.js"></script>
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yiyangqianxixxxx</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-schedule">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/schedule/" rel="section"><i class="menu-item-icon fa fa-fw fa-calendar"></i> <br>日程表</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/09/12/我的内网渗透沉思录/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yiyangqianxixxxx">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">我的内网渗透沉思录
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-12 20:49:25 / 修改时间：21:17:29" itemprop="dateCreated datePublished" datetime="2019-09-12T20:49:25+08:00">2019-09-12</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/year/09/12/我的内网渗透沉思录/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/year/09/12/我的内网渗透沉思录/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/year/09/12/我的内网渗透沉思录/" class="leancloud_visitors" data-flag-title="我的内网渗透沉思录">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">4.6k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">4 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">最近一段时间都在捣鼓学校里拿下的一台老服务器，虽然说它所在的网段对于我的校园网来说并不算是内网了，但在这段时间里我也学习了很多的内网快速探测的技巧，很可惜没有再拿下一台机器。一方面是因为这台服务器有很长段时间没有管理员上线了，另一方面是因为在它同网段下的机器安全性还算不错（我的ms17-010都没有打成功）</span><br></pre></td></tr></table></figure>
+<p>​    但是这段时间的信息搜集和攻击手段都是值得来总结一下的，本文中采用msf作为后渗透主要工具，一切都已建立在得到了webshell的基础上了。</p>
+<h3 id="拿到机器webshell之后的思路"><a href="#拿到机器webshell之后的思路" class="headerlink" title="拿到机器webshell之后的思路"></a>拿到机器webshell之后的思路</h3><p>​    在拿到一台webshell机器后，看到权限并不高的时候，我们往往直接想着各种手段去提取到最高权限再做各种操作。其实我觉得我们首先应该考虑的是这台机器的重要程度，一般可以从几个角度来观察：</p>
+<p>①这台服务器是否连接了内网中其他很多的服务器</p>
+<p>②这台服务器对应的站点权值如何</p>
+<p>③服务器的管理员是否经常上线</p>
+<p>​    而这一次的渗透过程中，我其实是先从提权开始的，在多次失败之后才转向内网中其他的机器。</p>
+<h3 id="失败的提权历程"><a href="#失败的提权历程" class="headerlink" title="失败的提权历程"></a>失败的提权历程</h3><p>​    windows服务器的提权思路其实比linux简单很多，查找服务器上未打的补丁的漏洞，然后直接msf提权就可以了，我们systeminfo出来自己看补丁数是不太可能的了。这里推荐一个检测服务器补丁的脚本：Windows-Exploit-Suggester</p>
+<p>附上<a href="https://github.com/GDSSecurity/Windows-Exploit-Suggester" target="_blank" rel="noopener">下载地址</a></p>
+<p>​    工具的配置使用就不过多介绍了，其中集成的漏洞库还是可以的，我检测出来的结果如下👇</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1.png" alt></p>
+<p>​    刚开始发现还是有可利用的exp还是很开心的，后来发现这些其实都没办法使用，因为这台机器是Windows2008R2(但是可惜没有永恒之蓝 😭）</p>
+<p>​    但是2008还有一个可利用的本地提权漏洞，也就是大家常说的烂土豆提权（又名ms16-075）</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/2.png" alt></p>
+<p>​    直接使用msf自带的exp，设置号payload和session就可以run了。但这个漏洞是要偷取管理员令牌来提权，所以是有几率的，像我试了好几次都没成功。payload我觉得要设置成bind类型，虽然获得了该机器的一个meterpreter会话，但payload中反弹的会话还是到本地的ip和端口。但是这里要提一点，bind连接一次会话，会在被攻击机器上开启一个监听端口，而且这个端口不会在服务结束后关闭。也就是说我们停掉了一次会话的话，下次bind再连接要换一个端口才可以。</p>
+<p>​    而我们常用的反弹会话一般都要通过frp穿透到公网上的一台服务器，原理就是：被攻击机器反弹自己的shell给公网机器上的一个端口，而这台公网机器把这个端口的流量转发到我们自己内网机器的一个端口，我们在本地监听这个端口就可以获得会话了。frp内网穿透网上有很多教程了，后续我也会自己再弄一个服务器来做frp（现在用的是大哥的 😀）</p>
+<p>​    我的提权尝试就到这结束了，因为我觉得可以先去它的内网漫游一下！</p>
+<h3 id="意外发现：数据库！"><a href="#意外发现：数据库！" class="headerlink" title="意外发现：数据库！"></a>意外发现：数据库！</h3><p>​    经过了一晚上的各种提权尝试失败后，我打算第二天再通过meterpreter会话来加路由进内网漫游。</p>
+<p>一夜过去了……</p>
+<p>​    在我的jsp课程上打开了电脑正准备大干一场！一看我的frp无法连接上了！！！我靠，这不会意味着我以后都不能内网穿透了吧！重装虚拟机，配置frp服务器，一顿操作还是没修好，后来发现，可能是我昨天晚上没正常关闭frp客户端，导致服务端拒绝连接了。</p>
+<p>​    然后我就打开了冰蝎连接webshell，准备在服务器上看看有没有什么敏感的文件（比如数据库）然后就发现了两个文件！web.config，mssql的连接账号密码地址一般会放在这里。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/img3.png" alt></p>
+<p>​    我发现了一个内网的地址，但是这个连接地址是带有domain的，要通过sqlserver来连接，所以先放在一旁，来先试试这个218的地址（因为218我是可以直接访问的）一开始我是用大马来连接数据库的，但其实msf也有一些mssql的模块很好用。比如先用mssql_login来测试账号密码是否正确，再用exploit/windows/mssql/mssql_clr_payload 这个模块来获得一个meterpreter会话（也要设置payload为bind模式）</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/5.png" alt></p>
+<h3 id="又陷难题：密码破解失败"><a href="#又陷难题：密码破解失败" class="headerlink" title="又陷难题：密码破解失败"></a>又陷难题：密码破解失败</h3><p>​    whoami一看把我笑了，直接就是system权限，说明这个数据库服务是由最高权限用户直接运行的，没有使用一个专门的数据库用户来运行。既然已经得到system权限了，我们就可以直接用mimikatz来查看当前主机的administrator的密码，在一个统一管理的小型内网中，很多机器的登录密码有可能是一样的。我们搜集这些密码做出字典来撞库。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/6.png" alt></p>
+<p>​    但是这里我们看到mimikatz导出的明文密码，发现只有test用户，这是我之前用大马连数据库创建的，为什么没有administrator呢？因为管理员并没有在线，所以此时我们从在线的用户中导不出它的明文密码。但是我们可以导出administrator的hash值，然后再去彩虹表碰撞。这里我们可以使用hashdump或者msf自带的模块（mimikatz_command -f samdump::hashes）</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/8.png" alt></p>
+<h3 id="思路转换：内网漫游"><a href="#思路转换：内网漫游" class="headerlink" title="思路转换：内网漫游"></a>思路转换：内网漫游</h3><p>​    我拿去各大解密网站解，用hashcat跑也都没有把密码给解出来，只能说很可惜吧。这个时候我们就应该考虑对内网中的其他机器开始探测了，下面介绍一些可以快速探测可入侵机器的方法。在此之前，我们先配置好msf的数据库，这样有利于把我们探测的结果都放到数据库里，更方便观察。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/9.png" alt></p>
+<p>​    我们先加一条路由到这台机器的内网网段中，（run get_local_subnets命令用于获取内网网段）当然也可以用arp -a来看。接着使用 run autoroute -s  xxx.xxx.xxx.xxx/28 就可以加路由到该网段中了，最好再用-p参数打印出来当前的路由表来看看是否成功。当然，我们也可以使用socks来做流量转发。因为加路由只能让我们的机器在msf里访问它的内网，而想要用浏览器来访问内网中的机器的话，我们就要做一个socks的流量转发，操作很简单。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/10.png" alt></p>
+<h4 id="添加工作区"><a href="#添加工作区" class="headerlink" title="添加工作区"></a>添加工作区</h4><p>​    然后我们建立一个工作区用于存储扫描的机器有关的信息，具体的操作如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">msf5 &gt; workspace -a/-d demo 添加/删除工作区 </span><br><span class="line">msf5 &gt; workspace demo 选择工作区 </span><br><span class="line">msf5 &gt; workspace 查看当前所在的工作区</span><br></pre></td></tr></table></figure>
+<p>​    <img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/11.png" alt></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">msf5 &gt; db_rebuild_cache 在后台创建 msf 表结构[所谓的缓存],说白点儿,就是个建库,建表,建字段,写数据[将 msf 中的所有模块路径都写到指定的字段[该字段一般都会加索引]下,加快查询速度] 的过程 </span><br><span class="line">msf5 &gt; db_connect 连接到指定的数据库上,如, db_connect msf:admin@127.0.0.1/msf </span><br><span class="line">msf5 &gt; db_disconnect 断开数据库 msf5 &gt; db_export 把库中的数据导出到指定文件中</span><br><span class="line">msf5 &gt; db_import 把指定文件中的数据导到库中 </span><br><span class="line">msf5 &gt; db_nmap 在 msf 内部调用 nmap 对目标内网进行各种扫描探测 </span><br><span class="line">msf5 &gt; db_status 查看当前数据库的连接状态 </span><br><span class="line">msf5 &gt; hosts 根据前面的各种结果,查看库中所有的机器列表 </span><br><span class="line">msf5 &gt; loot 根据前面的各种结果,查看密码库 </span><br><span class="line">msf5 &gt; services 根据前面的各种结果,查找特定服务,通常是指可被快速 getshell 的漏洞服务 </span><br><span class="line">msf5 &gt; vulns 根据前面的各种结果,查找存在漏洞的主机,在前面利用的一些漏洞模块扫描时,会自动把扫描结果记录下来 </span><br><span class="line">msf5 &gt; workspace 建立工作区</span><br></pre></td></tr></table></figure>
+<h4 id="内网机器漏洞快速探测"><a href="#内网机器漏洞快速探测" class="headerlink" title="内网机器漏洞快速探测"></a>内网机器漏洞快速探测</h4><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/12.png" alt></p>
+<p>​    首先使用ms17-010的检测模块来探测是性价比最高的，因为永恒之蓝漏洞一旦攻击成功就是system权限，对于我们的渗透非常有利。这里可以看到我们已经探测出有两台机器存在永恒之蓝漏洞，不过我在尝试攻击之后再次失败了。还有一台2003的32位的机器，这个我不知道到底能不能攻击，我用了32位的exp去攻击并没有成功，可能不支持2003版本的机器吧。</p>
+<p>​    永恒之蓝攻击32位的机器不能直接通过msf上的模块，要从github上下载rb文件导入到msf中然后再利用，我还没有用虚拟机测试，不过按照网上的步骤来应该没问题。<a href="https://blog.csdn.net/qq_41617034/article/details/91051614" target="_blank" rel="noopener">参考文章</a></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/13.png" alt></p>
+<p>​    然后可以探测ms08-067的漏洞，msf上并没有scanner模块，但是nmap里集成了扫描模块，所以我们直接用nmap的模块（nmap里还有很多其他的漏洞探测模块 /usr/share/nmap/scripts下）</p>
+<p>​    后面的一些探测就直接以命令的形式记录，不再附上截图（太麻烦了😭）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">use auxiliary/scanner/http/http_put   探测内网中可直接利用put方法的机器，直接getshell</span><br><span class="line">use auxiliary/scanner/http/webdav_scanner  探测内网中开启了web服务的机器</span><br><span class="line">use auxiliary/scanner/rdp/rdp_scanner   探测开启3389的机器，爆破，撞库</span><br><span class="line">use auxiliary/scanner/ssh/ssh_version   探测开启22端口的机器，爆破，撞库</span><br><span class="line">use auxiliary/scanner/postgres/postgres_version</span><br><span class="line">use auxiliary/scanner/mysql/mysql_version</span><br><span class="line">use auxiliary/scanner/mssql/mssql_ping   探测三种数据库，mssql应该用处更大一些</span><br></pre></td></tr></table></figure>
+<p>​    还有很多可探测的服务我就没有一一列出来，我都是照着micro8的渗透技术分享来的。</p>
+<p>​    当然也可以直接通过远程桌面连到我们已取得最高权限的跳板机上去，在这台机器上找寻一些敏感文件（.txt/.doc/.mdb等等）像我做了几天的搜集，在这台机器上发现了很多其他机器的备份文件，那这些网站的目录结构一下就变得十分清晰了，我们可以找寻可利用的点来从web服务入手。同时我还发现了很多数据库的文件，里面有很多网站后台的账号密码，且都是弱口令（md5一下就解出来了）不过很可惜，这些文件都有些久远了，我在尝试登录这些网站后台时都显示密码错误，密码应该在之前就改过了，毕竟学校做了等保，不能还有这么多弱口令吧。</p>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>​    我的这一次渗透测试就到这告一段落了，虽然没有获得第二台机器的权限，但也积累了很多内网快速探测的技巧。毕竟学习的过程更有收获，其实我可能遗漏了很多可拿到其他机器的点，但是因为这一次的渗透时间拉的有点长了，难免会有一点疲倦和遗漏（说明我应该就不适合做APT了吧😭）</p>
+<p>​    最近一段时间都在各种实战，没有停下来好好整理思路和总结学习经验，这样不太好。突然想把自己做的笔记还是放到博客上，以后有心情就会多写写的。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/year/05/05/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+    
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#拿到机器webshell之后的思路"><span class="nav-number">1.</span> <span class="nav-text">拿到机器webshell之后的思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#失败的提权历程"><span class="nav-number">2.</span> <span class="nav-text">失败的提权历程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#意外发现：数据库！"><span class="nav-number">3.</span> <span class="nav-text">意外发现：数据库！</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#又陷难题：密码破解失败"><span class="nav-number">4.</span> <span class="nav-text">又陷难题：密码破解失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#思路转换：内网漫游"><span class="nav-number">5.</span> <span class="nav-text">思路转换：内网漫游</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#添加工作区"><span class="nav-number">5.1.</span> <span class="nav-text">添加工作区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内网机器漏洞快速探测"><span class="nav-number">5.2.</span> <span class="nav-text">内网机器漏洞快速探测</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结语"><span class="nav-number">6.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yan</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+    <span title="站点总字数">5k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+    <span title="站点阅读时长">5 分钟</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.1"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.1"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'yUAQJuIBNDcrV3CTNgWz9ptF-gzGzoHsz',
+    appKey: '85ji40bDRV2S4MEWoM3iXKP3',
+    placeholder: '你有什么想说的吗?',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+  
+  <script>
+    
+    function addCount(Counter) {
+      var $visitors = $('.leancloud_visitors');
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url }) })
+        .done(function({ results }) {
+          if (results.length > 0) {
+            var counter = results[0];
+            
+            Counter('put', '/classes/Counter/' + counter.objectId, JSON.stringify({ time: { '__op': 'Increment', 'amount': 1 } }))
+            
+              .done(function() {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.time + 1);
+              })
+            
+              .fail(function ({ responseJSON }) {
+                console.log('Failed to save Visitor num, with error message: ' + responseJSON.error);
+              })
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! More info at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .fail(function ({ responseJSON }) {
+          console.log('LeanCloud Counter Error: ' + responseJSON.code + ' ' + responseJSON.error);
+        });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + 'yUAQJuIBNDcrV3CTNgWz9ptF-gzGzoHsz')
+        .done(function({ api_server }) {
+          var Counter = function(method, url, data) {
+            return $.ajax({
+              method: method,
+              url: 'https://' + api_server + '/1.1' + url,
+              headers: {
+                'X-LC-Id': 'yUAQJuIBNDcrV3CTNgWz9ptF-gzGzoHsz',
+                'X-LC-Key': '85ji40bDRV2S4MEWoM3iXKP3',
+                'Content-Type': 'application/json',
+              },
+              data: data
+            });
+          };
+          
+            addCount(Counter);
+          
+        });
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  <script src="https://cdn.bootcss.com/aplayer/1.6.0/APlayer.min.js"></script>
+
+<script src="https://api.i-meto.com/music/player.js"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

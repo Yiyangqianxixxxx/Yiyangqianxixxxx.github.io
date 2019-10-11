@@ -96,17 +96,28 @@
 
 
 
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+  <meta name="description" content="这道题是之前有复现过但是没有真正理解的一道php反序列化加ssrf的题：bestphp’s revenge index.php  flag.php  ​    题目要获取的flag方式很明确，就是ssrf，这道题所使用的Soapclient类调用__call方法来向服务器发起一个soap请求，然后服务器会把flag写入session里，如果我们没有设置cookie的话，服务器会设置一个访问存有fl">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://yoursite.com/year/05/05/hello-world/index.html">
+<meta property="og:title" content="Bestphp&#39;revenge">
+<meta property="og:url" content="http://yoursite.com/year/10/11/bestphp-revenge/index.html">
 <meta property="og:site_name" content="Yiyangqianxixxxx">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="这道题是之前有复现过但是没有真正理解的一道php反序列化加ssrf的题：bestphp’s revenge index.php  flag.php  ​    题目要获取的flag方式很明确，就是ssrf，这道题所使用的Soapclient类调用__call方法来向服务器发起一个soap请求，然后服务器会把flag写入session里，如果我们没有设置cookie的话，服务器会设置一个访问存有fl">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-05-05T09:23:22.993Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010192031.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010192100.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011105941.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011110221.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010214537.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010215802.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011103429.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011104139.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011104034.png">
+<meta property="og:image" content="c:/Users/严晗/AppData/Roaming/Typora/typora-user-images/1570771148828.png">
+<meta property="og:updated_time" content="2019-10-11T05:22:48.647Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="Bestphp&#39;revenge">
+<meta name="twitter:description" content="这道题是之前有复现过但是没有真正理解的一道php反序列化加ssrf的题：bestphp’s revenge index.php  flag.php  ​    题目要获取的flag方式很明确，就是ssrf，这道题所使用的Soapclient类调用__call方法来向服务器发起一个soap请求，然后服务器会把flag写入session里，如果我们没有设置cookie的话，服务器会设置一个访问存有fl">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010192031.png">
 
 
 
@@ -114,7 +125,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/year/05/05/hello-world/">
+  <link rel="canonical" href="http://yoursite.com/year/10/11/bestphp-revenge/">
 
 
 
@@ -124,7 +135,7 @@
   };
 </script>
 
-  <title>Hello World | Yiyangqianxixxxx</title>
+  <title>Bestphp'revenge | Yiyangqianxixxxx</title>
   
 
 
@@ -360,7 +371,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/05/05/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/10/11/bestphp-revenge/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yan">
@@ -377,7 +388,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Hello World
+          <h1 class="post-title" itemprop="name headline">Bestphp'revenge
 
               
             
@@ -403,9 +414,13 @@
                 
               
 
-              <time title="创建时间：2019-05-05 17:23:22" itemprop="dateCreated datePublished" datetime="2019-05-05T17:23:22+08:00">2019-05-05</time>
+              <time title="创建时间：2019-10-11 13:22:50 / 修改时间：13:22:48" itemprop="dateCreated datePublished" datetime="2019-10-11T13:22:50+08:00">2019-10-11</time>
             
 
+            
+              
+
+              
             
           </span>
 
@@ -422,8 +437,8 @@
                 </span>
             
                 <span class="post-meta-item-text">评论数：</span>
-                <a href="/year/05/05/hello-world/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/year/05/05/hello-world/" itemprop="commentCount"></span>
+                <a href="/year/10/11/bestphp-revenge/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/year/10/11/bestphp-revenge/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -431,7 +446,7 @@
 
           
           
-            <span id="/year/05/05/hello-world/" class="leancloud_visitors" data-flag-title="Hello World">
+            <span id="/year/10/11/bestphp-revenge/" class="leancloud_visitors" data-flag-title="Bestphp'revenge">
               <span class="post-meta-divider">|</span>
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
@@ -456,7 +471,7 @@
                 
                   <span class="post-meta-item-text">本文字数：</span>
                 
-                <span title="本文字数">426</span>
+                <span title="本文字数">1.3k</span>
               
 
               
@@ -490,15 +505,39 @@
       
 
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <p>这道题是之前有复现过但是没有真正理解的一道php反序列化加ssrf的题：bestphp’s revenge</p>
+<p>index.php</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010192031.png" alt></p>
+<p>flag.php</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010192100.png" alt></p>
+<p>​    题目要获取的flag方式很明确，就是ssrf，这道题所使用的Soapclient类调用__call方法来向服务器发起一个soap请求，然后服务器会把flag写入session里，如果我们没有设置cookie的话，服务器会设置一个访问存有flag的session的cookie，这个cookie可以在我们的返回信息里看到。但我们可以通过自己设置cookie，让服务器把flag存入我们这个cookie的session中。也就要用到crlf了。</p>
+<p>​    所以我们得先想办法构造出一个反序列化，而题目中的代码并没有反序列化的操作，也没有类似phar://反序列化可利用，但在这题有一个可利用的点，就是php的序列化引擎。</p>
+<p>​    在php中有三种序列化引擎php、php_serialize、php_binary，而php默认使用的序列化引擎是php，如果我们在存储session时设置的序列化引擎和反序列化引擎不一致时，会触发漏洞。</p>
+<p>首先来看看使用默认的php序列化引擎存储的数据是什么样格式的吧</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011105941.png" alt></p>
+<p>可以看到格式为  键名|键值</p>
+<p>再来看看php_serialize序列化引擎的格式</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011110221.png" alt></p>
+<p>就是我们最常见的序列化数据的格式了吧。</p>
+<p>所以我们可以构想一下，如果我们在存储数据的时候设置我们的序列化引擎为php_serialize，然后再把键值设置为 |yyqx</p>
+<p>那存储进去的数据就变成了 a:1:{s:4:”name”;s:5:”|yyqx”;}</p>
+<p>而在我们默认的php序列化引擎中 |用来分割键名与键值</p>
+<p>所以反序列化时就会取出|后的内容yyqx进行反序列化</p>
+<p>那我们所需要做的事情就很明确了，传递一个序列化的soapclient类前面加上|并设置序列化引擎为php_serialize，然后再调用一个不存在的方法，让soapclient类调用__call方法。</p>
+<p>附脚本：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$url=<span class="string">"http://127.0.0.1/flag.php"</span>;</span><br><span class="line">$a=<span class="keyword">new</span> SoapClient(<span class="keyword">null</span>, <span class="keyword">array</span>(<span class="string">'uri'</span>=&gt;$url,<span class="string">'userAgent'</span>=&gt;<span class="string">'AAABBB\r\n'</span>.<span class="string">"cookie=PHPSESSID=cne1c03f7vsllk989o1q4ufaa6"</span>,<span class="string">'location'</span>=&gt;$url));</span><br><span class="line">$b=serialize($a);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"|"</span>.urlencode($b);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>​    那我们先在本地测试一下soap反序列化调用__call方法构造的soap请求是什么样的吧。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010214537.png" alt></p>
+<p>我们先本地构造一个不带crlf的php脚本 然后在本地监听一下看看得到的请求是什么样的</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010215802.png" alt></p>
+<p>然后再加上crlf后看看</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011103429.png" alt></p>
+<p>可以看到User-Agent和cookie这一项被我们控制了，可以构造出一个我们所需要的post请求了。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011104139.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191011104034.png" alt></p>
+<p>将生成的序列化数据传过去得到序列化后的数据</p>
+<p><img src="C:\Users\严晗\AppData\Roaming\Typora\typora-user-images\1570771148828.png" alt="1570771148828"></p>
+<p>再构造如下数据包就可以通过访问index.php得到flag，不过复现过程中不知道为什么突然题目复现不了了所以就没截图flag了。</p>
 
       
     </div>
@@ -529,15 +568,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/year/09/12/我的内网渗透沉思录/" rel="next" title="我的内网渗透沉思录">
+                <i class="fa fa-chevron-left"></i> 我的内网渗透沉思录
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/year/09/12/我的内网渗透沉思录/" rel="prev" title="我的内网渗透沉思录">
-                我的内网渗透沉思录 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -585,17 +624,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <div class="site-overview-wrap sidebar-panel">
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -642,23 +672,6 @@
       </div>
 
       
-      <!--noindex-->
-        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-            
-            
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
-            
-
-          </div>
-        </div>
-      <!--/noindex-->
-      
 
       
         <div class="back-to-top">
@@ -692,7 +705,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">5k</span>
+    <span title="站点总字数">6k</span>
   
 
   

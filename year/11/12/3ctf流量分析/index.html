@@ -96,29 +96,31 @@
 
 
 
-  <meta name="description" content="周末巅峰极客和3CTF撞一起了，早上又还有实验课，上课时候看了看360的web题，一点思路都没有（到比赛结束也没想到）巅峰极客也没心思打，于是乎就琢磨起这道内存取证题。 内存取证题上次护网杯也做过了，但是没做出来，不过学习到了一些内存取证工具volatility的用法了。首先记录一些volatility的常用语法和内存取证做题的思路。 123456789101112131415volatility">
+  <meta name="description" content="360CTF复赛 流量分析这个流量分析题目是在之前没有遇到过的做法，所以我并没有找到获取flag的途径，虽然知道解密流量得到传输的数据，但却离正确步骤越来越远。  首先打开流量包选择导出对象查看http流量，发现大多数格式都是一样的，打开前几个流量包看看在第一个流量包中发现了php代码 通过百度这串代码，发现是冰蝎的马，再看了看后面的步骤，就是传递一个aes密钥给服务端，然后把客户端和服务端传送的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="3CTF内存取证题">
-<meta property="og:url" content="http://yoursite.com/year/10/20/3ctf内存取证/index.html">
+<meta property="og:title" content="3CTF流量分析">
+<meta property="og:url" content="http://yoursite.com/year/11/12/3ctf流量分析/index.html">
 <meta property="og:site_name" content="Yiyangqianxixxxx">
-<meta property="og:description" content="周末巅峰极客和3CTF撞一起了，早上又还有实验课，上课时候看了看360的web题，一点思路都没有（到比赛结束也没想到）巅峰极客也没心思打，于是乎就琢磨起这道内存取证题。 内存取证题上次护网杯也做过了，但是没做出来，不过学习到了一些内存取证工具volatility的用法了。首先记录一些volatility的常用语法和内存取证做题的思路。 123456789101112131415volatility">
+<meta property="og:description" content="360CTF复赛 流量分析这个流量分析题目是在之前没有遇到过的做法，所以我并没有找到获取flag的途径，虽然知道解密流量得到传输的数据，但却离正确步骤越来越远。  首先打开流量包选择导出对象查看http流量，发现大多数格式都是一样的，打开前几个流量包看看在第一个流量包中发现了php代码 通过百度这串代码，发现是冰蝎的马，再看了看后面的步骤，就是传递一个aes密钥给服务端，然后把客户端和服务端传送的">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E5%9B%BE%E7%89%8720191020111655.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020120042.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020120616.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020121016.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020122052.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020122850.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020123041.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020123754.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020124408.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020125012.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020125232.png">
-<meta property="og:updated_time" content="2019-10-20T05:02:08.267Z">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114111983.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114128228.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114139660.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114151583.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114231202.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114453269.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114420930.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114508406.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2019110711452061.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114526761.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114541741.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114557647.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114605559.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:updated_time" content="2019-11-12T13:50:48.608Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="3CTF内存取证题">
-<meta name="twitter:description" content="周末巅峰极客和3CTF撞一起了，早上又还有实验课，上课时候看了看360的web题，一点思路都没有（到比赛结束也没想到）巅峰极客也没心思打，于是乎就琢磨起这道内存取证题。 内存取证题上次护网杯也做过了，但是没做出来，不过学习到了一些内存取证工具volatility的用法了。首先记录一些volatility的常用语法和内存取证做题的思路。 123456789101112131415volatility">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E5%9B%BE%E7%89%8720191020111655.png">
+<meta name="twitter:title" content="3CTF流量分析">
+<meta name="twitter:description" content="360CTF复赛 流量分析这个流量分析题目是在之前没有遇到过的做法，所以我并没有找到获取flag的途径，虽然知道解密流量得到传输的数据，但却离正确步骤越来越远。  首先打开流量包选择导出对象查看http流量，发现大多数格式都是一样的，打开前几个流量包看看在第一个流量包中发现了php代码 通过百度这串代码，发现是冰蝎的马，再看了看后面的步骤，就是传递一个aes密钥给服务端，然后把客户端和服务端传送的">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20191107114111983.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
 
 
 
@@ -126,7 +128,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/year/10/20/3ctf内存取证/">
+  <link rel="canonical" href="http://yoursite.com/year/11/12/3ctf流量分析/">
 
 
 
@@ -136,7 +138,7 @@
   };
 </script>
 
-  <title>3CTF内存取证题 | Yiyangqianxixxxx</title>
+  <title>3CTF流量分析 | Yiyangqianxixxxx</title>
   
 
 
@@ -372,7 +374,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/10/20/3ctf内存取证/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/11/12/3ctf流量分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yan">
@@ -389,7 +391,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">3CTF内存取证题
+          <h1 class="post-title" itemprop="name headline">3CTF流量分析
 
               
             
@@ -415,7 +417,7 @@
                 
               
 
-              <time title="创建时间：2019-10-20 13:00:25 / 修改时间：13:02:08" itemprop="dateCreated datePublished" datetime="2019-10-20T13:00:25+08:00">2019-10-20</time>
+              <time title="创建时间：2019-11-12 21:49:40 / 修改时间：21:50:48" itemprop="dateCreated datePublished" datetime="2019-11-12T21:49:40+08:00">2019-11-12</time>
             
 
             
@@ -438,8 +440,8 @@
                 </span>
             
                 <span class="post-meta-item-text">评论数：</span>
-                <a href="/year/10/20/3ctf内存取证/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/year/10/20/3ctf内存取证/" itemprop="commentCount"></span>
+                <a href="/year/11/12/3ctf流量分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/year/11/12/3ctf流量分析/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -447,7 +449,7 @@
 
           
           
-            <span id="/year/10/20/3ctf内存取证/" class="leancloud_visitors" data-flag-title="3CTF内存取证题">
+            <span id="/year/11/12/3ctf流量分析/" class="leancloud_visitors" data-flag-title="3CTF流量分析">
               <span class="post-meta-divider">|</span>
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
@@ -472,7 +474,7 @@
                 
                   <span class="post-meta-item-text">本文字数：</span>
                 
-                <span title="本文字数">1.8k</span>
+                <span title="本文字数">1.5k</span>
               
 
               
@@ -486,7 +488,7 @@
                 
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
-                <span title="阅读时长">2 分钟</span>
+                <span title="阅读时长">1 分钟</span>
               
             </div>
           
@@ -506,42 +508,20 @@
       
 
       
-        <p>周末巅峰极客和3CTF撞一起了，早上又还有实验课，上课时候看了看360的web题，一点思路都没有（到比赛结束也没想到）巅峰极客也没心思打，于是乎就琢磨起这道内存取证题。</p>
-<p>内存取证题上次护网杯也做过了，但是没做出来，不过学习到了一些内存取证工具volatility的用法了。首先记录一些volatility的常用语法和内存取证做题的思路。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">volatility 使用：</span><br><span class="line">        volatility -f &lt;文件名&gt; -–profile=&lt;配置文件&gt; &lt;插件&gt; [插件参数] </span><br><span class="line">通过volatility --info获取工具所支持的profile，Address Spaces，Scanner Checks，Plugins</span><br><span class="line"></span><br><span class="line">常用插件：</span><br><span class="line">imageinfo：显示目标镜像的摘要信息，知道镜像的操作系统后，就可以在 –profile 中带上对应的操作系统</span><br><span class="line">pslist：该插件列举出系统进程，但它不能检测到隐藏或者解链的进程，psscan可以</span><br><span class="line">psscan：可以找到先前已终止(不活动)的进程以及被rootkit隐藏或解链的进程</span><br><span class="line">pstree：以树的形式查看进程列表，和pslist一样，也无法检测隐藏或解链的进程</span><br><span class="line">mendump：提取出指定进程，常用foremost 来分离里面的文件</span><br><span class="line">filescan：扫描所有的文件列表</span><br><span class="line">hashdump：查看当前操作系统中的 password hash，例如 Windows 的 SAM 文件内容</span><br><span class="line">svcscan：扫描 Windows 的服务</span><br><span class="line">connscan：查看网络连接</span><br><span class="line">iehistory：查看ie浏览器浏览历史</span><br></pre></td></tr></table></figure>
-<p>所以第一步是要判断镜像的操作系统</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">命令: volatility -f &lt;镜像文件名称&gt; imageinfo</span><br></pre></td></tr></table></figure>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E5%9B%BE%E7%89%8720191020111655.png" alt></p>
-<p>得到操作系统为windowsxpSP2x86</p>
-<p>第二步我一般会查看当前镜像正在运行的进程</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">命令：volatility -f &lt;镜像文件名&gt; --profile=&lt;操作系统&gt; pslist</span><br></pre></td></tr></table></figure>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020120042.png" alt></p>
-<p>这里可以看到一个ie浏览器的进程，又联想到此题的题目描述</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">google语法真是太好了！！！</span><br></pre></td></tr></table></figure>
-<p>所以不难想到这题应该是与浏览器搜索有关，所以我们可以先把ie浏览器这个内存给dump下来查看。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">volatility -f &lt;镜像文件名&gt; --profile=&lt;操作系统&gt; memdump -p &lt;pid&gt; -D ./</span><br></pre></td></tr></table></figure>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020120616.png" alt></p>
-<p>dump下来以后会在你选择的目录下生成一个(pid).dmp，所以我直接在这个文件里暴力搜索flag，但显然题目没有这么容易。</p>
-<p>所以我选择了查看镜像中ie浏览器的浏览历史</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">volatility -f &lt;镜像文件名&gt; --profile=&lt;操作系统&gt; iehistory</span><br></pre></td></tr></table></figure>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020121016.png" alt></p>
-<p>可以看到搜索了github Syst2m，那我们也去github上找找看</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020122052.png" alt></p>
-<p>这里有个360CTF的内容，但是好像又没有找到flag相关的东西</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020122850.png" alt></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020123041.png" alt></p>
-<p>那其实题意就已经很明确了，再加上主办方提示了隐写，所以我们要找到一个图片，这个图片是F5隐写，密码是F5.txt中的内容。所以再去镜像里找图片。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">命令：volatility -f &lt;镜像文件名&gt; --profile=&lt;操作系统&gt; filescan |grep &quot;jpg\|png&quot;</span><br></pre></td></tr></table></figure>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020123754.png" alt></p>
-<p>刚好看到有一个360.jpg，把它下载下来</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">命令：volatility -f &lt;镜像文件名&gt; --profile=&lt;操作系统&gt; dumpfiles -Q &lt;物理偏移量&gt; -D ./</span><br></pre></td></tr></table></figure>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020124408.png" alt></p>
-<p>但我们在使用F5隐写工具解密时却发现报错了，并且啥都没输出，我一度怀疑主办方给的文件是不是有问题，但是我仔细看了看报错内容：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file does not end with EOI</span><br></pre></td></tr></table></figure>
-<p>这个EOI的意思就是FFD9，也就是说该图片文件没有以FFD9结尾，但一般图片文件都是以FFD8开头FFD9结尾啊，难道说这个图片里还藏有其他的内容吗？所以我们利用hxd打开查看图片十六进制内容</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020125012.png" alt></p>
-<p>居然发现图片末尾FFD9被填充了一堆空字符00….所以把它给去掉然后再去F5隐写工具解密</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191020125232.png" alt></p>
+        <h2 id="360CTF复赛-流量分析"><a href="#360CTF复赛-流量分析" class="headerlink" title="360CTF复赛 流量分析"></a>360CTF复赛 流量分析</h2><p>这个流量分析题目是在之前没有遇到过的做法，所以我并没有找到获取flag的途径，虽然知道解密流量得到传输的数据，但却离正确步骤越来越远。</p>
+<p><img src="https://img-blog.csdnimg.cn/20191107114111983.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>首先打开流量包选择导出对象查看http流量，发现大多数格式都是一样的，打开前几个流量包看看<br>在第一个流量包中发现了php代码<br><img src="https://img-blog.csdnimg.cn/20191107114128228.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>通过百度这串代码，发现是冰蝎的马，再看了看后面的步骤，就是传递一个aes密钥给服务端，然后把客户端和服务端传送的流量都用这个aes密钥加密，而密钥在流量包中也可以直接看到</p>
+<p><img src="https://img-blog.csdnimg.cn/20191107114139660.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>所以可以找几个流量中的数据解密一下看看具体进行了什么操作，我解密了大多数流量发现都是列当前目录下文件的，没有什么作用，然后就找到一个SQLite format 3,发现是一个sqlite数据库文件<br><img src="https://img-blog.csdnimg.cn/20191107114151583.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>百度搜索了一下这种文件的打开方式，是使用sqlite database browser<br><img src="https://img-blog.csdnimg.cn/20191107114231202.png" alt="在这里插入图片描述"><br>打开后可以看到flag字段，但value是看不到的，要解密才能看到。</p>
+<p>后来看了wp才了解了这是存储谷歌浏览器账号密码的一个数据库文件，可以通过离线的方式导出密码。需要使用用户登录密码解密master key file 获得master key。再用master key解密DPAPI blob（也就是数据库文件中无法直接查看到的数据内容）。</p>
+<p>所以我们首先要获得DPAPI blob，也就是从数据库文件中提取出我们要的数据的字段内容，可以用下面的这个脚本。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">from os import getenv</span><br><span class="line">import sqlite3</span><br><span class="line">import binascii</span><br><span class="line">conn = sqlite3.connect(&quot;123.db&quot;)</span><br><span class="line">cursor = conn.cursor()</span><br><span class="line">cursor.execute(&apos;SELECT name,value,encrypted_value FROM cookies&apos;)</span><br><span class="line">for result in cursor.fetchall():</span><br><span class="line">    print(binascii.b2a_hex(result[2]))</span><br><span class="line">    f = open(&apos;test.txt&apos;,&apos;wb&apos;)</span><br><span class="line">    f.write(result[2])</span><br><span class="line">    f.close()</span><br></pre></td></tr></table></figure>
+<p>然后就是要找到master key file，刚好这题就是在最后一个流量中有这样的一个路径<br><img src="https://img-blog.csdnimg.cn/20191107114453269.png" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20191107114420930.png" alt="在这里插入图片描述"></p>
+<p>响应包中的这一串数据就是master key file的内容，把它复制成一个文件（不要前面的1d4和后面的0）所以现在我们还差最后一步，就是得到解密master key file所需要的登录密码，这是在我比赛时就找到了但不知道有啥用的password.txt的内容。。。。</p>
+<p>第322个流量中的相应包内容提取出来经过aes解密再base64解密得到password<br><img src="https://img-blog.csdnimg.cn/20191107114508406.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>最后这些解密所需要的条件我们都已经有了，要用一个工具windows password recovery来解密<br><img src="https://img-blog.csdnimg.cn/2019110711452061.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>选择Utils -&gt; DPAPI Decoder and Analyser -&gt; Decrypt DPAPI data blob<br><img src="https://img-blog.csdnimg.cn/20191107114526761.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>设置DPAPI blob file为python脚本提取出来的文件<br><img src="https://img-blog.csdnimg.cn/20191107114541741.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>master key file设置为刚刚从流量包中复制出来的文件<br><img src="https://img-blog.csdnimg.cn/20191107114557647.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>SID就是之前路径中的S-1-5-21-2127750816-4215895028-2373289296-1001<br>password就是p@ssw0rd<br>然后解密<br><img src="https://img-blog.csdnimg.cn/20191107114605559.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>得到flag</p>
+<p>参考文章<br><a href="https://cloud.tencent.com/developer/news/90236" target="_blank" rel="noopener">离线导出谷歌浏览器中保存的密码</a><br><a href="https://www.freebuf.com/articles/web/213905.html" target="_blank" rel="noopener">冰蝎流量分析</a></p>
 
       
     </div>
@@ -572,8 +552,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/year/10/11/bestphp-revenge/" rel="next" title="Bestphp'revenge">
-                <i class="fa fa-chevron-left"></i> Bestphp'revenge
+              <a href="/year/11/12/123/" rel="next" title="上海市网络安全大赛复现">
+                <i class="fa fa-chevron-left"></i> 上海市网络安全大赛复现
               </a>
             
           </div>
@@ -581,10 +561,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/year/11/12/123/" rel="prev" title="上海市网络安全大赛复现">
-                上海市网络安全大赛复现 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -632,8 +608,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -679,6 +664,23 @@
         </div>
       </div>
 
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#360CTF复赛-流量分析"><span class="nav-number">1.</span> <span class="nav-text">360CTF复赛 流量分析</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
       
 
       

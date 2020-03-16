@@ -108,11 +108,11 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583984423724.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583991596246.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583991650895.png">
-<meta property="og:image" content="c:/Users/yh/AppData/Roaming/Typora/typora-user-images/1583991903951.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1583991903951.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583992098082.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583995686977.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1583995783025.png">
-<meta property="og:updated_time" content="2020-03-16T07:10:49.018Z">
+<meta property="og:updated_time" content="2020-03-16T07:20:52.407Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="python反序列化漏洞">
 <meta name="twitter:description" content="python反序列化漏洞python序列化的方式python序列化用的是pickle库，（也有用到cpickle库的）。 12345678910111213import pickleimport pickletoolsclass student():    def __init__(self):        self.name = &apos;test&apos;        self.grade = 666a">
@@ -430,7 +430,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2020-03-16 15:10:49" itemprop="dateModified" datetime="2020-03-16T15:10:49+08:00">2020-03-16</time>
+                <time title="修改时间：2020-03-16 15:20:52" itemprop="dateModified" datetime="2020-03-16T15:20:52+08:00">2020-03-16</time>
               
             
           </span>
@@ -558,7 +558,7 @@
 <p>为什么在序列化的字符串中会出现q，其实是因为optimize把q指令码（也就是put给省略了）</p>
 <p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583991650895.png" alt></p>
 <p>这样就可以看见指令中有q了，但是这个q可有可无，无论加不加都可以执行命令。</p>
-<p><img src="C:\Users\yh\AppData\Roaming\Typora\typora-user-images\1583991903951.png" alt="1583991903951"></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1583991903951.png" alt></p>
 <p>如图直接去掉q指令码，也是可以执行命令的。</p>
 <h4 id="全局变量包含-c指令码"><a href="#全局变量包含-c指令码" class="headerlink" title="全局变量包含 c指令码"></a>全局变量包含 c指令码</h4><p>这题是出现在攻防世界战疫赛上的，一开始我一直想着rce，没想到可以使用变量覆盖。</p>
 <p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583992098082.png" alt></p>

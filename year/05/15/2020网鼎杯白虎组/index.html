@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="鸡肋漏洞组合拳, Fortheone">
+    <meta name="keywords" content="2020网鼎杯白虎组webwriteup, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>鸡肋漏洞组合拳 | Fortheone</title>
+    <title>2020网鼎杯白虎组webwriteup | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/10.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/3.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">鸡肋漏洞组合拳</h1>
+                    <h1 class="description center-align post-title">2020网鼎杯白虎组webwriteup</h1>
                 </div>
             </div>
         </div>
@@ -411,8 +411,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/渗透测试/" class="post-category">
-                                渗透测试
+                            <a href="/categories/CTF/" class="post-category">
+                                CTF
                             </a>
                         
                     </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-04-10
+                    2020-05-15
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.6k
+                    627
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    6 分
+                    2 分
                 </div>
                 
 
@@ -456,95 +456,93 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="0x00-前言">0x00 前言</h3>
-<p>最近在挖业务漏洞的时候想起了之前看到过的JSONP劫持，CORS跨域漏洞。这种涉及敏感信息的漏洞一般都是中危以上，并且测试方式简单，所以这次打算研究一下。刚好在昨天碰到了一个涉及到敏感信息的接口，所以在此记录一下。</p>
-<h3 id="0x01-漏洞原理">0x01 漏洞原理</h3>
-<h4 id="CORS漏洞">CORS漏洞</h4>
-<p>简单来说就是服务器配置了http头部字段，让客户端有资格跨域访问资源，而判断客户端权限的依据就是CORS。</p>
-<p>我们通过浏览器向服务器发起请求，浏览器为其添加Origin表头（也就是该请求的来源URI），服务器接收到请求后会根据配置信息生成响应包，如果该请求来源是正确的，则允许跨域访问资源。</p>
-<p>比如我们设置Origin为 <code>http://foo.example.org</code> 如果在响应头中出现了</p>
-<pre><code>Access-Control-Allow-Origin: http://foo.example.org
-Access-Control-Allow-Credentials: true
+                <h3 id="web-picdown">web picdown</h3>
+<p>给了一个ssrf的点，过滤了file协议，但是测试发现题目环境是python</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1589472822653.png" alt></p>
+<p>python里的urllib.fopen是支持local-file协议的</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515001748.png" alt></p>
+<p>通过cmdline读到运行脚本文件为 <code>main.py</code></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515001806.png" alt></p>
+<pre><code>from flask import Flask, Response
+from flask import render_template
+from flask import request
+import os
+import urllib
+
+app = Flask(__name__)
+
+SECRET_FILE = &quot;/tmp/secret.txt&quot;
+f = open(SECRET_FILE)
+SECRET_KEY = f.read().strip()
+os.remove(SECRET_FILE)
+
+
+@app.route('/')
+def index():
+    return render_template('search.html')
+
+
+@app.route('/page')
+def page():
+    url = request.args.get(&quot;url&quot;)
+    try:
+        if not url.lower().startswith(&quot;file&quot;):
+            res = urllib.urlopen(url)
+            value = res.read()
+            response = Response(value, mimetype='application/octet-stream')
+            response.headers['Content-Disposition'] = 'attachment; filename=beautiful.jpg'
+            return response
+        else:
+            value = &quot;HACK ERROR!&quot;
+    except:
+        value = &quot;SOMETHING WRONG!&quot;
+    return render_template('search.html', res=value)
+
+
+@app.route('/no_one_know_the_manager')
+def manager():
+    key = request.args.get(&quot;key&quot;)
+    print(SECRET_KEY)
+    if key == SECRET_KEY:
+        shell = request.args.get(&quot;shell&quot;)
+        os.system(shell)
+        res = &quot;ok&quot;
+    else:
+        res = &quot;Wrong Key!&quot;
+
+    return res
+
+
+if __name__ == '__main__':
+app.run(host='0.0.0.0', port=8080)
 </code></pre>
-<p>则代表允许跨域访问资源。</p>
-<p>所以我们在测试时可以修改Origin的值，通过响应头的内容来判断是否存在CORS漏洞。</p>
-<p>不过大部分的厂商应该都是设置为匹配子域名可访问，所以如果我们能找到子域名下的一个XSS（反射型也可以）就能通过XSS+CORS漏洞来形成组合拳。</p>
-<h4 id="JSONP劫持漏洞">JSONP劫持漏洞</h4>
-<p>JSONP是一种协议，它是利用script标签的跨域能力实现跨域数据的访问，请求动态生成的JavaScript脚本同时带一个callback函数名作为参数。服务端收到请求后，动态生成脚本产生数据，并在代码中以产生的数据为参数调用callback函数。</p>
-<p>借用一张图（<a href="https://xz.aliyun.com/t/5143%EF%BC%89" target="_blank" rel="noopener">https://xz.aliyun.com/t/5143）</a></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586428337897.png" alt></p>
-<p>那么如果一个返回敏感信息的接口存在callback函数，我们可以通过外部写一个js函数，然后通过这个callback调用函数，弹出返回的敏感信息。比如</p>
-<pre><code>&lt;script&gt;function jsonp2(data){alert(JSON.stringify(data));}&lt;/script&gt;
-&lt;script src=&quot;http://localhost/userinfo/?callback=jsonp2&quot;&gt;&lt;/script&gt;
-</code></pre>
-<p>在测试该漏洞的时候也很简单，只要fuzz一下callback参数，看看响应包内容即可。</p>
-<h3 id="0x02-实战鸡肋漏洞组合拳">0x02 实战鸡肋漏洞组合拳</h3>
-<p>在网站上到处点点，看看有没有返回敏感信息的接口，碰巧就发现了一个。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586425594665.png" alt></p>
-<p>在这里有一个修改信息的操作，于是我开启抓包看了几个请求，发现一个很像访问接口的请求。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586425774105.png" alt></p>
-<p>这里已经返回了用户的姓名，住址，电话，身份证等敏感信息。</p>
-<p>看见了Origin我就想着试一试 CORS跨域漏洞，我先尝试修改 Origin为 <code>http://foo.example.org</code></p>
-<p>发现响应包中的Access-Control-Allow-Origin 没了，所以任意构造的Origin是不行的。</p>
-<p>那么就尝试了一下它的子域名是否可以（废话</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586428819622.png" alt></p>
-<p>所以我现在的目标就是找一个xss，就是反射型的也可以利用了。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586428919683.png" alt></p>
-<p>这个waf我绕了很久都绕不过去。。。然后我一点返回，却发现弹窗了</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586429003511.png" alt></p>
-<p>我审查一下元素发现</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586429084370.png" alt></p>
-<p>这居然是个dom型xss。。用户搜索了以后会将查询的内容放到搜索历史中，我总不可能让用户带着我的payload去搜索内容吧，但是CSRF可以啊。</p>
-<p>我尝试将搜索的请求报文拿出来生成一个CSRF的POC，看看我自己访问以后搜索历史会不会出现我们的xsspayload。直接利用burp生成。</p>
-<p>在生成的html页面直接点击后还是跳转到了waf界面。检查搜索历史，发现并没有payload。</p>
-<p>然后我再次思考，既然要用户点击，那是不是可以做一个点击劫持呢？而这个站也刚好有着点击劫持的漏洞。所以我调整了一下按钮的位置最后生成了一个可以利用的页面。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586448914515.png" alt></p>
-<p>那么问题再次出现，我要怎么把payload输进去，不可能让用户自己敲吧，所以我在想能不能用JavaScript给输入框提前赋默认值。先获取iframe的作为父页面，然后再获取父页面的输入框dom元素进行修改。</p>
-<pre class=" language-language-javascript"><code class="language-language-javascript"><script>
-	var childHtml = document.getElementById("frame").contentWindow;
-	var a = childHtml.document.getElementById("city").value='abc';
-</script>
-</code></pre>
-<p>但是在chrome的console界面我看到无法获取到value的值，那么问题就应该是无法加载iframe中id为city的dom元素，应该是同源策略的问题。</p>
-<p>后来我又想了想能否利用JavaScript来复制我们的payload，但是越往后想，我感觉攻击的思路越过于理想化，遂放弃了这个domxss的攻击方法。</p>
-<p>重新回到返回敏感信息的接口，我想起了jsonp劫持，我好像还没有fuzz callback函数，结果是并不用fuzz，函数名就是callback。所以直接在本地构造好</p>
-<pre class=" language-language-html"><code class="language-language-html"><!DOCTYPE html>
-<html>
-<head><meta name="generator" content="Hexo 3.8.0">
-<meta charset="utf-8">
-<title>JSONP劫持测试</title>
-<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
-<body>
-<script>function jsonp2(data){alert(JSON.stringify(data));}</script>
-<script src="http://user.xxxx.com/webapi/contact/query/?callback=jsonp2"></script>
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
-</html>
-</code></pre>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1586450057604.png" alt></p>
-<p>但是我又翻了看看，这个弹窗里为什么只有姓名手机号和生日，最重要的地址和身份证号没了呢？回过头去看了一下访问接口的请求包</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/053.png" alt></p>
-<p>发现要显示的信息是有参数设置的，而我们又知道jsonp是不能发起post请求的，那么就不能带上这几个参数，但是我又仔细想了想，如果后端设置的并不只是post接收，还可以get接收呢？</p>
-<p>修改了一下jsonp劫持的代码。</p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;meta charset=&quot;utf-8&quot;&gt;
-&lt;title&gt;JSONP劫持测试&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;script&gt;function jsonp2(data){alert(JSON.stringify(data));}&lt;/script&gt;
-&lt;script src=&quot;http://user.xxxx.com/webapi/contact/query/?callback=jsonp2&amp;attribute=base%2Caddress%2Cinvoice%2Ctravelcard%2Ccredentials&amp;credentialsTypes=1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%2C10%2C11%2C12%2C13%2C14%2C15%2C16&quot;&gt;&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>再次访问</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/981.png" alt></p>
-<p>这一次，身份证和地址都出现了。</p>
-<h3 id="0x03-后记">0x03 后记</h3>
-<p>这次虽然没有按照预想打出鸡肋漏洞的组合拳，但是也在思考中收获了很多，最终的jsonp劫持没有什么技术含量，师傅们见笑了。</p>
-<p>参考文章：</p>
-<p><a href="https://gh0st.cn/archives/2017-12-20/1" target="_blank" rel="noopener">https://gh0st.cn/archives/2017-12-20/1</a></p>
-<p><a href="https://xz.aliyun.com/t/6539" target="_blank" rel="noopener">https://xz.aliyun.com/t/6539</a></p>
+<p>很熟悉的打开了secret文件然后删除，要求得到secret中的key。因为打开过这个文件，所以可以通过proc/self/fd来找到这个文件，测试到在/proc/self/fd/3</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515001932.png" alt></p>
+<p>输入key和shell，反弹shell，这里get传参不能有特殊符合，所以使用curl反弹shell</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002011.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002040.png" alt></p>
+<h3 id="web-StarBucket">web StarBucket</h3>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002105.png" alt></p>
+<p>题目的功能是亚马逊的aws资源管理功能，随便选个文件抓包看看。点击showflag 显示not admin</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002136.png" alt></p>
+<p>大概意思是上传一个文件到image/b20a86e63bfb0b4a59ba38da009f9793/avatar.jpg 覆盖这个文件。F12看到一个app.js</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002150.png" alt></p>
+<p>访问了两个路径，一个是userinfo/userid/info.js，另一个暂时不知道，刚好给了我们userid访问下第一个路径看看。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002201.png" alt></p>
+<p>下载下来打开是这样的内容。那题目意思就明确了，就是用这个覆盖功能去覆盖userinf/userid/info.js文件下的内容。</p>
+<p>所以按照条件修改。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002228.png" alt></p>
+<p>注意这个acl权限要改为public-read-write</p>
+<p>Policy也要根据上面的内容修改，但是发包过去发现</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002242.png" alt></p>
+<p>提示签名不匹配，这才发现最下面还有一个X-Amz-Signature，也就是根据上面的内容生成的签名，比赛的时候一直在想去找它的签名算法去构造。不过赛后才发现我看到的第一个app.js里有一个生成签名的文件 signature.php</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002303.png" alt></p>
+<p>只要根据我们的内容填写，然后访问这个文件</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/acl.png" alt></p>
+<p>就全部生成好了，最后只要根据这个返回值的内容再次修改上传的请求包。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002406.png" alt></p>
+<p>就成功的覆盖了info.js的内容，点击show flag</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002422.png" alt></p>
 
             </div>
             <hr>
@@ -570,7 +568,7 @@ Access-Control-Allow-Credentials: true
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/04/10/鸡肋漏洞组合拳/">http://yoursite.com/year/04/10/鸡肋漏洞组合拳/</a>
+                    <a href="http://yoursite.com/year/05/15/2020网鼎杯白虎组/">http://yoursite.com/year/05/15/2020网鼎杯白虎组/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1036,7 +1034,8 @@ Access-Control-Allow-Credentials: true
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/year/05/15/2020网鼎杯白虎组/">
                     <div class="card-image">
@@ -1061,9 +1060,9 @@ fr
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-05-15
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-05-15
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1076,6 +1075,7 @@ fr
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1086,34 +1086,33 @@ fr
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/03/31/智能合约初探/">
+                <a href="/year/04/10/鸡肋漏洞组合拳/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="小白的智能合约初探">
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="鸡肋漏洞组合拳">
                         
-                        <span class="card-title">小白的智能合约初探</span>
+                        <span class="card-title">鸡肋漏洞组合拳</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
                             0x00 前言
-在刚结束的MRCTF中，自己第一次尝试做了一下智能合约相关的题目，发现没有自己之前想的那么复杂，题目也围绕着Solidity代码审计和一些智能合约相关特性的漏洞，在此做一个小记录。
-0x01 什么是智能合约
-如果说区块链 1
+最近在挖业务漏洞的时候想起了之前看到过的JSONP劫持，CORS跨域漏洞。这种涉及敏感信息的漏洞一般都是中危以上，并且测试方式简单，所以这次打算研究一下。刚好在昨天碰到了一个涉及到敏感信息的接口，所以在此记录一下。
+0x01
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-31
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-04-10
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/CTF/" class="post-category">
-                                    CTF
+                            <a href="/categories/渗透测试/" class="post-category">
+                                    渗透测试
                                 </a>
                             
                             

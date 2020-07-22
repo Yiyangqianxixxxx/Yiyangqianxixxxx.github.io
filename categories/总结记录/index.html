@@ -348,18 +348,18 @@
                 </a>
                 
                 
-                <a href="/categories/总结记录/" title="总结记录: 9">
+                <a href="/categories/总结记录/" title="总结记录: 10">
                     <span class="chip center-align waves-effect waves-light
                              chip-active " style="background-color: #D5F5E3;">总结记录
-                        <span class="tag-length">9</span>
+                        <span class="tag-length">10</span>
                     </span>
                 </a>
                 
                 
-                <a href="/categories/渗透测试/" title="渗透测试: 2">
+                <a href="/categories/渗透测试/" title="渗透测试: 3">
                     <span class="chip center-align waves-effect waves-light
                              chip-default " style="background-color: #E8F8F5;">渗透测试
-                        <span class="tag-length">2</span>
+                        <span class="tag-length">3</span>
                     </span>
                 </a>
                 
@@ -373,6 +373,51 @@
 
     <article id="articles" class="container articles">
         <div class="row tags-posts">
+            
+            <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/year/07/22/apacheshiro复现/">
+                        <div class="card-image tag-image">
+                            
+                            
+                            <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="Apache shiro反序列化漏洞复现">
+                            
+                            <span class="card-title">Apache shiro反序列化漏洞复现</span>
+                        </div>
+                    </a>
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                漏洞环境搭建
+https://vulhub.org/#/environments/shiro/CVE-2016-4437/
+直接使用docker搭建vulhub里的shiro靶场就可以了。
+启动后
+
+登录抓包
+
+可以在响应包中看到有 rem
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-22
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/总结记录/" class="post-category">
+                                    总结记录
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
             
             <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
@@ -392,7 +437,7 @@
 sql注入二分法：
 import requests
 s = requests.session()
-url = "http://
+url = &quot;ht
                             
                         </div>
                         <div class="publish-info">
@@ -544,20 +589,23 @@ class student():
             
             <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
-                    <a href="/year/03/04/java反序列化/">
+                    <a href="/year/03/04/JavaScript/">
                         <div class="card-image tag-image">
                             
                             
-                            <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="java反序列化学习">
+                            <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="回炉重造计划——JavaScript学习小结">
                             
-                            <span class="card-title">java反序列化学习</span>
+                            <span class="card-title">回炉重造计划——JavaScript学习小结</span>
                         </div>
                     </a>
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                从一道ctf题学习java反序列化
-Java反序列化漏洞和php反序列化漏洞有着差不多的意思，php反序列化时会执行对应的魔术方法__wakeup()，而Java反序列化时会执行readObject()方法，所以如果readObject()
+                                JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。
+0x00 JavaScript继承机制
+在JavaScript中，几乎所有的事物都是对象。
+创造对象的方法：
+var o = {a:1,b:2};       
                             
                         </div>
                         <div class="publish-info">
@@ -583,23 +631,20 @@ Java反序列化漏洞和php反序列化漏洞有着差不多的意思，php反�
             
             <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
-                    <a href="/year/03/04/JavaScript/">
+                    <a href="/year/03/04/java反序列化/">
                         <div class="card-image tag-image">
                             
                             
-                            <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="回炉重造计划——JavaScript学习小结">
+                            <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="java反序列化学习">
                             
-                            <span class="card-title">回炉重造计划——JavaScript学习小结</span>
+                            <span class="card-title">java反序列化学习</span>
                         </div>
                     </a>
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。
-0x00 JavaScript继承机制
-在JavaScript中，几乎所有的事物都是对象。
-创造对象的方法：
-var o = {a:1,b:2};       
+                                从一道ctf题学习java反序列化
+Java反序列化漏洞和php反序列化漏洞有着差不多的意思，php反序列化时会执行对应的魔术方法__wakeup()，而Java反序列化时会执行readObject()方法，所以如果readObject()
                             
                         </div>
                         <div class="publish-info">

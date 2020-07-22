@@ -332,29 +332,74 @@
             
             <div class="article col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
-                    <a href="/year/03/04/JavaScript/">
+                    <a href="/year/03/14/python反序列化漏洞/">
                         <div class="card-image">
                             
                             
-                            <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="回炉重造计划——JavaScript学习小结">
+                            <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="python反序列化漏洞">
                             
-                            <span class="card-title">回炉重造计划——JavaScript学习小结</span>
+                            <span class="card-title">python反序列化漏洞</span>
                         </div>
                     </a>
 
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。
-0x00 JavaScript继承机制
-在JavaScript中，几乎所有的事物都是对象。
-创造对象的方法：
-var o = {a:1,b:2};       
+                                python反序列化漏洞
+python序列化的方式
+python序列化用的是pickle库，（也有用到cpickle库的）。
+import pickle
+import pickletools
+
+class student():
+    de
                             
                         </div>
                         <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-04
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-14
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/总结记录/" class="post-category">
+                                    总结记录
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/year/03/10/src挖掘经验/">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="src漏洞挖掘笔记">
+                            
+                            <span class="card-title">src漏洞挖掘笔记</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                挖src一个月小总结一下
+疫情推迟的开学让我终于在家坐不住了，想着试着挖挖src看看，但是苦于没有什么经验，所以只能去补天上找几个专属src练练手，运气还算不错，有一些收获。
+老生常谈的信息搜集
+说实话，信息搜集真的是我这段时间做的最多的一
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-10
                             </span>
                             <span class="publish-author">
                                 
@@ -390,6 +435,49 @@ var o = {a:1,b:2};
                             
                                 从一道ctf题学习java反序列化
 Java反序列化漏洞和php反序列化漏洞有着差不多的意思，php反序列化时会执行对应的魔术方法__wakeup()，而Java反序列化时会执行readObject()方法，所以如果readObject()
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-04
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/总结记录/" class="post-category">
+                                    总结记录
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/year/03/04/JavaScript/">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="回炉重造计划——JavaScript学习小结">
+                            
+                            <span class="card-title">回炉重造计划——JavaScript学习小结</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。
+0x00 JavaScript继承机制
+在JavaScript中，几乎所有的事物都是对象。
+创造对象的方法：
+var o = {a:1,b:2};       
                             
                         </div>
                         <div class="publish-info">
@@ -750,90 +838,6 @@ if (';' === preg_replace('/[a-z]+\((?R)?\)/', NULL, $code)) {
                 </div>
             </div>
             
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/year/10/11/bestphp-revenge/">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="Bestphp'revenge">
-                            
-                            <span class="card-title">Bestphp'revenge</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                                这道题是之前有复现过但是没有真正理解的一道php反序列化加ssrf的题：bestphp’s revenge
-index.php
-
-flag.php
-
-​	题目要获取的flag方式很明确，就是ssrf，这道题所使用的Soapclient类调用
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-10-11
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fas fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/CTF/" class="post-category">
-                                    CTF
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                </div>
-            </div>
-            
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/year/09/12/我的内网渗透沉思录/">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="我的内网渗透沉思录">
-                            
-                            <span class="card-title">我的内网渗透沉思录</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                                
-最近一段时间都在捣鼓学校里拿下的一台老服务器，虽然说它所在的网段对于我的校园网来说并不算是内网了，但在这段时间里我也学习了很多的内网快速探测的技巧，很可惜没有再拿下一台机器。一方面是因为这台服务器有很长段时间没有管理员上线了，另一方面是因
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-09-12
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fas fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/渗透测试/" class="post-category">
-                                    渗透测试
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                </div>
-            </div>
-            
         </div>
     </article>
 
@@ -850,11 +854,11 @@ flag.php
             
         </div>
         <div class="page-info col m4 l4 hide-on-small-only">
-            <div class="center-align b-text-gray">2 / 2</div>
+            <div class="center-align b-text-gray">2 / 3</div>
         </div>
         <div class="col s6 m4 l4">
             
-            <a class="right btn-floating btn-large disabled">
+            <a href="/page/3/" class="right btn-floating btn-large waves-effect waves-light bg-color">
                 <i class="fas fa-angle-right"></i>
             </a>
             

